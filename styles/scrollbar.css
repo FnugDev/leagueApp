@@ -1,0 +1,24 @@
+/* styles/scrollbar.css */
+
+/* Hide vertical scrollbar */
+::-webkit-scrollbar {
+    width: 0.5rem; /* Set the width of the scrollbar if you want to show it on hover */
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent; /* Set the background color of the scrollbar track */
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background-color: transparent; /* Set the color of the scrollbar thumb */
+  }
+  
+  /* Hide horizontal scrollbar (optional) */
+  ::-webkit-scrollbar-horizontal {
+    height: 0.5rem; /* Set the height of the scrollbar if you want to show it on hover */
+  }
+  
+  ::-webkit-scrollbar-thumb:horizontal {
+    background-color: transparent; /* Set the color of the horizontal scrollbar thumb */
+  }
+  

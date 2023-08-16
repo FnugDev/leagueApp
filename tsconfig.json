@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "outDir": "./out", // Set the output directory for the Next.js build
+    "rootDir": "./", // Set the root directory for the Next.js build
+    "types": ["node"] // Include the "node" type definition for the Next.js build
+  },
+  "include": [
+    "next-env.d.ts",
+    "electron/main.ts" // Add the entry point file for Electron here (change to your entry point file's name)
+  ],
+  "exclude": ["node_modules"]
+}

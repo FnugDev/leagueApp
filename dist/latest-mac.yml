@@ -1,0 +1,11 @@
+version: 0.1.0
+files:
+  - url: my-league-app-0.1.0-arm64-mac.zip
+    sha512: BxpTuNmFlmmSxlzoPJue/1FnJtl8/03ZYYmnkik/zE+FB0YrQzpo0XlHS1lgiodMUcNiQBlandVi31udRuCttg==
+    size: 672375583
+  - url: my-league-app-0.1.0-arm64.dmg
+    sha512: +hEyri03MhJd3E6TagRRQs2+d9CDRkstFRs6pSkgL0HitElT9css8NVCDYgOEQI621fYY2J98CxgVcWYLDT53w==
+    size: 698903532
+path: my-league-app-0.1.0-arm64-mac.zip
+sha512: BxpTuNmFlmmSxlzoPJue/1FnJtl8/03ZYYmnkik/zE+FB0YrQzpo0XlHS1lgiodMUcNiQBlandVi31udRuCttg==
+releaseDate: '2023-08-16T16:40:45.691Z'

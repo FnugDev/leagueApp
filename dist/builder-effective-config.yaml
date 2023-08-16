@@ -1,0 +1,6 @@
+directories:
+  output: dist
+  buildResources: build
+productName: my-league-app
+files: []
+electronVersion: 22.3.3

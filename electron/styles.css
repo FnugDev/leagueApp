@@ -1,0 +1,21 @@
+/* styles.css */
+
+/* Make the title bar and window controls transparent */
+.title-bar {
+    background-color: transparent;
+    -webkit-app-region: drag; /* Make the title bar draggable */
+  }
+  
+  /* Style the window controls (close, minimize, maximize) */
+  .window-controls {
+    color: white; /* Set color of the controls */
+    font-size: 16px;
+    margin-right: 8px;
+  }
+  
+  /* Set hover effect for the window controls */
+  .window-controls:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+  }
+  

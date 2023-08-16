@@ -1,0 +1,429 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+.summonerContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .SideMenu {
+    display: flex; 
+    position: fixed;
+    z-index: 10000;
+    height: 100%;
+    width: 15%;
+    top: 0;
+    border-radius: 0px;
+    right: 0;
+  }
+  
+  .SideMenuContainer {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 1px;
+    margin-top: 0;
+    padding-top: 30px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    box-shadow: 0 0px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .claimAccountWrapper {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    margin-top: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+  }
+  
+  .claimAccountContainer {
+    width: 20%;
+    height: 40%;
+    top: 50%; /* Center the container vertically */
+    left: 50%; /* Center the container horizontally */
+    margin-bottom: 0px;
+    border-radius: 6px;
+    padding-top: 30px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    position: absolute;
+    transform: translate(-50%, -50%); /* Center the container perfectly */
+  }
+  
+  .claimAccountPicture {
+    border-radius: 10px;
+    margin-bottom: 25px;
+    border: 2px solid #414165;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  }
+  .claimAccountText {
+    padding:10px;
+    text-align: center;
+    font-size: 0.6em;
+    font-weight: 600;
+    margin-bottom: 15px;
+  }
+
+  /* Add spacing between child components */
+  .SideMenuContainer > *:not(:last-child) {
+    margin-bottom: 20px; /* Adjust the value to control the spacing */
+  }
+  
+  
+  
+
+
+.username {
+
+  font-family: 'Space Grotesk' !important;
+  /* border:1px solid red; */
+  font-size: 1.7em;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+.usernameContainer {
+  font-family: 'Space Grotesk' !important;
+  position: absolute;
+  left: 20%;
+  top:20%;
+  /* border:1px solid red; */
+  display: flex;
+  align-items: center;
+  gap: 5px; 
+
+}
+
+.profileContainer { 
+
+    /* border:1px solid red; */
+    box-shadow: none !important;
+  }
+  
+  .rankBox {
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+    
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.1), -4px -4px 8px rgba(255, 255, 255, 0.5);
+  }
+  
+  .rankImage {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .matchChampion {
+    width: 50px;
+  }
+
+/* Summonerpage.module.css */
+
+.hero {
+  height: 100px;
+  width: 100px;
+  background: linear-gradient(to bottom, #f4f7ff 50%, #9e88d648 100%),
+    url(https://grainy-gradients.vercel.app/noise.svg);
+}
+
+/* Add a metal shiny border effect to the profile picture container */
+.profilePictureContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 16%;
+  left: 10%;
+
+  width: 96px;
+  height: 96px;
+  border-radius: 50px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.profilePicture {
+  width: 100%;
+  height: 100%;
+  border-radius: 50px;
+  border: 2px solid #414165;
+  transition: border-color 0.3s ease-in-out;
+}
+
+/* Add the gradient border effect */
+.profilePicture:hover {
+  border: 2px solid;
+  transition: border-color 0.3s ease-in-out;
+  background-clip: padding-box;
+}
+
+/* Summonerpage.module.css */
+
+
+/* Summonerpage.module.css */
+.custom-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 50%;
+  top: 22.5%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 1px;
+  background-color: #f0f0f0; /* Set the background color of the divider */
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1), 0px 4px 4px rgba(0, 0, 0, 0.1),
+    0px 8px 8px rgba(0, 0, 0, 0.1), 0px 16px 16px rgba(0, 0, 0, 0.1); /* Add box shadow to create a neumorphic effect */
+  margin: 16px 0; /* Add some margin to separate the divider from surrounding elements */
+}
+
+.DividerSummonerName {
+
+  top: 19px; 
+  left: 30px; 
+  font-family: Inter; /* Body */
+  font-size: 20px; 
+  line-height: 20px; 
+  font-weight: 725;
+  color: #424955FF; 
+}
+
+
+.container {
+  animation: orbitAnimation 5s linear infinite; /* Apply the animation */
+  transform-origin: center center; /* Set the rotation axis to the center */
+}
+
+
+
+  
+.SidemenuButton {
+  font-family: 'Space Grotesk' !important;
+}
+
+.darkModeText {
+  font-family: 'Space Grotesk' !important;
+  font-size: 1em;
+  text-transform: lowercase;
+}
+
+
+  .leagueV4Container {
+    position: absolute;
+    /* border:1px solid red; */
+    display: block;
+    top: 40%; 
+    left: 25px; 
+  }
+
+
+
+/* Container 6336 */
+.leagueV4Box {
+  position: relative; 
+  margin-bottom: 10px;
+  /* top:50px; */
+
+  width: 309px; 
+  height: 127px; 
+  /* background: #FFFFFFFF;  */
+  border-radius: 6px; 
+  /* box-shadow: 0px 2px 5px #d9d9d9, 0px 1px 4px #d9d9d9;  */
+}
+
+.leagueV4BoxText {
+  position: absolute; 
+  top: 19px; 
+  
+  z-index: 10 !important;
+  left: 30px; 
+  font-family: Inter; /* Body */
+  font-size: 12px; 
+  line-height: 20px; 
+  font-weight: 725;
+  color: #8353E2FF; /* secondary */
+}
+
+/* Image 2606 */
+.LeagueV4RankImage {
+  position: absolute; 
+  top: 56px; 
+  left: 30px; 
+  width: 50px; 
+  height: 50px; 
+  border-radius: 4px; 
+}
+
+.LeagueV4Rank {
+  position: absolute; 
+  top: 58.571428571428555px; 
+  left: 87px; 
+  font-family: Inter; 
+  font-size: 18px; 
+  line-height: 28px; 
+  /* color: #424955FF;  */
+  font-weight: 600; 
+}
+
+.LeagueV4LP {
+  position: absolute; 
+  top: 82.38775510204084px; 
+  left: 87px; 
+  font-family: Inter; 
+  font-size: 11px; 
+  line-height: 18px; 
+  /* color: #424955FF;  */
+  font-weight: 400;
+}
+
+.LeagueV4WinLoss {
+  position: relative; 
+  top: 63.38775510204084px; 
+  left: 190px; 
+  width: 106px; 
+  font-family: Inter; 
+  font-size: 11px; 
+  line-height: 18px; 
+  /* border: 1px solid red; */
+  /* color: #424955FF; */
+  text-align: right; /* Add this property to align the text to the right */
+}
+
+/* Container 6336 */
+.LeagueV4Unranked {
+  position: relative; 
+  /* top:50px; */
+  width: 309px; 
+  height: 58px; 
+  /* background: #FAFAFBFF;  */
+  border-radius: 4px; 
+  
+  /* box-shadow: 0px 2px 5px #d9d9d9, 0px 1px 4px #d9d9d9;  */
+}
+
+.LeagueV4Title {
+  position: absolute; 
+  top: 20.357142857142833px; 
+  left: 34px; 
+  font-family: Inter; 
+  font-size: 12px; 
+  line-height: 20px; 
+  font-weight: 725;
+  color: #8353E2FF; 
+}
+
+.LeagueV4UnrankedText {
+  position: absolute; 
+  top: 20.357142857142833px; 
+  left: 228px; 
+  font-family: Inter; 
+  font-size: 12px; 
+  line-height: 20px; 
+  font-weight: 600;
+  /* color: #424955FF;  */
+}
+
+@media screen and (max-width: 1150px) {
+  .parentContainer {
+    flex-direction: column; 
+
+  }
+  .profileContainer { 
+    position: relative;
+    top: 65px;
+    height: 150px;
+    width: 100%;
+ /* border:1px solid red; */
+    box-shadow: none !important;
+  }
+
+  .usernameContainer {
+    font-family: 'Space Grotesk' !important;
+    position: absolute;
+    left: calc(20% + 20px);
+    top:50%;
+    transform: translate(0, -50%);
+    /* border:1px solid red; */
+    display: flex;
+    align-items: center;
+    gap: 5px; 
+  
+  }
+    .leagueV4Box {
+      position: relative; 
+      margin-right: 10px;
+
+    
+      width: 37.2vw; 
+      height: 127px; 
+      /* background: #FFFFFFFF;  */
+      border-radius: 6px; 
+      /* box-shadow: 0px 2px 5px #d9d9d9, 0px 1px 4px #d9d9d9;  */
+    }
+    .leagueV4Container {
+      position: relative;
+      display: flex;
+      flex-direction: row; /* Change to row */
+ /* border:1px solid red; */
+      width: 100vw;
+      top: 75px;
+left: 50px;
+      
+      
+      }
+      .LeagueV4WinLoss {
+        position: relative; 
+        top: 63.38775510204084px; 
+        left: 67.5%; 
+        width: 10vw; 
+        font-family: Inter; 
+        font-size: 11px; 
+        line-height: 18px; 
+        /* border: 1px solid red; */
+        /* color: #424955FF; */
+        text-align: right; /* Add this property to align the text to the right */
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+      
+      }
+      .container2 {
+        display: flex;
+        flex-direction: column;
+      
+      }
+}
+@media screen and (max-width: 768px) {
+  .parentContainer {
+    flex-direction: column; 
+    border: 100px solid red;
+  }
+  .leagueV4Container {
+    position: absolute;
+    border:1px solid red;
+
+    top: 40%; 
+
+    width: 100%;
+  }
+  .container, .container2 {
+    flex: none; 
+    width: 100%; 
+
+  }
+}
