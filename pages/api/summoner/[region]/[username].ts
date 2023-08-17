@@ -60,10 +60,19 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
   const region = _req.query.region as RegionCode;
   const summonerName = _req.query.username as string;
   const modifiedRegion = regionCodeMap[region] as PlatformCode;
-  const platform = platformToRegionMap[modifiedRegion].toUpperCase();
-  const cacheKey = `${modifiedRegion}-${summonerName}`;
- 
 
+  if (!modifiedRegion) {
+    return res.status(400).json({ message: 'Invalid region code.' });
+  }
+  
+  const plat = platformToRegionMap[modifiedRegion];
+  if (!plat) {
+    return res.status(400).json({ message: 'Invalid region code.' });
+  }
+  
+  const platform = plat.toUpperCase();
+  const cacheKey = `${modifiedRegion}-${summonerName}`;
+  
 
   try {
     // const summonerName = 'fnug';
@@ -72,7 +81,7 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
       console.log('Data fetched from cache');
       return res.status(200).json(cachedData);
     }
-
+console.log("hello")
     const summonerResponse = await fetch(`https://${modifiedRegion}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}?api_key=${apiKey}`);
     if (!summonerResponse.ok) {
       throw new Error('Failed to fetch summoner data');

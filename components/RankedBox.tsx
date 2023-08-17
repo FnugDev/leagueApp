@@ -4,6 +4,10 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import React from 'react';
 import { block } from 'million/react';
+import { useTheme } from '@mui/material/styles';
+
+// Inside your component
+
 
 interface RankedBoxProps {
   queueName: string;
@@ -18,12 +22,19 @@ interface RankedBoxProps {
 
 
 const RankedBox: React.FC<RankedBoxProps> = ({ queueName, tier, rank, leaguePoints, wins, losses, winRate }) => {
+    const theme = useTheme(); // Get the current theme
+
+    const paperStyle = {
+      backgroundColor: theme.palette.mode === 'dark' ? styles.darkModePaper : '#fbfcff',
+
+    };
+
     function capitalizeFirstLetter(str: string) {
         return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     }
     
     return (
-      <Paper className={styles.leagueV4Box}>
+      <Paper className={styles.leagueV4Box} style={paperStyle}>
         <Typography className={styles.leagueV4BoxText}>
           {queueName}
         </Typography>

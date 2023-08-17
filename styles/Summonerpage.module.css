@@ -1,12 +1,60 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
+
+.fullScreenContainer {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  height: 100vh; /* Use full viewport height */
+  overflow: hidden; /* Prevent unnecessary scrollbars */
+}
+
+.containerMain {
+  position: absolute;
+  width: 89%;
+  height: 100%;
+  left: 5vw; /* Set initial spacing */
+  right: 5vw; /* Set initial spacing */
+  top: 50%; /* Vertically center the element */
+  transform: translate(0, -50%); /* Adjust to vertically center the element */
+  display: flex;
+  align-items: center;
+  /* other styles */
+  /* border: 1px solid red; */
+}
+
+.parentContainer {
+  position: absolute;
+  height: 100%;
+  width: 1035px;
+  left: 50%; /* Horizontally center the element */
+  transform: translate(-50%, -50%); /* Center both horizontally and vertically */
+  top: 60%; /* Vertically position the element */
+  /* other styles */
+  /* border: 1px solid red; */
+}
+
+
+
+.leagueV4Container {
+  position: absolute;
+  /* border:1px solid red; */
+  display: block;
+top:40%;
+  left: 0px;
+
+  margin: 0 auto; /* Center horizontally */
+}
+
+
 .summonerContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
+}
+
   .SideMenu {
-    display: flex; 
+    display: none; 
     position: fixed;
     z-index: 10000;
     height: 100%;
@@ -98,8 +146,8 @@
 .usernameContainer {
   font-family: 'Space Grotesk' !important;
   position: absolute;
-  left: 20%;
-  top:20%;
+  left: 12.5%;
+  top:18%;
   /* border:1px solid red; */
   display: flex;
   align-items: center;
@@ -146,8 +194,8 @@
   align-items: center;
   justify-content: center;
   position: absolute;
-  top: 16%;
-  left: 10%;
+  top: 14%;
+
 
   width: 96px;
   height: 96px;
@@ -222,13 +270,7 @@
 }
 
 
-  .leagueV4Container {
-    position: absolute;
-    /* border:1px solid red; */
-    display: block;
-    top: 40%; 
-    left: 25px; 
-  }
+
 
 
 
@@ -238,10 +280,10 @@
   margin-bottom: 10px;
   /* top:50px; */
 
-  width: 309px; 
+  width: 315px; 
   height: 127px; 
   /* background: #FFFFFFFF;  */
-  border-radius: 6px; 
+  border-radius: 4px; 
   /* box-shadow: 0px 2px 5px #d9d9d9, 0px 1px 4px #d9d9d9;  */
 }
 
@@ -338,15 +380,24 @@
 }
 
 @media screen and (max-width: 1150px) {
-  .parentContainer {
-    flex-direction: column; 
 
+
+  .parentContainer {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    left: 50%; /* Horizontally center the element */
+    transform: translate(-50%, -50%); /* Center both horizontally and vertically */
+    top: 60%; /* Vertically position the element */
+    /* other styles */
+    /* border: 1px solid red; */
   }
   .profileContainer { 
     position: relative;
-    top: 65px;
+    top: 45px;
     height: 150px;
     width: 100%;
+    left:0px;
  /* border:1px solid red; */
     box-shadow: none !important;
   }
@@ -354,7 +405,7 @@
   .usernameContainer {
     font-family: 'Space Grotesk' !important;
     position: absolute;
-    left: calc(20% + 20px);
+    left: calc(15% + 20px);
     top:50%;
     transform: translate(0, -50%);
     /* border:1px solid red; */
@@ -368,7 +419,7 @@
       margin-right: 10px;
 
     
-      width: 37.2vw; 
+      width: 43.7vw; 
       height: 127px; 
       /* background: #FFFFFFFF;  */
       border-radius: 6px; 
@@ -381,7 +432,7 @@
  /* border:1px solid red; */
       width: 100vw;
       top: 75px;
-left: 50px;
+
       
       
       }
@@ -408,22 +459,48 @@ left: 50px;
       
       }
 }
-@media screen and (max-width: 768px) {
-  .parentContainer {
-    flex-direction: column; 
-    border: 100px solid red;
-  }
-  .leagueV4Container {
+@media screen and (max-width: 710px) {
+  .usernameContainer {
+    font-family: 'Space Grotesk' !important;
     position: absolute;
-    border:1px solid red;
-
-    top: 40%; 
-
-    width: 100%;
+    left: calc(15% + 50px);
+    top:50%;
+    transform: translate(0, -50%);
+    /* border:1px solid red; */
+    display: flex;
+    align-items: center;
+    gap: 5px; 
+  
   }
-  .container, .container2 {
-    flex: none; 
-    width: 100%; 
 
+  .leagueV4Box {
+    position: relative; 
+    margin-left: 10px;
+    width: 80.2vw; 
+    height: 127px; 
+    border-radius: 6px; 
+  }
+
+  .leagueV4Container {
+    position: relative;
+    display: flex;
+    flex-direction: column;/* Change to row */
+    /* border:1px solid red; */
+    width: 100vw;
+    top: 75px;
+    left: 0px;    
+  }
+
+  .LeagueV4WinLoss {
+    position: relative; 
+    top: 63.38775510204084px; 
+    left: 62%; 
+    width: 25vw; 
+    font-family: Inter; 
+    font-size: 11px; 
+    line-height: 18px; 
+    /* border: 1px solid red; */
+    /* color: #424955FF; */
+    text-align: right; /* Add this property to align the text to the right */
   }
 }

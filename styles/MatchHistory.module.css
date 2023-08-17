@@ -1,37 +1,52 @@
-.missingItem {
-    width: 30px;
-    height: 30px;
-    border-radius: 3px;
-    background-color: rgba(0, 0, 0, 0.2); /* Dark transparent box */
-}
+
   
   
 .matchHistoryContainer {
-    position: absolute;
-    height: 100%;
-    left: 30%;
-    top: 40%; 
-    /* border-radius: 5px; */
-    /* border:1px solid red; */
+  position: absolute;
+  height: 100%;
+  left: calc(65% - 345px); /* Set initial spacing */
+  right: 5vw; /* Set initial spacing */
+  /* Adjust this value as needed */
+  /* border-radius: 5px; */
+  /* border:1px solid red; */
+  top:40%;
+  overflow: scroll;
+  width: 700px;
   
-    overflow: scroll;
-    width: 52.5%;
-    padding-bottom: 10px;
+  padding-bottom: 10px;
 }
+
 
 
 @media screen and (max-width: 1150px) {
   .matchHistoryContainer {
-    position: relative;
+    position: absolute;
     height: 100%;
-    left:50px;
-top: 75px;
+    left:0px;
+top: 50%;
 margin-top: 20px; 
     /* border-radius: 5px; */
     /* border:1px solid red; */
   
     overflow: scroll;
-    width: 75vw;
+    width: 88vw;
+    padding-bottom: 10px;
+  }
+}
+
+@media screen and (max-width: 710px) {
+  .matchHistoryContainer {
+    position: relative;
+    height: 100%;
+
+    top: 60px;
+    margin-top: 20px; 
+    /* border-radius: 5px; */
+    /* border:1px solid red; */
+  
+    overflow: scroll;
+    left: 2vw;
+    width: 79.5vw; 
     padding-bottom: 10px;
   }
 }
@@ -39,11 +54,11 @@ margin-top: 20px;
   
   /* Change these class names to use the same variables as in the MatchBox component */
   .blueMatchBox {
-  background: rgba(100, 181, 246,0.4);/* Change this to the desired blue color */
+  background: rgba(100, 181, 246,0.1);/* Change this to the desired blue color */
   }
   
   .redMatchBox {
-  background-color: rgba(229, 115, 115,0.4); /* Change this to the desired red color */
+  background-color: rgba(229, 115, 115,0.1); /* Change this to the desired red color */
   }
   
 .matchHistoryBox {
@@ -64,17 +79,28 @@ margin-top: 20px;
   top:10px;
   position: relative;
   padding: 0px;
-  height: 100px;
-  padding-top: 10px;
+  height: 110px;
+
   margin: 10px;
 
-  border-radius: 4px;
+  border-radius: 8px;
   /* box-shadow: inset 5px 5px 5px #d7e0f0, inset -5px -5px 5px #f3fcff; */
   overflow-x: auto; /* Add this line */
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
 }
+
+.matchBoxContent {
+  display: flex;
+  flex-direction: row; /* Set the flex direction to row */
+  align-items: center; /* Center items vertically */
+  /* border: 1px solid red; */
+  width: 100%;
+  height: 110px;
+}
+
+
   
   
 .matchInfoContainer {
@@ -125,6 +151,8 @@ margin-top: 20px;
 .matchGridOne {
   position: relative;
   width: 105px;
+
+  margin-top:2vh;
   padding-left: 10px;
   display: flex;
   flex-direction: column;
@@ -136,27 +164,50 @@ margin-top: 20px;
 .matchQueue {
     font-size: 0.75rem;
     font-weight: bold;
+    font-family: 'Space Grotesk' !important;
     /* margin-top: 5px; */
 }
 
 .matchTimeSince {
     font-size: 0.60rem;
     margin-top: -5px;
-    font-weight: 400;    
+    font-weight: 400; 
+    font-family: 'Space Grotesk' !important;   
 }
 
 .matchDuration {
-    font-size: 0.60rem;
-    font-weight: 400;
-    /* color: black; */
+  font-size: 0.75rem;
+    font-weight: 500;
+    font-family: 'Space Grotesk' !important;
     /* border: 1px solid red; */
     text-align: center;
+}
+
+.matchInfo {
+  font-size: 1em;
+  font-weight: 600;
+
+}
+
+.textGridUno {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  top: -10px;
+
+  text-align: center;
+
+  /* border: 1px solid red; */
 }
 
 .matchWinLoss {
     font-size: 0.75rem;
     font-weight: bold;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0rem;
+
+
+    /* border: 1px solid red; */
     color: #ff4e50; /* Default color for LOSS */
 }
   
@@ -165,12 +216,11 @@ margin-top: 20px;
 }
 
 .matchGridTwo {
-    position: relative;
-    width: 105px;
-    padding-left: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  margin-top:3.5vh;
+    width: 125px;
+
+
+
     /* border:1px solid red; */
 }
 
@@ -182,30 +232,52 @@ margin-top: 20px;
   
 .matchKDA {
     font-size: 1rem;
-    margin-bottom: 5px;
+
 }
   
-.itemsContainer {
-    position: relative;
-    width: 105px;
-    /* border:1px solid red; */
-}
+
 
 .itemImage {
-    border-radius: 3px;
+  border-radius: 3px;
+  margin-left: 3px;
+/* Remove top margin */
+  margin-bottom: -10px; /* Remove top margin */
+top: 3px;
 }
 
 .matchChampionImage {
-  
-    margin-right: 10px;
+
+  margin-left:3vw;
+  border-radius: 4px;
+
+}
+
+.summonerImage {
+
+  margin-left: 0.2vw;
+  border-radius: 4px;
+
+}
+
+.missingItem {
+  width: 25px;
+  height: 25px;
+  border-radius: 3px;
+  margin-left: 3px;
+  margin-top: 2px;
+  background-color: rgba(0, 0, 0, 0.2); /* Dark transparent box */
 }
   
-.itemContainer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 10px;
+.itemsContainer {
+  display: flex;
+  flex-wrap: wrap;
+/* Distribute items evenly with no spacing */
+  width: 90px;
+  height: 60px;
+  margin-left: 20px;
+  /* border: 1px solid red; */
 }
+
   
 .itemAvatar {
     margin: 5px;

@@ -61,6 +61,12 @@ const IndexPage = () => {
   const [isAccHasClaimed, setAccHasClaimed] = useState(false);
   const [authacc, setAuthacc] = useState<string | null>(null);
 
+
+  const paperStyle = {
+    backgroundColor: theme.palette.mode === 'dark' ? styles.darkModePaper : '#fbfcff',
+
+  };
+  
   useEffect(() => {
     fetchDataFromCache(); // Initial data load
 
@@ -295,7 +301,7 @@ const IndexPage = () => {
 
 
   let profilePictureElement: JSX.Element | null = null;
-  if (data?.summonerData.profileIcon !== undefined) {
+  if (data?.summonerData?.profileIcon !== undefined) {
     profilePictureElement = <ProfilePicture profileIcon={data.summonerData.profileIcon} />;
   } else {
     profilePictureElement = (
@@ -307,9 +313,9 @@ const IndexPage = () => {
   if (isClaimed || (!isAccHasClaimed && authacc)) {
     usernameElement = (
       <div className={styles.usernameContainer}>
-      {data?.summonerData.name  ? (
+      {data?.summonerData?.name  ? (
         <Typography className={styles.username}>
-          {data?.summonerData.name}
+          {data?.summonerData?.name}
         </Typography>
       ) : (
         <Skeleton width={96} variant="text" sx={{ fontSize: '1rem' }} />
@@ -329,7 +335,7 @@ const IndexPage = () => {
     usernameElement = (
       <div className={styles.usernameContainer}>
       <Typography className={styles.username}>
-        {data?.summonerData.name}
+        {data?.summonerData?.name}
       </Typography>
       <Tooltip title="Unclaimed account">
         <ErrorIcon />
@@ -437,8 +443,9 @@ const IndexPage = () => {
 
 
   return (
-    <div>
+    <div className={styles.fullScreenContainer}>
       <div className={styles.containerMain}>
+      <div className={styles.parentContainer}>
         <div className={styles.profileContainer}>
           {profilePictureElement}
           {usernameElement}
@@ -446,20 +453,20 @@ const IndexPage = () => {
         </div>
         
       
-        <div className={styles.parentContainer}>
+        
           <div className={styles.leagueV4Container}>
             {soloQueueRankedBoxElement}
             {flexQueueRankedBoxElement}
           </div>
 
           {/* Match History */}
-          <Paper className={MatchStyles.matchHistoryContainer}>
+          <Paper className={MatchStyles.matchHistoryContainer} style={paperStyle}>
             <Box className={MatchStyles.matchHistoryBox}>
               <Box className={MatchStyles.matchHistoryHeader}>
                 <Typography className={MatchStyles.matchHistoryHeaderText} variant="h6">Match History</Typography>
               </Box>
               <Box>
-                {data?.matchHistory.map((match) => (
+                {data?.matchHistory?.map((match) => (
                   match ? (
                     <MatchBox key={match.matchId} match={match} itemImageUrl={itemImageUrl} summonerImageUrl={SummonerImageUrl} />
                   ) : (

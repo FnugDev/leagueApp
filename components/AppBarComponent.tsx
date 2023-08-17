@@ -45,17 +45,17 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ toggleTheme, mode }) 
     const theme = useTheme();
     const isDarkMode = theme.palette.mode === 'dark';
 
+    const paperStyle = {
+      backgroundColor: theme.palette.mode === 'dark' ? styles.darkModePaper : '#f0f4fe',
+      boxShadow: isDarkMode ? '0 0 5px rgba(0, 0, 0, 0.5)' : '0px 0px 1px #d9d9d9, 0px 1px 1px #d9d9d9',
+    };
   return (
     <AppBar 
         elevation={0} 
         color="primary" 
         className={styles.appBarStyle} 
         position="fixed" 
-        style={{
-
-            boxShadow: isDarkMode ? '0 0 10px rgba(0, 0, 0, 0.2)' : '0px 0px 1px #d9d9d9, 0px 1px 1px #d9d9d9',
-            /* Add other styles here based on the theme mode */
-          }}
+        style={paperStyle}
     >
         <Toolbar>
    
