@@ -234,8 +234,14 @@ async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platfo
         return null;
       }
 
-      const { win, kills, deaths, assists, championName, championId, summoner1Id, summoner2Id, item0, item1, item2, item3, item4, item5 } = participant;
-      const { gameMode, gameId, gameCreation, gameEndTimestamp, gameDuration } = gameData.info;
+      const { win, kills, deaths, assists, championName, championId, summoner1Id, summoner2Id, item0, item1, item2, item3, item4, item5, perks, totalMinionsKilled, teamEarlySurrendered, teamId,teamPosition } = participant;
+      const { gameMode, gameId, gameCreation, gameEndTimestamp, gameDuration, queueId } = gameData.info;
+
+
+      // Filter out matches with queueId 1700
+      if (queueId === 1700) {
+        return null; // Skip this match
+      }
 
       const queueName = getQueueNameById(gameData.info.queueId, queueData);
 
@@ -247,21 +253,41 @@ async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platfo
 
       const formattedGameDuration = formatGameDuration(gameDuration);
 
+      const csPerMinute = (totalMinionsKilled / (gameDuration / 60)).toFixed(1);
+      const kda = ((kills + assists) / deaths).toFixed(2);
+
+      const participantSummonerNames = gameData.info.participants.map(
+        (p: { summonerName: any }) => p.summonerName
+      );
+      const participantChampionIds = gameData.info.participants.map(
+        (p: { championId: any }) => p.championId
+      );
+
       return {
+        
         matchId,
         game_mode: gameMode,
-        queueId: gameData.info.queueId,
+        queueId: queueId,
         queueName,
+        summoners: participantSummonerNames,
+        championIds: participantChampionIds,
         win,
         kills,
         deaths,
         assists,
+        kda,
+        totalMinionsKilled,
+        csPerMinute,
+        teamEarlySurrendered, 
+        teamId,
+        teamPosition,
         champion_name: championName,
         championId,
         summoner1Id,
         summoner1Name,
         summoner2Name,
         items: { item0, item1, item2, item3, item4, item5 },
+        perks: perks,
         timeSinceMatch: timeSinceMatchText,
         gameDuration: formattedGameDuration,
       };

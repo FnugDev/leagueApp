@@ -49,16 +49,49 @@ margin-top: 20px;
     width: 79.5vw; 
     padding-bottom: 10px;
   }
+  .matchGridThree {
+    display: none !important;
+  }
+  .matchGridTwo {
+    display: none !important;
+  }
+
+  .itemsContainer {
+    display: none !important;
+
+  }
+  .summonersContent {
+    display: flex;
+    justify-content: space-between;
+    width: 150px; /* Adjust the width as needed */
+    margin-top: 0px;
+    margin-left: 25px;
+    font-size: 0.5em;
+    font-weight: 600;
+   
+    font-family: 'Space Grotesk' !important;
+  }
 }
 
   
   /* Change these class names to use the same variables as in the MatchBox component */
   .blueMatchBox {
-  background: rgba(100, 181, 246,0.1);/* Change this to the desired blue color */
+    background: rgba(100, 181, 246, 0.1); /* Original blue color */
+    transition: background-color 0.3s ease-in-out; /* Add a smooth transition effect */
   }
   
   .redMatchBox {
-  background-color: rgba(229, 115, 115,0.1); /* Change this to the desired red color */
+    background-color: rgba(229, 115, 115, 0.1); /* Original red color */
+    transition: background-color 0.3s ease-in-out; /* Add a smooth transition effect */
+  }
+  
+  /* Hover styles */
+  .blueMatchBox:hover {
+    background-color: rgba(100, 181, 246, 0.3); /* Darker blue color on hover */
+  }
+  
+  .redMatchBox:hover {
+    background-color: rgba(229, 115, 115, 0.3); /* Darker red color on hover */
   }
   
 .matchHistoryBox {
@@ -216,13 +249,111 @@ margin-top: 20px;
 }
 
 .matchGridTwo {
-  margin-top:3.5vh;
-    width: 125px;
+  display: flex;
+ /* Two columns */
+ flex-direction: column;
+ width: 50px;
+ height: 52px;
+ 
 
-
-
-    /* border:1px solid red; */
+ /* border:1px solid red; */
+  grid-gap: 2px; /* Adjust the gap between items */
+ /* Vertically align items */
 }
+.matchKDAScore {
+  font-size: 0.85rem !important;
+    font-weight: bold;
+    font-family: 'Space Grotesk' !important;
+    /* border: 1px solid red; */
+
+    text-align: center;
+}
+
+/* Example colors, you can adjust these to your preference */
+
+
+.kdaDeaths {
+  color: #ff4e50;
+}
+
+.kdaAssists {
+  color: #f8b664;
+}
+
+
+.matchKDA {
+  font-size: 0.75rem !important;
+    font-weight: 400;
+    font-family: 'Space Grotesk' !important;
+    /* border: 1px solid red; */
+    margin-top: -5px;
+    text-align: center;
+}
+
+.matchCS {
+  font-size: 0.75rem !important;
+    font-weight: 400;
+    font-family: 'Space Grotesk' !important;
+    /* border: 1px solid red; */
+    text-align: center;
+    margin-top: -5px;
+}
+
+
+
+
+.highKDA {
+  color: #f8b664;
+  font-weight: bold;
+}
+
+.mediumKDA {
+  color: #3174fa;
+  font-weight: bold;
+}
+
+.lowKDA {
+  color: #ff4e50;
+  font-weight: bold;
+}
+
+
+.matchGridThree {
+  position: relative;
+  width: 135px;
+
+
+  padding-left: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* border:1px solid red; */
+}
+
+.matchChampionImage {
+
+  margin-left:3vw;
+  border-radius: 4px;
+
+}
+
+.summonerImage {
+
+  margin-left: 0.2vw;
+  border-radius: 4px;
+
+}
+.summonerPerk {
+  background-color: rgba(0, 0, 0, 0.1);
+  margin-left: 0.2vw;
+  border-radius: 4px;
+  width: 25px;
+  height: 25px;
+  display: flex; /* Use Flexbox */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+}
+
 
 .matchResult {
     font-size: 1rem;
@@ -245,19 +376,8 @@ margin-top: 20px;
 top: 3px;
 }
 
-.matchChampionImage {
 
-  margin-left:3vw;
-  border-radius: 4px;
 
-}
-
-.summonerImage {
-
-  margin-left: 0.2vw;
-  border-radius: 4px;
-
-}
 
 .missingItem {
   width: 25px;
@@ -265,7 +385,7 @@ top: 3px;
   border-radius: 3px;
   margin-left: 3px;
   margin-top: 2px;
-  background-color: rgba(0, 0, 0, 0.2); /* Dark transparent box */
+  background-color: rgba(0, 0, 0, 0.1); /* Dark transparent box */
 }
   
 .itemsContainer {
@@ -274,9 +394,62 @@ top: 3px;
 /* Distribute items evenly with no spacing */
   width: 90px;
   height: 60px;
-  margin-left: 20px;
+  margin-right: 30px;
   /* border: 1px solid red; */
 }
+
+
+.summonersContent {
+  display: flex;
+  justify-content: space-between;
+  width: 150px; /* Adjust the width as needed */
+  margin-top: 0px;
+  font-size: 0.5em;
+  font-weight: 600;
+ 
+  font-family: 'Space Grotesk' !important;
+}
+
+.summonersColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-left: 0px;
+  
+  width: 10px; /* Adjust the width as needed */
+  /* border: 1px solid red; */
+}
+
+.summonerName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 75px; /* Adjust the width as needed */
+  /* border: 1px solid red; */
+  color: #424955FF;
+  text-decoration: none; /* Remove underline */
+  transition: text-decoration 0.3s ease-in-out; 
+}
+
+
+.summonerName:hover {
+  text-decoration: underline; /* Underline on hover */
+}
+
+
+.championImage {
+  margin-top: 0px;
+  border-radius: 10px;
+}
+
+
+.summonerInfo {
+  display: flex;
+  align-items: center; /* Vertically center align items */
+  gap: 5px; /* Add some spacing between the image and summoner name */
+}
+
+
 
   
 .itemAvatar {
