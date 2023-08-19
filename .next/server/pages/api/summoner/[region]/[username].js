@@ -1,65 +1,455 @@
 "use strict";
-/*
- * ATTENTION: An "eval-source-map" devtool has been used.
- * This devtool is neither made for production nor for readable output files.
- * It uses "eval()" calls to create a separate source file with attached SourceMaps in the browser devtools.
- * If you are trying to read the output file, select a different devtool (https://webpack.js.org/configuration/devtool/)
- * or disable the default devtool with "devtool: false".
- * If you are looking for production-ready output files, see mode: "production" (https://webpack.js.org/configuration/mode/).
- */
 (() => {
 var exports = {};
-exports.id = "pages/api/summoner/[region]/[username]";
-exports.ids = ["pages/api/summoner/[region]/[username]"];
+exports.id = 679;
+exports.ids = [679];
 exports.modules = {
 
-/***/ "memory-cache":
-/*!*******************************!*\
-  !*** external "memory-cache" ***!
-  \*******************************/
-/***/ ((module) => {
-
-module.exports = require("memory-cache");
-
-/***/ }),
-
-/***/ "node-fetch":
-/*!*****************************!*\
-  !*** external "node-fetch" ***!
-  \*****************************/
+/***/ 4809:
 /***/ ((module) => {
 
 module.exports = require("node-fetch");
 
 /***/ }),
 
-/***/ "(api)/./pages/api/summoner/[region]/[username].ts":
-/*!***************************************************!*\
-  !*** ./pages/api/summoner/[region]/[username].ts ***!
-  \***************************************************/
+/***/ 4986:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! node-fetch */ \"node-fetch\");\n/* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _queues_json__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./queues.json */ \"(api)/./pages/api/summoner/[region]/queues.json\");\n/* harmony import */ var _summonerSpells_json__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./summonerSpells.json */ \"(api)/./pages/api/summoner/[region]/summonerSpells.json\");\n/* harmony import */ var memory_cache__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! memory-cache */ \"memory-cache\");\n/* harmony import */ var memory_cache__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(memory_cache__WEBPACK_IMPORTED_MODULE_3__);\n\n // Import the queues.json file\n // Import the queues.json file\n\nconst regionCodeMap = {\n    br: \"BR1\",\n    eune: \"EUN1\",\n    euw: \"EUW1\",\n    jp: \"JP1\",\n    kr: \"KR\",\n    lan: \"LA1\",\n    las: \"LA2\",\n    na: \"NA1\",\n    oce: \"OC1\",\n    tr: \"TR1\",\n    ru: \"RU\",\n    ph: \"PH2\",\n    sg: \"SG2\",\n    th: \"TH2\",\n    tw: \"TW2\",\n    vn: \"VN2\"\n};\nconst platformToRegionMap = {\n    BR1: \"americas\",\n    EUN1: \"europe\",\n    EUW1: \"europe\",\n    JP1: \"asia\",\n    KR: \"asia\",\n    LA1: \"americas\",\n    LA2: \"americas\",\n    NA1: \"americas\",\n    OC1: \"americas\",\n    TR1: \"europe\",\n    RU: \"europe\",\n    PH2: \"asia\",\n    SG2: \"asia\",\n    TH2: \"asia\",\n    TW2: \"asia\",\n    VN2: \"asia\"\n};\nconst CACHE_DURATION = 1 * 60 * 1000;\nconst MAX_MATCH_HISTORY_COUNT = 20;\nconst handler = async (_req, res)=>{\n    const apiKey = \"RGAPI-70e20392-19ee-4299-acf3-23d42e90fac9\";\n    const region = _req.query.region;\n    const summonerName = _req.query.username;\n    const modifiedRegion = regionCodeMap[region];\n    if (!modifiedRegion) {\n        return res.status(400).json({\n            message: \"Invalid region code.\"\n        });\n    }\n    const plat = platformToRegionMap[modifiedRegion];\n    if (!plat) {\n        return res.status(400).json({\n            message: \"Invalid region code.\"\n        });\n    }\n    const platform = plat.toUpperCase();\n    const cacheKey = `${modifiedRegion}-${summonerName}`;\n    try {\n        // const summonerName = 'fnug';\n        const cachedData = memory_cache__WEBPACK_IMPORTED_MODULE_3___default().get(cacheKey);\n        if (cachedData) {\n            console.log(\"Data fetched from cache\");\n            return res.status(200).json(cachedData);\n        }\n        console.log(\"hello\");\n        const summonerResponse = await node_fetch__WEBPACK_IMPORTED_MODULE_0___default()(`https://${modifiedRegion}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}?api_key=${apiKey}`);\n        if (!summonerResponse.ok) {\n            throw new Error(\"Failed to fetch summoner data\");\n        }\n        const summoner = await summonerResponse.json();\n        const summonerData = {\n            name: summoner.name,\n            level: summoner.summonerLevel,\n            accountId: summoner.accountId,\n            summonerId: summoner.id,\n            puuid: summoner.puuid,\n            profileIcon: summoner.profileIconId\n        };\n        const summonerLeagueV4 = await node_fetch__WEBPACK_IMPORTED_MODULE_0___default()(`https://${modifiedRegion}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerData.summonerId}?api_key=${apiKey}`);\n        if (!summonerLeagueV4.ok) {\n            throw new Error(\"Failed to fetch summoner leagueV4\");\n        }\n        // const summonerLiveResponse = await fetch(`https://${modifiedRegion}.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${summonerData.summonerId}?api_key=${apiKey}`);\n        // let summonerLive = null;\n        // if (summonerLiveResponse.ok) {\n        //   summonerLive = await summonerLiveResponse.json();\n        // } else if (summonerLiveResponse.status === 404) {\n        //   // Summoner is not in a game\n        //   console.log('Summoner is not in a game');\n        // } else {\n        //   throw new Error('Failed to fetch summoner live data');\n        // }\n        const leagueV4 = await summonerLeagueV4.json();\n        const soloQueueData = leagueV4.find((queue)=>queue.queueType === \"RANKED_SOLO_5x5\");\n        // Get Flex Queue data (if available)\n        const flexQueueData = leagueV4.find((queue)=>queue.queueType === \"RANKED_FLEX_SR\");\n        // Check if Solo Queue data exists and store its properties\n        const soloQueueInfo = soloQueueData ? {\n            queueType: soloQueueData.queueType,\n            tier: soloQueueData.tier,\n            rank: soloQueueData.rank,\n            leaguePoints: soloQueueData.leaguePoints,\n            wins: soloQueueData.wins,\n            losses: soloQueueData.losses,\n            veteran: soloQueueData.veteran,\n            inactive: soloQueueData.inactive,\n            freshBlood: soloQueueData.freshBlood,\n            hotStreak: soloQueueData.hotStreak\n        } : null;\n        // Check if Flex Queue data exists and store its properties\n        const flexQueueInfo = flexQueueData ? {\n            queueType: flexQueueData.queueType,\n            tier: flexQueueData.tier,\n            rank: flexQueueData.rank,\n            leaguePoints: flexQueueData.leaguePoints,\n            wins: flexQueueData.wins,\n            losses: flexQueueData.losses,\n            veteran: flexQueueData.veteran,\n            inactive: flexQueueData.inactive,\n            freshBlood: flexQueueData.freshBlood,\n            hotStreak: flexQueueData.hotStreak\n        } : null;\n        // Fetch new match history\n        const matchesResponse = await node_fetch__WEBPACK_IMPORTED_MODULE_0___default()(`https://${platform}.api.riotgames.com/lol/match/v5/matches/by-puuid/${summonerData.puuid}/ids?start=0&count=${MAX_MATCH_HISTORY_COUNT}&api_key=${apiKey}`);\n        if (!matchesResponse.ok) {\n            throw new Error(\"Failed to fetch match data\");\n        }\n        const newMatches = await matchesResponse.json();\n        // If cache is empty or doesn't have match history, populate it with fetched match data\n        if (!cachedData || !cachedData.matchHistory) {\n            const newMatchData = await fetchMatchData(newMatches, apiKey, summonerData.puuid, platform);\n            const championStats = calculateChampionStats(newMatchData);\n            memory_cache__WEBPACK_IMPORTED_MODULE_3___default().put(cacheKey, {\n                summonerData,\n                soloQueueInfo,\n                flexQueueInfo,\n                championStats,\n                matchHistory: newMatchData\n            }, CACHE_DURATION);\n            return res.status(200).json({\n                summonerData,\n                soloQueueInfo,\n                flexQueueInfo,\n                championStats,\n                matchHistory: newMatchData\n            });\n        }\n        // Compare with previously stored match IDs to identify new matches\n        const storedMatches = cachedData.matchHistory || [];\n        const newMatchesToFetch = newMatches.filter((matchId)=>!storedMatches.includes(matchId));\n        // Fetch and update data for new matches\n        const newMatchData = await fetchMatchData(newMatchesToFetch, apiKey, summonerData.puuid, platform);\n        const updatedMatchHistory = [\n            ...newMatchData,\n            ...cachedData.matchHistory || []\n        ];\n        const championStats = calculateChampionStats(updatedMatchHistory);\n        // Store the updated data\n        memory_cache__WEBPACK_IMPORTED_MODULE_3___default().put(cacheKey, {\n            summonerData,\n            soloQueueInfo,\n            flexQueueInfo,\n            championStats,\n            matchHistory: updatedMatchHistory\n        }, CACHE_DURATION);\n        res.status(200).json({\n            summonerData,\n            soloQueueInfo,\n            flexQueueInfo,\n            championStats,\n            matchHistory: updatedMatchHistory\n        });\n    } catch (error) {\n        console.error(\"Error fetching summoner:\", error);\n        res.status(500).json({\n            message: \"Failed to fetch summoner data\"\n        });\n    }\n};\nasync function fetchMatchData(matches, apiKey, puuid, platform) {\n    const currentTime = Date.now();\n    const matchPromises = matches.map(async (matchId)=>{\n        try {\n            const response = await node_fetch__WEBPACK_IMPORTED_MODULE_0___default()(`https://${platform}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${apiKey}`);\n            if (!response.ok) {\n                // throw new Error(`Failed to fetch match ${matchId}`);\n                return;\n            }\n            const gameData = await response.json();\n            const participant = gameData.info.participants.find((p)=>p.puuid === puuid);\n            if (!participant) {\n                console.log(`Participant for summoner not found in match ${matchId}`);\n                return null;\n            }\n            const { win, kills, deaths, assists, championName, championId, summoner1Id, summoner2Id, item0, item1, item2, item3, item4, item5, perks, totalMinionsKilled, teamEarlySurrendered, teamId, teamPosition } = participant;\n            const { gameMode, gameId, gameCreation, gameEndTimestamp, gameDuration, queueId } = gameData.info;\n            // Filter out matches with queueId 1700\n            if (queueId === 1700) {\n                return null; // Skip this match\n            }\n            const queueName = getQueueNameById(gameData.info.queueId, _queues_json__WEBPACK_IMPORTED_MODULE_1__);\n            const summoner1Name = getSummonerSpellNameById(summoner1Id, _summonerSpells_json__WEBPACK_IMPORTED_MODULE_2__);\n            const summoner2Name = getSummonerSpellNameById(summoner2Id, _summonerSpells_json__WEBPACK_IMPORTED_MODULE_2__);\n            const timeSinceMatch = Math.floor((currentTime - gameEndTimestamp) / 1000);\n            const timeSinceMatchText = formatTimeSinceMatch(timeSinceMatch);\n            const formattedGameDuration = formatGameDuration(gameDuration);\n            const csPerMinute = (totalMinionsKilled / (gameDuration / 60)).toFixed(1);\n            const kda = ((kills + assists) / deaths).toFixed(2);\n            const participantSummonerNames = gameData.info.participants.map((p)=>p.summonerName);\n            const participantChampionIds = gameData.info.participants.map((p)=>p.championId);\n            return {\n                matchId,\n                game_mode: gameMode,\n                queueId: queueId,\n                queueName,\n                summoners: participantSummonerNames,\n                championIds: participantChampionIds,\n                win,\n                kills,\n                deaths,\n                assists,\n                kda,\n                totalMinionsKilled,\n                csPerMinute,\n                teamEarlySurrendered,\n                teamId,\n                teamPosition,\n                champion_name: championName,\n                championId,\n                summoner1Id,\n                summoner1Name,\n                summoner2Name,\n                items: {\n                    item0,\n                    item1,\n                    item2,\n                    item3,\n                    item4,\n                    item5\n                },\n                perks: perks,\n                timeSinceMatch: timeSinceMatchText,\n                gameDuration: formattedGameDuration\n            };\n        } catch (error) {\n            console.error(`Error fetching match ${matchId}:`, error);\n            return null;\n        }\n    });\n    const matchData = await Promise.all(matchPromises);\n    // Filter out null and undefined matches\n    const filteredMatchData = matchData.filter((match)=>match !== null && match !== undefined);\n    return filteredMatchData;\n}\nasync function getMatchData(apiKey, puuid, platform) {\n    // Set your API key, puuid, and platform\n    // Get the matches\n    const matchesResponse = await node_fetch__WEBPACK_IMPORTED_MODULE_0___default()(`https://${platform}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=19&api_key=${apiKey}`);\n    if (!matchesResponse.ok) {\n        throw new Error(\"Failed to fetch match data\");\n    }\n    const matches = await matchesResponse.json();\n    // Fetch the match data using the fetchMatchData function\n    const matchData = await fetchMatchData(matches, apiKey, puuid, platform);\n    // Filter out any null values\n    const filteredMatchData = matchData.filter((match)=>match !== null);\n    // Do something with the match data\n    console.log(filteredMatchData);\n}\nfunction calculateChampionStats(matchData) {\n    const championStats = {};\n    matchData.forEach((matchEntry)=>{\n        championStats[matchEntry.champion_name] = championStats[matchEntry.champion_name] || {\n            gamesPlayed: 0,\n            wins: 0\n        };\n        championStats[matchEntry.champion_name].gamesPlayed++;\n        if (matchEntry.win) {\n            championStats[matchEntry.champion_name].wins++;\n        }\n    });\n    const sortedChampionStats = {};\n    Object.entries(championStats).map(([champion_name, stats])=>({\n            champion_name,\n            ...stats\n        })).sort((a, b)=>b.gamesPlayed - a.gamesPlayed) // Sort in descending order of games played\n    .forEach((entry)=>{\n        sortedChampionStats[entry.champion_name] = {\n            gamesPlayed: entry.gamesPlayed,\n            wins: entry.wins,\n            winRate: entry.wins / entry.gamesPlayed * 100\n        };\n    });\n    return sortedChampionStats;\n}\nfunction formatTimeSinceMatch(timeSinceMatch) {\n    if (timeSinceMatch < 60) {\n        return `${timeSinceMatch} second${timeSinceMatch !== 1 ? \"s\" : \"\"} ago`;\n    } else if (timeSinceMatch < 60 * 60) {\n        const minutes = Math.floor(timeSinceMatch / 60);\n        return `${minutes} minute${minutes !== 1 ? \"s\" : \"\"} ago`;\n    } else if (timeSinceMatch < 24 * 60 * 60) {\n        const hours = Math.floor(timeSinceMatch / (60 * 60));\n        return `${hours} hour${hours !== 1 ? \"s\" : \"\"} ago`;\n    } else {\n        const days = Math.floor(timeSinceMatch / (24 * 60 * 60));\n        return `${days} day${days !== 1 ? \"s\" : \"\"} ago`;\n    }\n}\nfunction formatGameDuration(duration) {\n    const minutes = Math.floor(duration / 60);\n    const seconds = duration % 60;\n    return `${minutes}:${seconds < 10 ? \"0\" : \"\"}${seconds}`;\n}\nfunction getQueueNameById(queueId, queueData) {\n    const queue = queueData.find((q)=>q.queueId === queueId);\n    return queue ? queue.description : \"Unknown\";\n}\nfunction getSummonerSpellNameById(summonerSpellId, summonerSpellData) {\n    const summonerSpellName = summonerSpellData[summonerSpellId];\n    return summonerSpellName || \"Unknown\";\n}\n// Move the summonerLiveResponse fetching inside a separate function\nasync function fetchSummonerLive(apiKey, summonerId, modifiedRegion) {\n    const summonerLiveResponse = await node_fetch__WEBPACK_IMPORTED_MODULE_0___default()(`https://${modifiedRegion}.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${summonerId}?api_key=${apiKey}`);\n    if (summonerLiveResponse.ok) {\n        return await summonerLiveResponse.json();\n    } else if (summonerLiveResponse.status === 404) {\n        console.log(\"Summoner is not in a game\");\n        return null;\n    } else {\n        throw new Error(\"Failed to fetch summoner live data\");\n    }\n}\n// Inside your main handler\n// const summonerLive = await fetchSummonerLive(apiKey, summonerData.summonerId, modifiedRegion);\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (handler);\n//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiKGFwaSkvLi9wYWdlcy9hcGkvc3VtbW9uZXIvW3JlZ2lvbl0vW3VzZXJuYW1lXS50cyIsIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7O0FBRStCO0FBQ08sQ0FBQyw4QkFBOEI7QUFDZixDQUFDLDhCQUE4QjtBQUNwRDtBQUtqQyxNQUFNSSxnQkFBZ0I7SUFDcEJDLElBQUk7SUFDSkMsTUFBTTtJQUNOQyxLQUFLO0lBQ0xDLElBQUk7SUFDSkMsSUFBSTtJQUNKQyxLQUFLO0lBQ0xDLEtBQUs7SUFDTEMsSUFBSTtJQUNKQyxLQUFLO0lBQ0xDLElBQUk7SUFDSkMsSUFBSTtJQUNKQyxJQUFJO0lBQ0pDLElBQUk7SUFDSkMsSUFBSTtJQUNKQyxJQUFJO0lBQ0pDLElBQUk7QUFDTjtBQUVBLE1BQU1DLHNCQUFzQjtJQUMxQkMsS0FBSztJQUNMQyxNQUFNO0lBQ05DLE1BQU07SUFDTkMsS0FBSztJQUNMQyxJQUFJO0lBQ0pDLEtBQUs7SUFDTEMsS0FBSztJQUNMQyxLQUFLO0lBQ0xDLEtBQUs7SUFDTEMsS0FBSztJQUNMQyxJQUFJO0lBQ0pDLEtBQUs7SUFDTEMsS0FBSztJQUNMQyxLQUFLO0lBQ0xDLEtBQUs7SUFDTEMsS0FBSztBQUNQO0FBU0EsTUFBTUMsaUJBQWlCLElBQUksS0FBSztBQUNoQyxNQUFNQywwQkFBMEI7QUFDaEMsTUFBTUMsVUFBVSxPQUFPQyxNQUFzQkM7SUFDM0MsTUFBTUMsU0FBUztJQUNmLE1BQU1DLFNBQVNILEtBQUtJLEtBQUssQ0FBQ0QsTUFBTTtJQUNoQyxNQUFNRSxlQUFlTCxLQUFLSSxLQUFLLENBQUNFLFFBQVE7SUFDeEMsTUFBTUMsaUJBQWlCNUMsYUFBYSxDQUFDd0MsT0FBTztJQUU1QyxJQUFJLENBQUNJLGdCQUFnQjtRQUNuQixPQUFPTixJQUFJTyxNQUFNLENBQUMsS0FBS0MsSUFBSSxDQUFDO1lBQUVDLFNBQVM7UUFBdUI7SUFDaEU7SUFFQSxNQUFNQyxPQUFPL0IsbUJBQW1CLENBQUMyQixlQUFlO0lBQ2hELElBQUksQ0FBQ0ksTUFB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TUFBTW1KLHVCQUF1QixNQUFNbk0saURBQUtBLENBQUMsQ0FBQyxRQUFRLEVBQUVnRCxlQUFlLDZEQUE2RCxFQUFFcUIsV0FBVyxTQUFTLEVBQUUxQixPQUFPLENBQUM7SUFFaEssSUFBSXdKLHFCQUFxQnRJLEVBQUUsRUFBRTtRQUMzQixPQUFPLE1BQU1zSSxxQkFBcUJqSixJQUFJO0lBQ3hDLE9BQU8sSUFBSWlKLHFCQUFxQmxKLE1BQU0sS0FBSyxLQUFLO1FBQzlDUyxRQUFRQyxHQUFHLENBQUM7UUFDWixPQUFPO0lBQ1QsT0FBTztRQUNMLE1BQU0sSUFBSUcsTUFBTTtJQUNsQjtBQUNGO0FBRUEsMkJBQTJCO0FBQzNCLGlHQUFpRztBQUlqRyxpRUFBZXRCLE9BQU9BLEVBQUMiLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly9teS1sZWFndWUtYXBwLy4vcGFnZXMvYXBpL3N1bW1vbmVyL1tyZWdpb25dL1t1c2VybmFtZV0udHM/Yzk1YiJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBOZXh0QXBpUmVxdWVzdCwgTmV4dEFwaVJlc3BvbnNlIH0gZnJvbSAnbmV4dCc7XG5pbXBvcnQgeyBDbGllbnQsIFN1bW1vbmVyLCBSZWdpb24gfSBmcm9tICdzaGllbGRib3cnO1xuaW1wb3J0IGZldGNoIGZyb20gJ25vZGUtZmV0Y2gnO1xuaW1wb3J0IHF1ZXVlRGF0YSBmcm9tICcuL3F1ZXVlcy5qc29uJzsgLy8gSW1wb3J0IHRoZSBxdWV1ZXMuanNvbiBmaWxlXG5pbXBvcnQgc3VtbW9uZXJTcGVsbERhdGEgZnJvbSAnLi9zdW1tb25lclNwZWxscy5qc29uJzsgLy8gSW1wb3J0IHRoZSBxdWV1ZXMuanNvbiBmaWxlXG5pbXBvcnQgY2FjaGUgZnJvbSAnbWVtb3J5LWNhY2hlJztcblxudHlwZSBSZWdpb25Db2RlID0ga2V5b2YgdHlwZW9mIHJlZ2lvbkNvZGVNYXA7XG50eXBlIFBsYXRmb3JtQ29kZSA9IGtleW9mIHR5cGVvZiBwbGF0Zm9ybVRvUmVnaW9uTWFwO1xuXG5jb25zdCByZWdpb25Db2RlTWFwID0ge1xuICBicjogJ0JSMScsXG4gIGV1bmU6ICdFVU4xJyxcbiAgZXV3OiAnRVVXMScsXG4gIGpwOiAnSlAxJyxcbiAga3I6ICdLUicsXG4gIGxhbjogJ0xBMScsXG4gIGxhczogJ0xBMicsXG4gIG5hOiAnTkExJyxcbiAgb2NlOiAnT0MxJyxcbiAgdHI6ICdUUjEnLFxuICBydTogJ1JVJyxcbiAgcGg6ICdQSDInLFxuICBzZzogJ1NHMicsXG4gIHRoOiAnVEgyJyxcbiAgdHc6ICdUVzInLFxuICB2bjogJ1ZOMicsXG59O1xuXG5jb25zdCBwbGF0Zm9ybVRvUmVnaW9uTWFwID0ge1xuICBCUjE6ICdhbWVyaWNhcycsXG4gIEVVTjE6ICdldXJvcGUnLFxuICBFVVcxOiAnZXVyb3BlJyxcbiAgSlAxOiAnYXNpYScsXG4gIEtSOiAnYXNpYScsXG4gIExBMTogJ2FtZXJpY2FzJyxcbiAgTEEyOiAnYW1lcmljYXMnLFxuICBOQTE6ICdhbWVyaWNhcycsXG4gIE9DMTogJ2FtZXJpY2FzJyxcbiAgVFIxOiAnZXVyb3BlJyxcbiAgUlU6ICdldXJvcGUnLFxuICBQSDI6ICdhc2lhJyxcbiAgU0cyOiAnYXNpYScsXG4gIFRIMjogJ2FzaWEnLFxuICBUVzI6ICdhc2lhJyxcbiAgVk4yOiAnYXNpYScsXG59O1xuXG50eXBlIENoYW1waW9uU3RhdHMgPSB7XG4gIFtjaGFtcGlvbl9uYW1lOiBzdHJpbmddOiB7XG4gICAgZ2FtZXNQbGF5ZWQ6IG51bWJlcjtcbiAgICB3aW5zOiBudW1iZXI7XG4gICAgd2luUmF0ZTogbnVtYmVyO1xuICB9O1xufTtcbmNvbnN0IENBQ0hFX0RVUkFUSU9OID0gMSAqIDYwICogMTAwMDtcbmNvbnN0IE1BWF9NQVRDSF9ISVNUT1JZX0NPVU5UID0gMjA7IFxuY29uc3QgaGFuZGxlciA9IGFzeW5jIChfcmVxOiBOZXh0QXBpUmVxdWVzdCwgcmVzOiBOZXh0QXBpUmVzcG9uc2UpID0+IHtcbiAgY29uc3QgYXBpS2V5ID0gJ1JHQVBJLTcwZTIwMzkyLTE5ZWUtNDI5OS1hY2YzLTIzZDQyZTkwZmFjOSc7XG4gIGNvbnN0IHJlZ2lvbiA9IF9yZXEucXVlcnkucmVnaW9uIGFzIFJlZ2lvbkNvZGU7XG4gIGNvbnN0IHN1bW1vbmVyTmFtZSA9IF9yZXEucXVlcnkudXNlcm5hbWUgYXMgc3RyaW5nO1xuICBjb25zdCBtb2RpZmllZFJlZ2lvbiA9IHJlZ2lvbkNvZGVNYXBbcmVnaW9uXSBhcyBQbGF0Zm9ybUNvZGU7XG5cbiAgaWYgKCFtb2RpZmllZFJlZ2lvbikge1xuICAgIHJldHVybiByZXMuc3RhdHVzKDQwMCkuanNvbih7IG1lc3NhZ2U6ICdJbnZhbGlkIHJlZ2lvbiBjb2RlLicgfSk7XG4gIH1cbiAgXG4gIGNvbnN0IHBsYXQgPSBwbGF0Zm9ybVRvUmVnaW9uTWFwW21vZGlmaWVkUmVnaW9uXTtcbiAgaWYgKCFwbGF0KSB7XG4gICAgcmV0dXJuIHJlcy5zdGF0dXMoNDAwKS5qc29uKHsgbWVzc2FnZTogJ0ludmFsaWQgcmVnaW9uIGNvZGUuJyB9KTtcbiAgfVxuICBcbiAgY29uc3QgcGxhdGZvcm0gPSBwbGF0LnRvVXBwZXJDYXNlKCk7XG4gIGNvbnN0IGNhY2hlS2V5ID0gYCR7bW9kaWZpZWRSZWdpb259LSR7c3VtbW9uZXJOYW1lfWA7XG4gIFxuXG4gIHRyeSB7XG4gICAgLy8gY29uc3Qgc3VtbW9uZXJOYW1lID0gJ2ZudWcnO1xuICAgIGNvbnN0IGNhY2hlZERhdGEgPSBjYWNoZS5nZXQoY2FjaGVLZXkpO1xuICAgIGlmIChjYWNoZWREYXRhKSB7XG4gICAgICBjb25zb2xlLmxvZygnRGF0YSBmZXRjaGVkIGZyb20gY2FjaGUnKTtcbiAgICAgIHJldHVybiByZXMuc3RhdHVzKDIwMCkuanNvbihjYWNoZWREYXRhKTtcbiAgICB9XG5jb25zb2xlLmxvZyhcImhlbGxvXCIpXG4gICAgY29uc3Qgc3VtbW9uZXJSZXNwb25zZSA9IGF3YWl0IGZldGNoKGBodHRwczovLyR7bW9kaWZpZWRSZWdpb259LmFwaS5yaW90Z2FtZXMuY29tL2xvbC9zdW1tb25lci92NC9zdW1tb25lcnMvYnktbmFtZS8ke3N1bW1vbmVyTmFtZX0/YXBpX2tleT0ke2FwaUtleX1gKTtcbiAgICBpZiAoIXN1bW1vbmVyUmVzcG9uc2Uub2spIHtcbiAgICAgIHRocm93IG5ldyBFcnJvcignRmFpbGVkIHRvIGZldGNoIHN1bW1vbmVyIGRhdGEnKTtcbiAgICB9XG5cbiAgICBjb25zdCBzdW1tb25lciA9IGF3YWl0IHN1bW1vbmVyUmVzcG9uc2UuanNvbigpO1xuXG4gICAgY29uc3Qgc3VtbW9uZXJEYXRhID0ge1xuICAgICAgbmFtZTogc3VtbW9uZXIubmFtZSxcbiAgICAgIGxldmVsOiBzdW1tb25lci5zdW1tb25lckxldmVsLFxuICAgICAgYWNjb3VudElkOiBzdW1tb25lci5hY2NvdW50SWQsXG4gICAgICBzdW1tb25lcklkOiBzdW1tb25lci5pZCxcbiAgICAgIHB1dWlkOiBzdW1tb25lci5wdXVpZCxcbiAgICAgIHByb2ZpbGVJY29uOiBzdW1tb25lci5wcm9maWxlSWNvbklkLFxuICAgIH07XG5cbiAgICBjb25zdCBzdW1tb25lckxlYWd1ZVY0ID0gYXdhaXQgZmV0Y2goYGh0dHBzOi8vJHttb2RpZmllZFJlZ2lvbn0uYXBpLnJpb3RnYW1lcy5jb20vbG9sL2xlYWd1ZS92NC9lbnRyaWVzL2J5LXN1bW1vbmVyLyR7c3VtbW9uZXJEYXRhLnN1bW1vbmVySWR9P2FwaV9rZXk9JHthcGlLZXl9YCk7XG4gICAgaWYgKCFzdW1tb25lckxlYWd1ZVY0Lm9rKSB7XG4gICAgICB0aHJvdyBuZXcgRXJyb3IoJ0ZhaWxlZCB0byBmZXRjaCBzdW1tb25lciBsZWFndWVWNCcpO1xuICAgIH1cbiAgICBcbiAgICAvLyBjb25zdCBzdW1tb25lckxpdmVSZXNwb25zZSA9IGF3YWl0IGZldGNoKGBodHRwczovLyR7bW9kaWZpZWRSZWdpb259LmFwaS5yaW90Z2FtZXMuY29tL2xvbC9zcGVjdGF0b3IvdjQvYWN0aXZlLWdhbWVzL2J5LXN1bW1vbmVyLyR7c3VtbW9uZXJEYXRhLnN1bW1vbmVySWR9P2FwaV9rZXk9JHthcGlLZXl9YCk7XG5cbiAgICAvLyBsZXQgc3VtbW9uZXJMaXZlID0gbnVsbDtcbiAgICAvLyBpZiAoc3VtbW9uZXJMaXZlUmVzcG9uc2Uub2spIHtcbiAgICAvLyAgIHN1bW1vbmVyTGl2ZSA9IGF3YWl0IHN1bW1vbmVyTGl2ZVJlc3BvbnNlLmpzb24oKTtcbiAgICAvLyB9IGVsc2UgaWYgKHN1bW1vbmVyTGl2ZVJlc3BvbnNlLnN0YXR1cyA9PT0gNDA0KSB7XG4gICAgLy8gICAvLyBTdW1tb25lciBpcyBub3QgaW4gYSBnYW1lXG4gICAgLy8gICBjb25zb2xlLmxvZygnU3VtbW9uZXIgaXMgbm90IGluIGEgZ2FtZScpO1xuICAgIC8vIH0gZWxzZSB7XG4gICAgLy8gICB0aHJvdyBuZXcgRXJyb3IoJ0ZhaWxlZCB0byBmZXRjaCBzdW1tb25lciBsaXZlIGRhdGEnKTtcbiAgICAvLyB9XG5cbiAgICBjb25zdCBsZWFndWVWNCA9IGF3YWl0IHN1bW1vbmVyTGVhZ3VlVjQuanNvbigpO1xuXG4gICAgY29uc3Qgc29sb1F1ZXVlRGF0YSA9IGxlYWd1ZVY0LmZpbmQoKHF1ZXVlOiB7IHF1ZXVlVHlwZTogc3RyaW5nOyB9KSA9PiBxdWV1ZS5xdWV1ZVR5cGUgPT09ICdSQU5LRURfU09MT181eDUnKTtcblxuICAgIC8vIEdldCBGbGV4IFF1ZXVlIGRhdGEgKGlmIGF2YWlsYWJsZSlcbiAgICBjb25zdCBmbGV4UXVldWVEYXRhID0gbGVhZ3VlVjQuZmluZCgocXVldWU6IHsgcXVldWVUeXBlOiBzdHJpbmc7IH0pID0+IHF1ZXVlLnF1ZXVlVHlwZSA9PT0gJ1JBTktFRF9GTEVYX1NSJyk7XG5cbiAgICAvLyBDaGVjayBpZiBTb2xvIFF1ZXVlIGRhdGEgZXhpc3RzIGFuZCBzdG9yZSBpdHMgcHJvcGVydGllc1xuICAgIGNvbnN0IHNvbG9RdWV1ZUluZm8gPSBzb2xvUXVldWVEYXRhXG4gICAgICA/IHtcbiAgICAgICAgICBxdWV1ZVR5cGU6IHNvbG9RdWV1ZURhdGEucXVldWVUeXBlLFxuICAgICAgICAgIHRpZXI6IHNvbG9RdWV1ZURhdGEudGllcixcbiAgICAgICAgICByYW5rOiBzb2xvUXVldWVEYXRhLnJhbmssXG4gICAgICAgICAgbGVhZ3VlUG9pbnRzOiBzb2xvUXVldWVEYXRhLmxlYWd1ZVBvaW50cyxcbiAgICAgICAgICB3aW5zOiBzb2xvUXVldWVEYXRhLndpbnMsXG4gICAgICAgICAgbG9zc2VzOiBzb2xvUXVldWVEYXRhLmxvc3NlcyxcbiAgICAgICAgICB2ZXRlcmFuOiBzb2xvUXVldWVEYXRhLnZldGVyYW4sXG4gICAgICAgICAgaW5hY3RpdmU6IHNvbG9RdWV1ZURhdGEuaW5hY3RpdmUsXG4gICAgICAgICAgZnJlc2hCbG9vZDogc29sb1F1ZXVlRGF0YS5mcmVzaEJsb29kLFxuICAgICAgICAgIGhvdFN0cmVhazogc29sb1F1ZXVlRGF0YS5ob3RTdHJlYWssXG4gICAgICAgIH1cbiAgICAgIDogbnVsbDtcblxuICAgIC8vIENoZWNrIGlmIEZsZXggUXVldWUgZGF0YSBleGlzdHMgYW5kIHN0b3JlIGl0cyBwcm9wZXJ0aWVzXG4gICAgY29uc3QgZmxleFF1ZXVlSW5mbyA9IGZsZXhRdWV1ZURhdGFcbiAgICAgID8ge1xuICAgICAgICAgIHF1ZXVlVHlwZTogZmxleFF1ZXVlRGF0YS5xdWV1ZVR5cGUsXG4gICAgICAgICAgdGllcjogZmxleFF1ZXVlRGF0YS50aWVyLFxuICAgICAgICAgIHJhbms6IGZsZXhRdWV1ZURhdGEucmFuayxcbiAgICAgICAgICBsZWFndWVQb2ludHM6IGZsZXhRdWV1ZURhdGEubGVhZ3VlUG9pbnRzLFxuICAgICAgICAgIHdpbnM6IGZsZXhRdWV1ZURhdGEud2lucyxcbiAgICAgICAgICBsb3NzZXM6IGZsZXhRdWV1ZURhdGEubG9zc2VzLFxuICAgICAgICAgIHZldGVyYW46IGZsZXhRdWV1ZURhdGEudmV0ZXJhbixcbiAgICAgICAgICBpbmFjdGl2ZTogZmxleFF1ZXVlRGF0YS5pbmFjdGl2ZSxcbiAgICAgICAgICBmcmVzaEJsb29kOiBmbGV4UXVldWVEYXRhLmZyZXNoQmxvb2QsXG4gICAgICAgICAgaG90U3RyZWFrOiBmbGV4UXVldWVEYXRhLmhvdFN0cmVhayxcbiAgICAgICAgfVxuICAgICAgOiBudWxsO1xuXG5cbiBcbiAgIFxuXG4gICAgLy8gRmV0Y2ggbmV3IG1hdGNoIGhpc3RvcnlcbiAgICBjb25zdCBtYXRjaGVzUmVzcG9uc2UgPSBhd2FpdCBmZXRjaChgaHR0cHM6Ly8ke3BsYXRmb3JtfS5hcGkucmlvdGdhbWVzLmNvbS9sb2wvbWF0Y2gvdjUvbWF0Y2hlcy9ieS1wdXVpZC8ke3N1bW1vbmVyRGF0YS5wdXVpZH0vaWRzP3N0YXJ0PTAmY291bnQ9JHtNQVhfTUFUQ0hfSElTVE9SWV9DT1VOVH0mYXBpX2tleT0ke2FwaUtleX1gKTtcbiAgICBpZiAoIW1hdGNoZXNSZXNwb25zZS5vaykge1xuICAgICAgdGhyb3cgbmV3IEVycm9yKCdGYWlsZWQgdG8gZmV0Y2ggbWF0Y2ggZGF0YScpO1xuICAgIH1cbiAgICBjb25zdCBuZXdNYXRjaGVzOiBzdHJpbmdbXSA9IGF3YWl0IG1hdGNoZXNSZXNwb25zZS5qc29uKCk7XG5cbiAgICAvLyBJZiBjYWNoZSBpcyBlbXB0eSBvciBkb2Vzbid0IGhhdmUgbWF0Y2ggaGlzdG9yeSwgcG9wdWxhdGUgaXQgd2l0aCBmZXRjaGVkIG1hdGNoIGRhdGFcbiAgICBpZiAoIWNhY2hlZERhdGEgfHwgIWNhY2hlZERhdGEubWF0Y2hIaXN0b3J5KSB7XG4gICAgICBjb25zdCBuZXdNYXRjaERhdGEgPSBhd2FpdCBmZXRjaE1hdGNoRGF0YShuZXdNYXRjaGVzLCBhcGlLZXksIHN1bW1vbmVyRGF0YS5wdXVpZCwgcGxhdGZvcm0pO1xuICAgICAgY29uc3QgY2hhbXBpb25TdGF0czogQ2hhbXBpb25TdGF0cyA9IGNhbGN1bGF0ZUNoYW1waW9uU3RhdHMobmV3TWF0Y2hEYXRhKTtcbiAgICAgIGNhY2hlLnB1dChjYWNoZUtleSwge1xuICAgICAgICBzdW1tb25lckRhdGEsXG4gICAgICAgIHNvbG9RdWV1ZUluZm8sXG4gICAgICAgIGZsZXhRdWV1ZUluZm8sXG4gICAgICAgIGNoYW1waW9uU3RhdHMsXG4gICAgICAgIG1hdGNoSGlzdG9yeTogbmV3TWF0Y2hEYXRhLFxuICAgICAgfSwgQ0FDSEVfRFVSQVRJT04pO1xuICAgICAgcmV0dXJuIHJlcy5zdGF0dXMoMjAwKS5qc29uKHtcbiAgICAgICAgc3VtbW9uZXJEYXRhLFxuICAgICAgICBzb2xvUXVldWVJbmZvLFxuICAgICAgICBmbGV4UXVldWVJbmZvLFxuICAgICAgICBjaGFtcGlvblN0YXRzLFxuICAgICAgICBtYXRjaEhpc3Rvcnk6IG5ld01hdGNoRGF0YSxcbiAgICAgIH0pO1xuICAgIH1cblxuICAgIC8vIENvbXBhcmUgd2l0aCBwcmV2aW91c2x5IHN0b3JlZCBtYXRjaCBJRHMgdG8gaWRlbnRpZnkgbmV3IG1hdGNoZXNcbiAgICBjb25zdCBzdG9yZWRNYXRjaGVzID0gY2FjaGVkRGF0YS5tYXRjaEhpc3RvcnkgfHwgW107XG4gICAgY29uc3QgbmV3TWF0Y2hlc1RvRmV0Y2ggPSBuZXdNYXRjaGVzLmZpbHRlcihtYXRjaElkID0+ICFzdG9yZWRNYXRjaGVzLmluY2x1ZGVzKG1hdGNoSWQpKTtcblxuICAgIC8vIEZldGNoIGFuZCB1cGRhdGUgZGF0YSBmb3IgbmV3IG1hdGNoZXNcbiAgICBjb25zdCBuZXdNYXRjaERhdGEgPSBhd2FpdCBmZXRjaE1hdGNoRGF0YShuZXdNYXRjaGVzVG9GZXRjaCwgYXBpS2V5LCBzdW1tb25lckRhdGEucHV1aWQsIHBsYXRmb3JtKTtcbiAgICBjb25zdCB1cGRhdGVkTWF0Y2hIaXN0b3J5ID0gWy4uLm5ld01hdGNoRGF0YSwgLi4uKGNhY2hlZERhdGEubWF0Y2hIaXN0b3J5IHx8IFtdKV07XG4gICAgY29uc3QgY2hhbXBpb25TdGF0czogQ2hhbXBpb25TdGF0cyA9IGNhbGN1bGF0ZUNoYW1waW9uU3RhdHModXBkYXRlZE1hdGNoSGlzdG9yeSk7XG4gICAgLy8gU3RvcmUgdGhlIHVwZGF0ZWQgZGF0YVxuICAgIGNhY2hlLnB1dChjYWNoZUtleSwge1xuICAgICAgc3VtbW9uZXJEYXRhLFxuICAgICAgc29sb1F1ZXVlSW5mbyxcbiAgICAgIGZsZXhRdWV1ZUluZm8sXG4gICAgICBjaGFtcGlvblN0YXRzLFxuICAgICAgbWF0Y2hIaXN0b3J5OiB1cGRhdGVkTWF0Y2hIaXN0b3J5LFxuICAgIH0sIENBQ0hFX0RVUkFUSU9OKTtcblxuICAgIHJlcy5zdGF0dXMoMjAwKS5qc29uKHsgXG4gICAgICBzdW1tb25lckRhdGEsIFxuICAgICAgc29sb1F1ZXVlSW5mbywgXG4gICAgICBmbGV4UXVldWVJbmZvLCBcbiAgICAgIGNoYW1waW9uU3RhdHMsIFxuICAgICAgbWF0Y2hIaXN0b3J5OiB1cGRhdGVkTWF0Y2hIaXN0b3J5IFxuICAgIH0pO1xuXG4gIH0gY2F0Y2ggKGVycm9yKSB7XG4gICAgY29uc29sZS5lcnJvcignRXJyb3IgZmV0Y2hpbmcgc3VtbW9uZXI6JywgZXJyb3IpO1xuICAgIHJlcy5zdGF0dXMoNTAwKS5qc29uKHsgbWVzc2FnZTogJ0ZhaWxlZCB0byBmZXRjaCBzdW1tb25lciBkYXRhJyB9KTtcbiAgfVxufTtcblxuYXN5bmMgZnVuY3Rpb24gZmV0Y2hNYXRjaERhdGEobWF0Y2hlczogYW55W10sIGFwaUtleTogc3RyaW5nLCBwdXVpZDogYW55LCBwbGF0Zm9ybTogc3RyaW5nKSB7XG4gIGNvbnN0IGN1cnJlbnRUaW1lID0gRGF0ZS5ub3coKTtcblxuICBjb25zdCBtYXRjaFByb21pc2VzID0gbWF0Y2hlcy5tYXAoYXN5bmMgKG1hdGNoSWQ6IGFueSkgPT4ge1xuICAgIHRyeSB7XG4gICAgICBjb25zdCByZXNwb25zZSA9IGF3YWl0IGZldGNoKGBodHRwczovLyR7cGxhdGZvcm19LmFwaS5yaW90Z2FtZXMuY29tL2xvbC9tYXRjaC92NS9tYXRjaGVzLyR7bWF0Y2hJZH0/YXBpX2tleT0ke2FwaUtleX1gKTtcbiAgICAgIGlmICghcmVzcG9uc2Uub2spIHtcbiAgICAgICAgLy8gdGhyb3cgbmV3IEVycm9yKGBGYWlsZWQgdG8gZmV0Y2ggbWF0Y2ggJHttYXRjaElkfWApO1xuICAgICAgICByZXR1cm5cbiAgICAgIH1cbiAgICAgIGNvbnN0IGdhbWVEYXRhID0gYXdhaXQgcmVzcG9uc2UuanNvbigpO1xuXG4gICAgICBjb25zdCBwYXJ0aWNpcGFudCA9IGdhbWVEYXRhLmluZm8ucGFydGljaXBhbnRzLmZpbmQoKHA6IHsgcHV1aWQ6IGFueTsgfSkgPT4gcC5wdXVpZCA9PT0gcHV1aWQpO1xuICAgICAgaWYgKCFwYXJ0aWNpcGFudCkge1xuICAgICAgICBjb25zb2xlLmxvZyhgUGFydGljaXBhbnQgZm9yIHN1bW1vbmVyIG5vdCBmb3VuZCBpbiBtYXRjaCAke21hdGNoSWR9YCk7XG4gICAgICAgIHJldHVybiBudWxsO1xuICAgICAgfVxuXG4gICAgICBjb25zdCB7IHdpbiwga2lsbHMsIGRlYXRocywgYXNzaXN0cywgY2hhbXBpb25OYW1lLCBjaGFtcGlvbklkLCBzdW1tb25lcjFJZCwgc3VtbW9uZXIySWQsIGl0ZW0wLCBpdGVtMSwgaXRlbTIsIGl0ZW0zLCBpdGVtNCwgaXRlbTUsIHBlcmtzLCB0b3RhbE1pbmlvbnNLaWxsZWQsIHRlYW1FYXJseVN1cnJlbmRlcmVkLCB0ZWFtSWQsdGVhbVBvc2l0aW9uIH0gPSBwYXJ0aWNpcGFudDtcbiAgICAgIGNvbnN0IHsgZ2FtZU1vZGUsIGdhbWVJZCwgZ2FtZUNyZWF0aW9uLCBnYW1lRW5kVGltZXN0YW1wLCBnYW1lRHVyYXRpb24sIHF1ZXVlSWQgfSA9IGdhbWVEYXRhLmluZm87XG5cblxuICAgICAgLy8gRmlsdGVyIG91dCBtYXRjaGVzIHdpdGggcXVldWVJZCAxNzAwXG4gICAgICBpZiAocXVldWVJZCA9PT0gMTcwMCkge1xuICAgICAgICByZXR1cm4gbnVsbDsgLy8gU2tpcCB0aGlzIG1hdGNoXG4gICAgICB9XG5cbiAgICAgIGNvbnN0IHF1ZXVlTmFtZSA9IGdldFF1ZXVlTmFtZUJ5SWQoZ2FtZURhdGEuaW5mby5xdWV1ZUlkLCBxdWV1ZURhdGEpO1xuXG4gICAgICBjb25zdCBzdW1tb25lcjFOYW1lID0gZ2V0U3VtbW9uZXJTcGVsbE5hbWVCeUlkKHN1bW1vbmVyMUlkLCBzdW1tb25lclNwZWxsRGF0YSk7XG4gICAgICBjb25zdCBzdW1tb25lcjJOYW1lID0gZ2V0U3VtbW9uZXJTcGVsbE5hbWVCeUlkKHN1bW1vbmVyMklkLCBzdW1tb25lclNwZWxsRGF0YSk7XG5cbiAgICAgIGNvbnN0IHRpbWVTaW5jZU1hdGNoID0gTWF0aC5mbG9vcigoY3VycmVudFRpbWUgLSBnYW1lRW5kVGltZXN0YW1wKSAvIDEwMDApO1xuICAgICAgY29uc3QgdGltZVNpbmNlTWF0Y2hUZXh0ID0gZm9ybWF0VGltZVNpbmNlTWF0Y2godGltZVNpbmNlTWF0Y2gpO1xuXG4gICAgICBjb25zdCBmb3JtYXR0ZWRHYW1lRHVyYXRpb24gPSBmb3JtYXRHYW1lRHVyYXRpb24oZ2FtZUR1cmF0aW9uKTtcblxuICAgICAgY29uc3QgY3NQZXJNaW51dGUgPSAodG90YWxNaW5pb25zS2lsbGVkIC8gKGdhbWVEdXJhdGlvbiAvIDYwKSkudG9GaXhlZCgxKTtcbiAgICAgIGNvbnN0IGtkYSA9ICgoa2lsbHMgKyBhc3Npc3RzKSAvIGRlYXRocykudG9GaXhlZCgyKTtcblxuICAgICAgY29uc3QgcGFydGljaXBhbnRTdW1tb25lck5hbWVzID0gZ2FtZURhdGEuaW5mby5wYXJ0aWNpcGFudHMubWFwKFxuICAgICAgICAocDogeyBzdW1tb25lck5hbWU6IGFueSB9KSA9PiBwLnN1bW1vbmVyTmFtZVxuICAgICAgKTtcbiAgICAgIGNvbnN0IHBhcnRpY2lwYW50Q2hhbXBpb25JZHMgPSBnYW1lRGF0YS5pbmZvLnBhcnRpY2lwYW50cy5tYXAoXG4gICAgICAgIChwOiB7IGNoYW1waW9uSWQ6IGFueSB9KSA9PiBwLmNoYW1waW9uSWRcbiAgICAgICk7XG5cbiAgICAgIHJldHVybiB7XG4gICAgICAgIFxuICAgICAgICBtYXRjaElkLFxuICAgICAgICBnYW1lX21vZGU6IGdhbWVNb2RlLFxuICAgICAgICBxdWV1ZUlkOiBxdWV1ZUlkLFxuICAgICAgICBxdWV1ZU5hbWUsXG4gICAgICAgIHN1bW1vbmVyczogcGFydGljaXBhbnRTdW1tb25lck5hbWVzLFxuICAgICAgICBjaGFtcGlvbklkczogcGFydGljaXBhbnRDaGFtcGlvbklkcyxcbiAgICAgICAgd2luLFxuICAgICAgICBraWxscyxcbiAgICAgICAgZGVhdGhzLFxuICAgICAgICBhc3Npc3RzLFxuICAgICAgICBrZGEsXG4gICAgICAgIHRvdGFsTWluaW9uc0tpbGxlZCxcbiAgICAgICAgY3NQZXJNaW51dGUsXG4gICAgICAgIHRlYW1FYXJseVN1cnJlbmRlcmVkLCBcbiAgICAgICAgdGVhbUlkLFxuICAgICAgICB0ZWFtUG9zaXRpb24sXG4gICAgICAgIGNoYW1waW9uX25hbWU6IGNoYW1waW9uTmFtZSxcbiAgICAgICAgY2hhbXBpb25JZCxcbiAgICAgICAgc3VtbW9uZXIxSWQsXG4gICAgICAgIHN1bW1vbmVyMU5hbWUsXG4gICAgICAgIHN1bW1vbmVyMk5hbWUsXG4gICAgICAgIGl0ZW1zOiB7IGl0ZW0wLCBpdGVtMSwgaXRlbTIsIGl0ZW0zLCBpdGVtNCwgaXRlbTUgfSxcbiAgICAgICAgcGVya3M6IHBlcmtzLFxuICAgICAgICB0aW1lU2luY2VNYXRjaDogdGltZVNpbmNlTWF0Y2hUZXh0LFxuICAgICAgICBnYW1lRHVyYXRpb246IGZvcm1hdHRlZEdhbWVEdXJhdGlvbixcbiAgICAgIH07XG4gICAgfSBjYXRjaCAoZXJyb3IpIHtcbiAgICAgIGNvbnNvbGUuZXJyb3IoYEVycm9yIGZldGNoaW5nIG1hdGNoICR7bWF0Y2hJZH06YCwgZXJyb3IpO1xuICAgICAgcmV0dXJuIG51bGw7XG4gICAgfVxuICB9KTtcblxuICBjb25zdCBtYXRjaERhdGEgPSBhd2FpdCBQcm9taXNlLmFsbChtYXRjaFByb21pc2VzKTtcblxuICAvLyBGaWx0ZXIgb3V0IG51bGwgYW5kIHVuZGVmaW5lZCBtYXRjaGVzXG4gIGNvbnN0IGZpbHRlcmVkTWF0Y2hEYXRhID0gbWF0Y2hEYXRhLmZpbHRlcihtYXRjaCA9PiBtYXRjaCAhPT0gbnVsbCAmJiBtYXRjaCAhPT0gdW5kZWZpbmVkKTtcblxuICByZXR1cm4gZmlsdGVyZWRNYXRjaERhdGE7XG59XG5hc3luYyBmdW5jdGlvbiBnZXRNYXRjaERhdGEoYXBpS2V5OiBzdHJpbmcsIHB1dWlkOiBhbnksIHBsYXRmb3JtOiBzdHJpbmcpIHtcbiAgLy8gU2V0IHlvdXIgQVBJIGtleSwgcHV1aWQsIGFuZCBwbGF0Zm9ybVxuXG5cbiAgLy8gR2V0IHRoZSBtYXRjaGVzXG4gIGNvbnN0IG1hdGNoZXNSZXNwb25zZSA9IGF3YWl0IGZldGNoKGBodHRwczovLyR7cGxhdGZvcm19LmFwaS5yaW90Z2FtZXMuY29tL2xvbC9tYXRjaC92NS9tYXRjaGVzL2J5LXB1dWlkLyR7cHV1aWR9L2lkcz9zdGFydD0wJmNvdW50PTE5JmFwaV9rZXk9JHthcGlLZXl9YCk7XG4gIGlmICghbWF0Y2hlc1Jlc3BvbnNlLm9rKSB7XG4gICAgdGhyb3cgbmV3IEVycm9yKCdGYWlsZWQgdG8gZmV0Y2ggbWF0Y2ggZGF0YScpO1xuICB9XG4gIGNvbnN0IG1hdGNoZXM6IHN0cmluZ1tdID0gYXdhaXQgbWF0Y2hlc1Jlc3BvbnNlLmpzb24oKTtcblxuICAvLyBGZXRjaCB0aGUgbWF0Y2ggZGF0YSB1c2luZyB0aGUgZmV0Y2hNYXRjaERhdGEgZnVuY3Rpb25cbiAgY29uc3QgbWF0Y2hEYXRhID0gYXdhaXQgZmV0Y2hNYXRjaERhdGEobWF0Y2hlcywgYXBpS2V5LCBwdXVpZCwgcGxhdGZvcm0pO1xuXG4gIC8vIEZpbHRlciBvdXQgYW55IG51bGwgdmFsdWVzXG4gIGNvbnN0IGZpbHRlcmVkTWF0Y2hEYXRhID0gbWF0Y2hEYXRhLmZpbHRlcihtYXRjaCA9PiBtYXRjaCAhPT0gbnVsbCk7XG5cbiAgLy8gRG8gc29tZXRoaW5nIHdpdGggdGhlIG1hdGNoIGRhdGFcbiAgY29uc29sZS5sb2coZmlsdGVyZWRNYXRjaERhdGEpO1xufVxuXG5cblxuZnVuY3Rpb24gY2FsY3VsYXRlQ2hhbXBpb25TdGF0cyhtYXRjaERhdGE6IGFueVtdKTogQ2hhbXBpb25TdGF0cyB7XG4gIGNvbnN0IGNoYW1waW9uU3RhdHM6IENoYW1waW9uU3RhdHMgPSB7fTtcblxuICBtYXRjaERhdGEuZm9yRWFjaCgobWF0Y2hFbnRyeSkgPT4ge1xuICAgIGNoYW1waW9uU3RhdHNbbWF0Y2hFbnRyeS5jaGFtcGlvbl9uYW1lXSA9IGNoYW1waW9uU3RhdHNbbWF0Y2hFbnRyeS5jaGFtcGlvbl9uYW1lXSB8fCB7IGdhbWVzUGxheWVkOiAwLCB3aW5zOiAwIH07XG4gICAgY2hhbXBpb25TdGF0c1ttYXRjaEVudHJ5LmNoYW1waW9uX25hbWVdLmdhbWVzUGxheWVkKys7XG4gICAgaWYgKG1hdGNoRW50cnkud2luKSB7XG4gICAgICBjaGFtcGlvblN0YXRzW21hdGNoRW50cnkuY2hhbXBpb25fbmFtZV0ud2lucysrO1xuICAgIH1cbiAgfSk7XG5cbiAgY29uc3Qgc29ydGVkQ2hhbXBpb25TdGF0czogQ2hhbXBpb25TdGF0cyA9IHt9O1xuICBPYmplY3QuZW50cmllcyhjaGFtcGlvblN0YXRzKVxuICAgIC5tYXAoKFtjaGFtcGlvbl9uYW1lLCBzdGF0c10pID0+ICh7IGNoYW1waW9uX25hbWUsIC4uLnN0YXRzIH0pKVxuICAgIC5zb3J0KChhLCBiKSA9PiBiLmdhbWVzUGxheWVkIC0gYS5nYW1lc1BsYXllZCkgLy8gU29ydCBpbiBkZXNjZW5kaW5nIG9yZGVyIG9mIGdhbWVzIHBsYXllZFxuICAgIC5mb3JFYWNoKChlbnRyeSkgPT4ge1xuICAgICAgc29ydGVkQ2hhbXBpb25TdGF0c1tlbnRyeS5jaGFtcGlvbl9uYW1lXSA9IHtcbiAgICAgICAgZ2FtZXNQbGF5ZWQ6IGVudHJ5LmdhbWVzUGxheWVkLFxuICAgICAgICB3aW5zOiBlbnRyeS53aW5zLFxuICAgICAgICB3aW5SYXRlOiAoZW50cnkud2lucyAvIGVudHJ5LmdhbWVzUGxheWVkKSAqIDEwMCxcbiAgICAgIH07XG4gICAgfSk7XG5cbiAgcmV0dXJuIHNvcnRlZENoYW1waW9uU3RhdHM7XG59XG5cblxuZnVuY3Rpb24gZm9ybWF0VGltZVNpbmNlTWF0Y2godGltZVNpbmNlTWF0Y2g6IG51bWJlcikge1xuICBpZiAodGltZVNpbmNlTWF0Y2ggPCA2MCkge1xuICAgIHJldHVybiBgJHt0aW1lU2luY2VNYXRjaH0gc2Vjb25kJHt0aW1lU2luY2VNYXRjaCAhPT0gMSA/ICdzJyA6ICcnfSBhZ29gO1xuICB9IGVsc2UgaWYgKHRpbWVTaW5jZU1hdGNoIDwgNjAgKiA2MCkge1xuICAgIGNvbnN0IG1pbnV0ZXMgPSBNYXRoLmZsb29yKHRpbWVTaW5jZU1hdGNoIC8gNjApO1xuICAgIHJldHVybiBgJHttaW51dGVzfSBtaW51dGUke21pbnV0ZXMgIT09IDEgPyAncycgOiAnJ30gYWdvYDtcbiAgfSBlbHNlIGlmICh0aW1lU2luY2VNYXRjaCA8IDI0ICogNjAgKiA2MCkge1xuICAgIGNvbnN0IGhvdXJzID0gTWF0aC5mbG9vcih0aW1lU2luY2VNYXRjaCAvICg2MCAqIDYwKSk7XG4gICAgcmV0dXJuIGAke2hvdXJzfSBob3VyJHtob3VycyAhPT0gMSA/ICdzJyA6ICcnfSBhZ29gO1xuICB9IGVsc2Uge1xuICAgIGNvbnN0IGRheXMgPSBNYXRoLmZsb29yKHRpbWVTaW5jZU1hdGNoIC8gKDI0ICogNjAgKiA2MCkpO1xuICAgIHJldHVybiBgJHtkYXlzfSBkYXkke2RheXMgIT09IDEgPyAncycgOiAnJ30gYWdvYDtcbiAgfVxufVxuXG5mdW5jdGlvbiBmb3JtYXRHYW1lRHVyYXRpb24oZHVyYXRpb246IG51bWJlcikge1xuICBjb25zdCBtaW51dGVzID0gTWF0aC5mbG9vcihkdXJhdGlvbiAvIDYwKTtcbiAgY29uc3Qgc2Vjb25kcyA9IGR1cmF0aW9uICUgNjA7XG4gIHJldHVybiBgJHttaW51dGVzfToke3NlY29uZHMgPCAxMCA/ICcwJyA6ICcnfSR7c2Vjb25kc31gO1xufVxuXG5mdW5jdGlvbiBnZXRRdWV1ZU5hbWVCeUlkKHF1ZXVlSWQ6IGFueSwgcXVldWVEYXRhOiBhbnlbXSkge1xuICBjb25zdCBxdWV1ZSA9IHF1ZXVlRGF0YS5maW5kKHEgPT4gcS5xdWV1ZUlkID09PSBxdWV1ZUlkKTtcbiAgcmV0dXJuIHF1ZXVlID8gcXVldWUuZGVzY3JpcHRpb24gOiAnVW5rbm93bic7XG59XG5cbmZ1bmN0aW9uIGdldFN1bW1vbmVyU3BlbGxOYW1lQnlJZChzdW1tb25lclNwZWxsSWQ6IG51bWJlciwgc3VtbW9uZXJTcGVsbERhdGE6IGFueSkge1xuICBjb25zdCBzdW1tb25lclNwZWxsTmFtZSA9IHN1bW1vbmVyU3BlbGxEYXRhW3N1bW1vbmVyU3BlbGxJZF07XG4gIHJldHVybiBzdW1tb25lclNwZWxsTmFtZSB8fCAnVW5rbm93bic7XG59XG5cbi8vIE1vdmUgdGhlIHN1bW1vbmVyTGl2ZVJlc3BvbnNlIGZldGNoaW5nIGluc2lkZSBhIHNlcGFyYXRlIGZ1bmN0aW9uXG5hc3luYyBmdW5jdGlvbiBmZXRjaFN1bW1vbmVyTGl2ZShhcGlLZXk6IGFueSwgc3VtbW9uZXJJZDogYW55LCBtb2RpZmllZFJlZ2lvbjogYW55KSB7XG4gIGNvbnN0IHN1bW1vbmVyTGl2ZVJlc3BvbnNlID0gYXdhaXQgZmV0Y2goYGh0dHBzOi8vJHttb2RpZmllZFJlZ2lvbn0uYXBpLnJpb3RnYW1lcy5jb20vbG9sL3NwZWN0YXRvci92NC9hY3RpdmUtZ2FtZXMvYnktc3VtbW9uZXIvJHtzdW1tb25lcklkfT9hcGlfa2V5PSR7YXBpS2V5fWApO1xuXG4gIGlmIChzdW1tb25lckxpdmVSZXNwb25zZS5vaykge1xuICAgIHJldHVybiBhd2FpdCBzdW1tb25lckxpdmVSZXNwb25zZS5qc29uKCk7XG4gIH0gZWxzZSBpZiAoc3VtbW9uZXJMaXZlUmVzcG9uc2Uuc3RhdHVzID09PSA0MDQpIHtcbiAgICBjb25zb2xlLmxvZygnU3VtbW9uZXIgaXMgbm90IGluIGEgZ2FtZScpO1xuICAgIHJldHVybiBudWxsO1xuICB9IGVsc2Uge1xuICAgIHRocm93IG5ldyBFcnJvcignRmFpbGVkIHRvIGZldGNoIHN1bW1vbmVyIGxpdmUgZGF0YScpO1xuICB9XG59XG5cbi8vIEluc2lkZSB5b3VyIG1haW4gaGFuZGxlclxuLy8gY29uc3Qgc3VtbW9uZXJMaXZlID0gYXdhaXQgZmV0Y2hTdW1tb25lckxpdmUoYXBpS2V5LCBzdW1tb25lckRhdGEuc3VtbW9uZXJJZCwgbW9kaWZpZWRSZWdpb24pO1xuXG5cblxuZXhwb3J0IGRlZmF1bHQgaGFuZGxlcjtcbiJdLCJuYW1lcyI6WyJmZXRjaCIsInF1ZXVlRGF0YSIsInN1bW1vbmVyU3BlbGxEYXRhIiwiY2FjaGUiLCJyZWdpb25Db2RlTWFwIiwiYnIiLCJldW5lIiwiZXV3IiwianAiLCJrciIsImxhbiIsImxhcyIsIm5hIiwib2NlIiwidHIiLCJydSIsInBoIiwic2ciLCJ0aCIsInR3Iiwidm4iLCJwbGF0Zm9ybVRvUmVnaW9uTWFwIiwiQlIxIiwiRVVOMSIsIkVVVzEiLCJKUDEiLCJLUiIsIkxBMSIsIkxBMiIsIk5BMSIsIk9DMSIsIlRSMSIsIlJVIiwiUEgyIiwiU0cyIiwiVEgyIiwiVFcyIiwiVk4yIiwiQ0FDSEVfRFVSQVRJT04iLCJNQVhfTUFUQ0hfSElTVE9SWV9DT1VOVCIsImhhbmRsZXIiLCJfcmVxIiwicmVzIiwiYXBpS2V5IiwicmVnaW9uIiwicXVlcnkiLCJzdW1tb25lck5hbWUiLCJ1c2VybmFtZSIsIm1vZGlmaWVkUmVnaW9uIiwic3RhdHVzIiwianNvbiIsIm1lc3NhZ2UiLCJwbGF0IiwicGxhdGZvcm0iLCJ0b1VwcGVyQ2FzZSIsImNhY2hlS2V5IiwiY2FjaGVkRGF0YSIsImdldCIsImNvbnNvbGUiLCJsb2ciLCJzdW1tb25lclJlc3BvbnNlIiwib2siLCJFcnJvciIsInN1bW1vbmVyIiwic3VtbW9uZXJEYXRhIiwibmFtZSIsImxldmVsIiwic3VtbW9uZXJMZXZlbCIsImFjY291bnRJZCIsInN1bW1vbmVySWQiLCJpZCIsInB1dWlkIiwicHJvZmlsZUljb24iLCJwcm9maWxlSWNvbklkIiwic3VtbW9uZXJMZWFndWVWNCIsImxlYWd1ZVY0Iiwic29sb1F1ZXVlRGF0YSIsImZpbmQiLCJxdWV1ZSIsInF1ZXVlVHlwZSIsImZsZXhRdWV1ZURhdGEiLCJzb2xvUXVldWVJbmZvIiwidGllciIsInJhbmsiLCJsZWFndWVQb2ludHMiLCJ3aW5zIiwibG9zc2VzIiwidmV0ZXJhbiIsImluYWN0aXZlIiwiZnJlc2hCbG9vZCIsImhvdFN0cmVhayIsImZsZXhRdWV1ZUluZm8iLCJtYXRjaGVzUmVzcG9uc2UiLCJuZXdNYXRjaGVzIiwibWF0Y2hIaXN0b3J5IiwibmV3TWF0Y2hEYXRhIiwiZmV0Y2hNYXRjaERhdGEiLCJjaGFtcGlvblN0YXRzIiwiY2FsY3VsYXRlQ2hhbXBpb25TdGF0cyIsInB1dCIsInN0b3JlZE1hdGNoZXMiLCJuZXdNYXRjaGVzVG9GZXRjaCIsImZpbHRlciIsIm1hdGNoSWQiLCJpbmNsdWRlcyIsInVwZGF0ZWRNYXRjaEhpc3RvcnkiLCJlcnJvciIsIm1hdGNoZXMiLCJjdXJyZW50VGltZSIsIkRhdGUiLCJub3ciLCJtYXRjaFByb21pc2VzIiwibWFwIiwicmVzcG9uc2UiLCJnYW1lRGF0YSIsInBhcnRpY2lwYW50IiwiaW5mbyIsInBhcnRpY2lwYW50cyIsInAiLCJ3aW4iLCJraWxscyIsImRlYXRocyIsImFzc2lzdHMiLCJjaGFtcGlvbk5hbWUiLCJjaGFtcGlvbklkIiwic3VtbW9uZXIxSWQiLCJzdW1tb25lcjJJZCIsIml0ZW0wIiwiaXRlbTEiLCJpdGVtMiIsIml0ZW0zIiwiaXRlbTQiLCJpdGVtNSIsInBlcmtzIiwidG90YWxNaW5pb25zS2lsbGVkIiwidGVhbUVhcmx5U3VycmVuZGVyZWQiLCJ0ZWFtSWQiLCJ0ZWFtUG9zaXRpb24iLCJnYW1lTW9kZSIsImdhbWVJZCIsImdhbWVDcmVhdGlvbiIsImdhbWVFbmRUaW1lc3RhbXAiLCJnYW1lRHVyYXRpb24iLCJxdWV1ZUlkIiwicXVldWVOYW1lIiwiZ2V0UXVldWVOYW1lQnlJZCIsInN1bW1vbmVyMU5hbWUiLCJnZXRTdW1tb25lclNwZWxsTmFtZUJ5SWQiLCJzdW1tb25lcjJOYW1lIiwidGltZVNpbmNlTWF0Y2giLCJNYXRoIiwiZmxvb3IiLCJ0aW1lU2luY2VNYXRjaFRleHQiLCJmb3JtYXRUaW1lU2luY2VNYXRjaCIsImZvcm1hdHRlZEdhbWVEdXJhdGlvbiIsImZvcm1hdEdhbWVEdXJhdGlvbiIsImNzUGVyTWludXRlIiwidG9GaXhlZCIsImtkYSIsInBhcnRpY2lwYW50U3VtbW9uZXJOYW1lcyIsInBhcnRpY2lwYW50Q2hhbXBpb25JZHMiLCJnYW1lX21vZGUiLCJzdW1tb25lcnMiLCJjaGFtcGlvbklkcyIsImNoYW1waW9uX25hbWUiLCJpdGVtcyIsIm1hdGNoRGF0YSIsIlByb21pc2UiLCJhbGwiLCJmaWx0ZXJlZE1hdGNoRGF0YSIsIm1hdGNoIiwidW5kZWZpbmVkIiwiZ2V0TWF0Y2hEYXRhIiwiZm9yRWFjaCIsIm1hdGNoRW50cnkiLCJnYW1lc1BsYXllZCIsInNvcnRlZENoYW1waW9uU3RhdHMiLCJPYmplY3QiLCJlbnRyaWVzIiwic3RhdHMiLCJzb3J0IiwiYSIsImIiLCJlbnRyeSIsIndpblJhdGUiLCJtaW51dGVzIiwiaG91cnMiLCJkYXlzIiwiZHVyYXRpb24iLCJzZWNvbmRzIiwicSIsImRlc2NyaXB0aW9uIiwic3VtbW9uZXJTcGVsbElkIiwic3VtbW9uZXJTcGVsbE5hbWUiLCJmZXRjaFN1bW1vbmVyTGl2ZSIsInN1bW1vbmVyTGl2ZVJlc3BvbnNlIl0sInNvdXJjZVJvb3QiOiIifQ==\n//# sourceURL=webpack-internal:///(api)/./pages/api/summoner/[region]/[username].ts\n");
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
 
-/***/ }),
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  "default": () => (/* binding */ _username_)
+});
 
-/***/ "(api)/./pages/api/summoner/[region]/queues.json":
-/*!*************************************************!*\
-  !*** ./pages/api/summoner/[region]/queues.json ***!
-  \*************************************************/
-/***/ ((module) => {
+// EXTERNAL MODULE: external "node-fetch"
+var external_node_fetch_ = __webpack_require__(4809);
+var external_node_fetch_default = /*#__PURE__*/__webpack_require__.n(external_node_fetch_);
+;// CONCATENATED MODULE: ./pages/api/summoner/[region]/queues.json
+const queues_namespaceObject = JSON.parse('[{"queueId":0,"map":"Custom Game","description":null,"notes":null},{"queueId":2,"map":"Summoner\'s Rift","description":"Blind Pick ","notes":"Deprecated in patch 7.19 in favor of queueId 430"},{"queueId":4,"map":"Summoner\'s Rift","description":"Ranked Solo ","notes":"Deprecated in favor of queueId 420"},{"queueId":6,"map":"Summoner\'s Rift","description":"Ranked Premade ","notes":"Game mode deprecated"},{"queueId":7,"map":"Summoner\'s Rift","description":"Co-op vs AI ","notes":"Deprecated in favor of queueId 32 and 33"},{"queueId":8,"map":"Twisted Treeline","description":"3v3 Normal ","notes":"Deprecated in patch 7.19 in favor of queueId 460"},{"queueId":9,"map":"Twisted Treeline","description":"3v3 Ranked Flex ","notes":"Deprecated in patch 7.19 in favor of queueId 470"},{"queueId":14,"map":"Summoner\'s Rift","description":"Draft Pick ","notes":"Deprecated in favor of queueId 400"},{"queueId":16,"map":"Crystal Scar","description":"Dominion Blind Pick ","notes":"Game mode deprecated"},{"queueId":17,"map":"Crystal Scar","description":"Dominion Draft Pick ","notes":"Game mode deprecated"},{"queueId":25,"map":"Crystal Scar","description":"Dominion Co-op vs AI ","notes":"Game mode deprecated"},{"queueId":31,"map":"Summoner\'s Rift","description":"Co-op vs AI Intro Bot ","notes":"Deprecated in patch 7.19 in favor of queueId 830"},{"queueId":32,"map":"Summoner\'s Rift","description":"Co-op vs AI Beginner Bot ","notes":"Deprecated in patch 7.19 in favor of queueId 840"},{"queueId":33,"map":"Summoner\'s Rift","description":"Co-op vs AI Intermediate Bot ","notes":"Deprecated in patch 7.19 in favor of queueId 850"},{"queueId":41,"map":"Twisted Treeline","description":"3v3 Ranked Team ","notes":"Game mode deprecated"},{"queueId":42,"map":"Summoner\'s Rift","description":"Ranked Team ","notes":"Game mode deprecated"},{"queueId":52,"map":"Twisted Treeline","description":"Co-op vs AI ","notes":"Deprecated in patch 7.19 in favor of queueId 800"},{"queueId":61,"map":"Summoner\'s Rift","description":"Team Builder ","notes":"Game mode deprecated"},{"queueId":65,"map":"Howling Abyss","description":"ARAM ","notes":"Deprecated in patch 7.19 in favor of queueId 450"},{"queueId":67,"map":"Howling Abyss","description":"ARAM Co-op vs AI ","notes":"Game mode deprecated"},{"queueId":70,"map":"Summoner\'s Rift","description":"One for All ","notes":"Deprecated in patch 8.6 in favor of queueId 1020"},{"queueId":72,"map":"Howling Abyss","description":"1v1 Snowdown Showdown ","notes":null},{"queueId":73,"map":"Howling Abyss","description":"2v2 Snowdown Showdown ","notes":null},{"queueId":75,"map":"Summoner\'s Rift","description":"6v6 Hexakill ","notes":null},{"queueId":76,"map":"Summoner\'s Rift","description":"Ultra Rapid Fire ","notes":null},{"queueId":78,"map":"Howling Abyss","description":"One For All: Mirror Mode ","notes":null},{"queueId":83,"map":"Summoner\'s Rift","description":"Co-op vs AI Ultra Rapid Fire ","notes":null},{"queueId":91,"map":"Summoner\'s Rift","description":"Doom Bots Rank 1 ","notes":"Deprecated in patch 7.19 in favor of queueId 950"},{"queueId":92,"map":"Summoner\'s Rift","description":"Doom Bots Rank 2 ","notes":"Deprecated in patch 7.19 in favor of queueId 950"},{"queueId":93,"map":"Summoner\'s Rift","description":"Doom Bots Rank 5 ","notes":"Deprecated in patch 7.19 in favor of queueId 950"},{"queueId":96,"map":"Crystal Scar","description":"Ascension ","notes":"Deprecated in patch 7.19 in favor of queueId 910"},{"queueId":98,"map":"Twisted Treeline","description":"6v6 Hexakill ","notes":null},{"queueId":100,"map":"Butcher\'s Bridge","description":"ARAM ","notes":null},{"queueId":300,"map":"Howling Abyss","description":"Legend of the Poro King ","notes":"Deprecated in patch 7.19 in favor of queueId 920"},{"queueId":310,"map":"Summoner\'s Rift","description":"Nemesis ","notes":null},{"queueId":313,"map":"Summoner\'s Rift","description":"Black Market Brawlers ","notes":null},{"queueId":315,"map":"Summoner\'s Rift","description":"Nexus Siege ","notes":"Deprecated in patch 7.19 in favor of queueId 940"},{"queueId":317,"map":"Crystal Scar","description":"Definitely Not Dominion ","notes":null},{"queueId":318,"map":"Summoner\'s Rift","description":"ARURF ","notes":"Deprecated in patch 7.19 in favor of queueId 900"},{"queueId":325,"map":"Summoner\'s Rift","description":"All Random ","notes":null},{"queueId":400,"map":"Summoner\'s Rift","description":"Draft Pick ","notes":null},{"queueId":410,"map":"Summoner\'s Rift","description":"Ranked Dynamic ","notes":"Game mode deprecated in patch 6.22"},{"queueId":420,"map":"Summoner\'s Rift","description":"Ranked Solo ","notes":null},{"queueId":430,"map":"Summoner\'s Rift","description":"Blind Pick ","notes":null},{"queueId":440,"map":"Summoner\'s Rift","description":"Ranked Flex ","notes":null},{"queueId":450,"map":"Howling Abyss","description":"ARAM ","notes":null},{"queueId":460,"map":"Twisted Treeline","description":"3v3 Blind Pick ","notes":"Deprecated in patch 9.23"},{"queueId":470,"map":"Twisted Treeline","description":"3v3 Ranked Flex ","notes":"Deprecated in patch 9.23"},{"queueId":600,"map":"Summoner\'s Rift","description":"Blood Hunt Assassin ","notes":null},{"queueId":610,"map":"Cosmic Ruins","description":"Dark Star: Singularity ","notes":null},{"queueId":700,"map":"Summoner\'s Rift","description":"Summoner\'s Rift Clash ","notes":null},{"queueId":720,"map":"Howling Abyss","description":"ARAM Clash ","notes":null},{"queueId":800,"map":"Twisted Treeline","description":"Co-op vs. AI Intermediate Bot ","notes":"Deprecated in patch 9.23"},{"queueId":810,"map":"Twisted Treeline","description":"Co-op vs. AI Intro Bot ","notes":"Deprecated in patch 9.23"},{"queueId":820,"map":"Twisted Treeline","description":"Co-op vs. AI Beginner Bot ","notes":null},{"queueId":830,"map":"Summoner\'s Rift","description":"Co-op vs. AI Intro Bot ","notes":null},{"queueId":840,"map":"Summoner\'s Rift","description":"Co-op vs. AI Beginner Bot ","notes":null},{"queueId":850,"map":"Summoner\'s Rift","description":"Co-op vs. AI Intermediate Bot ","notes":null},{"queueId":900,"map":"Summoner\'s Rift","description":"ARURF ","notes":null},{"queueId":910,"map":"Crystal Scar","description":"Ascension ","notes":null},{"queueId":920,"map":"Howling Abyss","description":"Legend of the Poro King ","notes":null},{"queueId":940,"map":"Summoner\'s Rift","description":"Nexus Siege ","notes":null},{"queueId":950,"map":"Summoner\'s Rift","description":"Doom Bots Voting ","notes":null},{"queueId":960,"map":"Summoner\'s Rift","description":"Doom Bots Standard ","notes":null},{"queueId":980,"map":"Valoran City Park","description":"Star Guardian Invasion: Normal ","notes":null},{"queueId":990,"map":"Valoran City Park","description":"Star Guardian Invasion: Onslaught ","notes":null},{"queueId":1000,"map":"Overcharge","description":"PROJECT: Hunters ","notes":null},{"queueId":1010,"map":"Summoner\'s Rift","description":"Snow ARURF ","notes":null},{"queueId":1020,"map":"Summoner\'s Rift","description":"One for All ","notes":null},{"queueId":1030,"map":"Crash Site","description":"Odyssey Extraction: Intro ","notes":null},{"queueId":1040,"map":"Crash Site","description":"Odyssey Extraction: Cadet ","notes":null},{"queueId":1050,"map":"Crash Site","description":"Odyssey Extraction: Crewmember ","notes":null},{"queueId":1060,"map":"Crash Site","description":"Odyssey Extraction: Captain ","notes":null},{"queueId":1070,"map":"Crash Site","description":"Odyssey Extraction: Onslaught ","notes":null},{"queueId":1090,"map":"Convergence","description":"Teamfight Tactics ","notes":null},{"queueId":1100,"map":"Convergence","description":"Ranked Teamfight Tactics ","notes":null},{"queueId":1110,"map":"Convergence","description":"Teamfight Tactics Tutorial ","notes":null},{"queueId":1111,"map":"Convergence","description":"Teamfight Tactics test ","notes":null},{"queueId":1200,"map":"Nexus Blitz","description":"Nexus Blitz ","notes":"Deprecated in patch 9.2"},{"queueId":1300,"map":"Nexus Blitz","description":"Nexus Blitz ","notes":null},{"queueId":1400,"map":"Summoner\'s Rift","description":"Ultimate Spellbook ","notes":null},{"queueId":1900,"map":"Summoner\'s Rift","description":"Pick URF ","notes":null},{"queueId":2000,"map":"Summoner\'s Rift","description":"Tutorial 1","notes":null},{"queueId":2010,"map":"Summoner\'s Rift","description":"Tutorial 2","notes":null},{"queueId":2020,"map":"Summoner\'s Rift","description":"Tutorial 3","notes":null},{"queueId":1700,"map":"Arena","description":"Arena 8v8","notes":null}]');
+;// CONCATENATED MODULE: ./pages/api/summoner/[region]/summonerSpells.json
+const summonerSpells_namespaceObject = JSON.parse('{"1":"SummonerBoost","3":"SummonerExhaust","4":"SummonerFlash","6":"SummonerHaste","7":"SummonerHeal","11":"SummonerSmite","12":"SummonerTeleport","14":"SummonerDot","21":"SummonerBarrier"}');
+;// CONCATENATED MODULE: external "memory-cache"
+const external_memory_cache_namespaceObject = require("memory-cache");
+var external_memory_cache_default = /*#__PURE__*/__webpack_require__.n(external_memory_cache_namespaceObject);
+;// CONCATENATED MODULE: ./pages/api/summoner/[region]/[username].ts
 
-module.exports = JSON.parse('[{"queueId":0,"map":"Custom Game","description":null,"notes":null},{"queueId":2,"map":"Summoner\'s Rift","description":"Blind Pick ","notes":"Deprecated in patch 7.19 in favor of queueId 430"},{"queueId":4,"map":"Summoner\'s Rift","description":"Ranked Solo ","notes":"Deprecated in favor of queueId 420"},{"queueId":6,"map":"Summoner\'s Rift","description":"Ranked Premade ","notes":"Game mode deprecated"},{"queueId":7,"map":"Summoner\'s Rift","description":"Co-op vs AI ","notes":"Deprecated in favor of queueId 32 and 33"},{"queueId":8,"map":"Twisted Treeline","description":"3v3 Normal ","notes":"Deprecated in patch 7.19 in favor of queueId 460"},{"queueId":9,"map":"Twisted Treeline","description":"3v3 Ranked Flex ","notes":"Deprecated in patch 7.19 in favor of queueId 470"},{"queueId":14,"map":"Summoner\'s Rift","description":"Draft Pick ","notes":"Deprecated in favor of queueId 400"},{"queueId":16,"map":"Crystal Scar","description":"Dominion Blind Pick ","notes":"Game mode deprecated"},{"queueId":17,"map":"Crystal Scar","description":"Dominion Draft Pick ","notes":"Game mode deprecated"},{"queueId":25,"map":"Crystal Scar","description":"Dominion Co-op vs AI ","notes":"Game mode deprecated"},{"queueId":31,"map":"Summoner\'s Rift","description":"Co-op vs AI Intro Bot ","notes":"Deprecated in patch 7.19 in favor of queueId 830"},{"queueId":32,"map":"Summoner\'s Rift","description":"Co-op vs AI Beginner Bot ","notes":"Deprecated in patch 7.19 in favor of queueId 840"},{"queueId":33,"map":"Summoner\'s Rift","description":"Co-op vs AI Intermediate Bot ","notes":"Deprecated in patch 7.19 in favor of queueId 850"},{"queueId":41,"map":"Twisted Treeline","description":"3v3 Ranked Team ","notes":"Game mode deprecated"},{"queueId":42,"map":"Summoner\'s Rift","description":"Ranked Team ","notes":"Game mode deprecated"},{"queueId":52,"map":"Twisted Treeline","description":"Co-op vs AI ","notes":"Deprecated in patch 7.19 in favor of queueId 800"},{"queueId":61,"map":"Summoner\'s Rift","description":"Team Builder ","notes":"Game mode deprecated"},{"queueId":65,"map":"Howling Abyss","description":"ARAM ","notes":"Deprecated in patch 7.19 in favor of queueId 450"},{"queueId":67,"map":"Howling Abyss","description":"ARAM Co-op vs AI ","notes":"Game mode deprecated"},{"queueId":70,"map":"Summoner\'s Rift","description":"One for All ","notes":"Deprecated in patch 8.6 in favor of queueId 1020"},{"queueId":72,"map":"Howling Abyss","description":"1v1 Snowdown Showdown ","notes":null},{"queueId":73,"map":"Howling Abyss","description":"2v2 Snowdown Showdown ","notes":null},{"queueId":75,"map":"Summoner\'s Rift","description":"6v6 Hexakill ","notes":null},{"queueId":76,"map":"Summoner\'s Rift","description":"Ultra Rapid Fire ","notes":null},{"queueId":78,"map":"Howling Abyss","description":"One For All: Mirror Mode ","notes":null},{"queueId":83,"map":"Summoner\'s Rift","description":"Co-op vs AI Ultra Rapid Fire ","notes":null},{"queueId":91,"map":"Summoner\'s Rift","description":"Doom Bots Rank 1 ","notes":"Deprecated in patch 7.19 in favor of queueId 950"},{"queueId":92,"map":"Summoner\'s Rift","description":"Doom Bots Rank 2 ","notes":"Deprecated in patch 7.19 in favor of queueId 950"},{"queueId":93,"map":"Summoner\'s Rift","description":"Doom Bots Rank 5 ","notes":"Deprecated in patch 7.19 in favor of queueId 950"},{"queueId":96,"map":"Crystal Scar","description":"Ascension ","notes":"Deprecated in patch 7.19 in favor of queueId 910"},{"queueId":98,"map":"Twisted Treeline","description":"6v6 Hexakill ","notes":null},{"queueId":100,"map":"Butcher\'s Bridge","description":"ARAM ","notes":null},{"queueId":300,"map":"Howling Abyss","description":"Legend of the Poro King ","notes":"Deprecated in patch 7.19 in favor of queueId 920"},{"queueId":310,"map":"Summoner\'s Rift","description":"Nemesis ","notes":null},{"queueId":313,"map":"Summoner\'s Rift","description":"Black Market Brawlers ","notes":null},{"queueId":315,"map":"Summoner\'s Rift","description":"Nexus Siege ","notes":"Deprecated in patch 7.19 in favor of queueId 940"},{"queueId":317,"map":"Crystal Scar","description":"Definitely Not Dominion ","notes":null},{"queueId":318,"map":"Summoner\'s Rift","description":"ARURF ","notes":"Deprecated in patch 7.19 in favor of queueId 900"},{"queueId":325,"map":"Summoner\'s Rift","description":"All Random ","notes":null},{"queueId":400,"map":"Summoner\'s Rift","description":"Draft Pick ","notes":null},{"queueId":410,"map":"Summoner\'s Rift","description":"Ranked Dynamic ","notes":"Game mode deprecated in patch 6.22"},{"queueId":420,"map":"Summoner\'s Rift","description":"Ranked Solo ","notes":null},{"queueId":430,"map":"Summoner\'s Rift","description":"Blind Pick ","notes":null},{"queueId":440,"map":"Summoner\'s Rift","description":"Ranked Flex ","notes":null},{"queueId":450,"map":"Howling Abyss","description":"ARAM ","notes":null},{"queueId":460,"map":"Twisted Treeline","description":"3v3 Blind Pick ","notes":"Deprecated in patch 9.23"},{"queueId":470,"map":"Twisted Treeline","description":"3v3 Ranked Flex ","notes":"Deprecated in patch 9.23"},{"queueId":600,"map":"Summoner\'s Rift","description":"Blood Hunt Assassin ","notes":null},{"queueId":610,"map":"Cosmic Ruins","description":"Dark Star: Singularity ","notes":null},{"queueId":700,"map":"Summoner\'s Rift","description":"Summoner\'s Rift Clash ","notes":null},{"queueId":720,"map":"Howling Abyss","description":"ARAM Clash ","notes":null},{"queueId":800,"map":"Twisted Treeline","description":"Co-op vs. AI Intermediate Bot ","notes":"Deprecated in patch 9.23"},{"queueId":810,"map":"Twisted Treeline","description":"Co-op vs. AI Intro Bot ","notes":"Deprecated in patch 9.23"},{"queueId":820,"map":"Twisted Treeline","description":"Co-op vs. AI Beginner Bot ","notes":null},{"queueId":830,"map":"Summoner\'s Rift","description":"Co-op vs. AI Intro Bot ","notes":null},{"queueId":840,"map":"Summoner\'s Rift","description":"Co-op vs. AI Beginner Bot ","notes":null},{"queueId":850,"map":"Summoner\'s Rift","description":"Co-op vs. AI Intermediate Bot ","notes":null},{"queueId":900,"map":"Summoner\'s Rift","description":"ARURF ","notes":null},{"queueId":910,"map":"Crystal Scar","description":"Ascension ","notes":null},{"queueId":920,"map":"Howling Abyss","description":"Legend of the Poro King ","notes":null},{"queueId":940,"map":"Summoner\'s Rift","description":"Nexus Siege ","notes":null},{"queueId":950,"map":"Summoner\'s Rift","description":"Doom Bots Voting ","notes":null},{"queueId":960,"map":"Summoner\'s Rift","description":"Doom Bots Standard ","notes":null},{"queueId":980,"map":"Valoran City Park","description":"Star Guardian Invasion: Normal ","notes":null},{"queueId":990,"map":"Valoran City Park","description":"Star Guardian Invasion: Onslaught ","notes":null},{"queueId":1000,"map":"Overcharge","description":"PROJECT: Hunters ","notes":null},{"queueId":1010,"map":"Summoner\'s Rift","description":"Snow ARURF ","notes":null},{"queueId":1020,"map":"Summoner\'s Rift","description":"One for All ","notes":null},{"queueId":1030,"map":"Crash Site","description":"Odyssey Extraction: Intro ","notes":null},{"queueId":1040,"map":"Crash Site","description":"Odyssey Extraction: Cadet ","notes":null},{"queueId":1050,"map":"Crash Site","description":"Odyssey Extraction: Crewmember ","notes":null},{"queueId":1060,"map":"Crash Site","description":"Odyssey Extraction: Captain ","notes":null},{"queueId":1070,"map":"Crash Site","description":"Odyssey Extraction: Onslaught ","notes":null},{"queueId":1090,"map":"Convergence","description":"Teamfight Tactics ","notes":null},{"queueId":1100,"map":"Convergence","description":"Ranked Teamfight Tactics ","notes":null},{"queueId":1110,"map":"Convergence","description":"Teamfight Tactics Tutorial ","notes":null},{"queueId":1111,"map":"Convergence","description":"Teamfight Tactics test ","notes":null},{"queueId":1200,"map":"Nexus Blitz","description":"Nexus Blitz ","notes":"Deprecated in patch 9.2"},{"queueId":1300,"map":"Nexus Blitz","description":"Nexus Blitz ","notes":null},{"queueId":1400,"map":"Summoner\'s Rift","description":"Ultimate Spellbook ","notes":null},{"queueId":1900,"map":"Summoner\'s Rift","description":"Pick URF ","notes":null},{"queueId":2000,"map":"Summoner\'s Rift","description":"Tutorial 1","notes":null},{"queueId":2010,"map":"Summoner\'s Rift","description":"Tutorial 2","notes":null},{"queueId":2020,"map":"Summoner\'s Rift","description":"Tutorial 3","notes":null},{"queueId":1700,"map":"Arena","description":"Arena 8v8","notes":null}]');
+ // Import the queues.json file
+ // Import the queues.json file
 
-/***/ }),
+const regionCodeMap = {
+    br: "BR1",
+    eune: "EUN1",
+    euw: "EUW1",
+    jp: "JP1",
+    kr: "KR",
+    lan: "LA1",
+    las: "LA2",
+    na: "NA1",
+    oce: "OC1",
+    tr: "TR1",
+    ru: "RU",
+    ph: "PH2",
+    sg: "SG2",
+    th: "TH2",
+    tw: "TW2",
+    vn: "VN2"
+};
+const platformToRegionMap = {
+    BR1: "americas",
+    EUN1: "europe",
+    EUW1: "europe",
+    JP1: "asia",
+    KR: "asia",
+    LA1: "americas",
+    LA2: "americas",
+    NA1: "americas",
+    OC1: "americas",
+    TR1: "europe",
+    RU: "europe",
+    PH2: "asia",
+    SG2: "asia",
+    TH2: "asia",
+    TW2: "asia",
+    VN2: "asia"
+};
+const playerChips = [];
+// async function generateSuggestionsForImprovement(newMatchData: any[]) {
+//   // Accumulate and analyze participant data from all matches
+//   const aggregatedParticipantData = newMatchData.map(match => match.participant);
+//   // Process and analyze the aggregated data as needed
+//   // Convert the aggregated participant data to a text format for analysis
+//   const analysisText = JSON.stringify(aggregatedParticipantData, null, 2);
+//   // Initialize the OpenAI API client with your API key
+//   const apiKey = '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';
+//   const openai = new OpenAIApi({ apiKey: apiKey });
+//   // Compose the prompt for OpenAI
+//   const prompt = `Based on your recent matches, here are some suggestions to help you improve your performance:\n\nAnalyze the following participant data:\n${analysisText}`;
+//   // Use the OpenAI API to generate suggestions
+//   const response = await openai.complete(prompt);
+//   const chat_completion = await openai.createChatCompletion({
+//     model: "gpt-3.5-turbo",
+//     messages: [{ role: "user", content: "Hello world" }],
+// });
+//   return response.choices[0].text;
+// }
+const CACHE_DURATION = 1 * 60 * 1000;
+const MAX_MATCH_HISTORY_COUNT = 19;
+const handler = async (_req, res)=>{
+    const apiKey = "RGAPI-70e20392-19ee-4299-acf3-23d42e90fac9";
+    const region = _req.query.region;
+    const summonerName = _req.query.username;
+    const modifiedRegion = regionCodeMap[region];
+    if (!modifiedRegion) {
+        return res.status(400).json({
+            message: "Invalid region code."
+        });
+    }
+    const plat = platformToRegionMap[modifiedRegion];
+    if (!plat) {
+        return res.status(400).json({
+            message: "Invalid region code."
+        });
+    }
+    const platform = plat.toUpperCase();
+    const cacheKey = `${modifiedRegion}-${summonerName}`;
+    console.log("chip");
+    try {
+        // const summonerName = 'fnug';
+        const cachedData = external_memory_cache_default().get(cacheKey);
+        if (cachedData) {
+            return res.status(200).json(cachedData);
+            console.log("Data fetched from cache");
+        }
+        console.log("hello");
+        const summonerResponse = await external_node_fetch_default()(`https://${modifiedRegion}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}?api_key=${apiKey}`);
+        if (!summonerResponse.ok) {
+            throw new Error("Failed to fetch summoner data");
+        }
+        const summoner = await summonerResponse.json();
+        const summonerData = {
+            name: summoner.name,
+            level: summoner.summonerLevel,
+            accountId: summoner.accountId,
+            summonerId: summoner.id,
+            puuid: summoner.puuid,
+            profileIcon: summoner.profileIconId
+        };
+        const summonerLeagueV4 = await external_node_fetch_default()(`https://${modifiedRegion}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerData.summonerId}?api_key=${apiKey}`);
+        if (!summonerLeagueV4.ok) {
+            throw new Error("Failed to fetch summoner leagueV4");
+        }
+        // const summonerLiveResponse = await fetch(`https://${modifiedRegion}.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${summonerData.summonerId}?api_key=${apiKey}`);
+        // let summonerLive = null;
+        // if (summonerLiveResponse.ok) {
+        //   summonerLive = await summonerLiveResponse.json();
+        // } else if (summonerLiveResponse.status === 404) {
+        //   // Summoner is not in a game
+        //   console.log('Summoner is not in a game');
+        // } else {
+        //   throw new Error('Failed to fetch summoner live data');
+        // }
+        const leagueV4 = await summonerLeagueV4.json();
+        const soloQueueData = leagueV4.find((queue)=>queue.queueType === "RANKED_SOLO_5x5");
+        // Get Flex Queue data (if available)
+        const flexQueueData = leagueV4.find((queue)=>queue.queueType === "RANKED_FLEX_SR");
+        // Check if Solo Queue data exists and store its properties
+        const soloQueueInfo = soloQueueData ? {
+            queueType: soloQueueData.queueType,
+            tier: soloQueueData.tier,
+            rank: soloQueueData.rank,
+            leaguePoints: soloQueueData.leaguePoints,
+            wins: soloQueueData.wins,
+            losses: soloQueueData.losses,
+            veteran: soloQueueData.veteran,
+            inactive: soloQueueData.inactive,
+            freshBlood: soloQueueData.freshBlood,
+            hotStreak: soloQueueData.hotStreak
+        } : null;
+        // Check if Flex Queue data exists and store its properties
+        const flexQueueInfo = flexQueueData ? {
+            queueType: flexQueueData.queueType,
+            tier: flexQueueData.tier,
+            rank: flexQueueData.rank,
+            leaguePoints: flexQueueData.leaguePoints,
+            wins: flexQueueData.wins,
+            losses: flexQueueData.losses,
+            veteran: flexQueueData.veteran,
+            inactive: flexQueueData.inactive,
+            freshBlood: flexQueueData.freshBlood,
+            hotStreak: flexQueueData.hotStreak
+        } : null;
+        // Fetch new match history
+        const matchesResponse = await external_node_fetch_default()(`https://${platform}.api.riotgames.com/lol/match/v5/matches/by-puuid/${summonerData.puuid}/ids?start=0&count=${MAX_MATCH_HISTORY_COUNT}&api_key=${apiKey}`);
+        if (!matchesResponse.ok) {
+            throw new Error("Failed to fetch match data");
+        }
+        const newMatches = await matchesResponse.json();
+        // If cache is empty or doesn't have match history, populate it with fetched match data
+        if (!cachedData || !cachedData.matchHistory) {
+            const newMatchData = await fetchMatchData(newMatches, apiKey, summonerData.puuid, platform);
+            const championStats = calculateChampionStats(newMatchData);
+            //       const improvementSuggestionsText = await generateSuggestionsForImprovement(newMatchData);
+            // console.log(improvementSuggestionsText);
+            external_memory_cache_default().put(cacheKey, {
+                summonerData,
+                playerChips,
+                soloQueueInfo,
+                flexQueueInfo,
+                championStats,
+                matchHistory: newMatchData
+            }, CACHE_DURATION);
+            return res.status(200).json({
+                summonerData,
+                playerChips,
+                soloQueueInfo,
+                flexQueueInfo,
+                championStats,
+                matchHistory: newMatchData
+            });
+        }
+        // Compare with previously stored match IDs to identify new matches
+        const storedMatches = cachedData.matchHistory || [];
+        const newMatchesToFetch = newMatches.filter((matchId)=>!storedMatches.includes(matchId));
+        // Fetch and update data for new matches
+        const newMatchData = await fetchMatchData(newMatchesToFetch, apiKey, summonerData.puuid, platform);
+        const updatedMatchHistory = [
+            ...newMatchData,
+            ...cachedData.matchHistory || []
+        ];
+        const championStats = calculateChampionStats(updatedMatchHistory);
+        // Store the updated data
+        external_memory_cache_default().put(cacheKey, {
+            summonerData,
+            playerChips,
+            soloQueueInfo,
+            flexQueueInfo,
+            championStats,
+            matchHistory: updatedMatchHistory
+        }, CACHE_DURATION);
+        res.status(200).json({
+            summonerData,
+            playerChips,
+            soloQueueInfo,
+            flexQueueInfo,
+            championStats,
+            matchHistory: updatedMatchHistory
+        });
+    } catch (error) {
+        console.error("Error fetching summoner:", error);
+        res.status(500).json({
+            message: "Failed to fetch summoner data"
+        });
+    }
+};
+const retryableFetch = async (url, retries = 0, maxRetries)=>{
+    try {
+        const response = await external_node_fetch_default()(url);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch data. Status code: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        if (retries < maxRetries) {
+            console.warn(`Request failed. Retrying (Attempt ${retries + 1})...`);
+            return retryableFetch(url, retries + 1, maxRetries);
+        } else {
+            console.error(`Request failed after ${maxRetries} attempts. Error:`, error);
+            throw error;
+        }
+    }
+};
+async function fetchMatchData(matches, apiKey, puuid, platform) {
+    const currentTime = Date.now();
+    playerChips.length = 0;
+    const matchOutcomes = [];
+    const matchPromises = matches.map(async (matchId)=>{
+        try {
+            const gameData = await retryableFetch(`https://${platform}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${apiKey}`, 0, 5 // The maximum number of retries you want
+            );
+            // const gameData = await response.json();
+            // Filter out matches with queueId 1700
+            if (gameData.info.queueId === 1700) {
+                return null; // Skip this match
+            }
+            const participant = gameData.info.participants.find((p)=>p.puuid === puuid);
+            if (!participant) {
+                console.log(`Participant for summoner not found in match ${matchId}`);
+                return null;
+            }
+            const { win, kills, deaths, assists, championName, championId, summoner1Id, summoner2Id, item0, item1, item2, item3, item4, item5, perks, totalMinionsKilled, teamEarlySurrendered, teamId, teamPosition } = participant;
+            const { gameMode, gameId, gameCreation, gameEndTimestamp, gameDuration, queueId } = gameData.info;
+            const queueName = getQueueNameById(gameData.info.queueId, queues_namespaceObject);
+            const summoner1Name = getSummonerSpellNameById(summoner1Id, summonerSpells_namespaceObject);
+            const summoner2Name = getSummonerSpellNameById(summoner2Id, summonerSpells_namespaceObject);
+            const timeSinceMatch = Math.floor((currentTime - gameEndTimestamp) / 1000);
+            const timeSinceMatchText = formatTimeSinceMatch(timeSinceMatch);
+            const formattedGameDuration = formatGameDuration(gameDuration);
+            const csPerMinute = (totalMinionsKilled / (gameDuration / 60)).toFixed(1);
+            const kda = ((kills + assists) / deaths).toFixed(2);
+            const participantSummonerNames = gameData.info.participants.map((p)=>p.summonerName);
+            const participantChampionIds = gameData.info.participants.map((p)=>p.championId);
+            return {
+                matchId,
+                game_mode: gameMode,
+                queueId: queueId,
+                queueName,
+                summoners: participantSummonerNames,
+                championIds: participantChampionIds,
+                win,
+                kills,
+                deaths,
+                assists,
+                kda,
+                totalMinionsKilled,
+                csPerMinute,
+                teamEarlySurrendered,
+                teamId,
+                teamPosition,
+                champion_name: championName,
+                championId,
+                summoner1Id,
+                summoner1Name,
+                summoner2Name,
+                items: {
+                    item0,
+                    item1,
+                    item2,
+                    item3,
+                    item4,
+                    item5
+                },
+                perks: perks,
+                timeSinceMatch: timeSinceMatchText,
+                gameDuration: formattedGameDuration,
+                gameEndTimestamp,
+                participant
+            };
+        } catch (error) {
+            console.error(`Error fetching match ${matchId}:`, error);
+            return null;
+        }
+    });
+    const matchData = await Promise.all(matchPromises);
+    // Filter out null and undefined matches
+    const filteredMatchData = matchData.filter((match)=>match !== null && match !== undefined);
+    // Sort filteredMatchData by gameEndTimestamp
+    const sortedMatchData = filteredMatchData.sort((a, b)=>b?.gameEndTimestamp - a?.gameEndTimestamp);
+    // Populate matchOutcomes array using sortedMatchData
+    sortedMatchData.forEach((match)=>{
+        matchOutcomes.push(match?.win ? "Victory" : "Defeat");
+    });
+    // Reverse matchOutcomes array
+    const reversedMatchOutcomes = matchOutcomes.slice().reverse();
+    // Calculate current loss streak using reversedMatchOutcomes array
+    const currentLossStreak = reversedMatchOutcomes.reduce((streak, outcome)=>outcome === "Defeat" ? streak + 1 : 0, 0);
+    if (currentLossStreak >= 3) {
+        playerChips.push({
+            name: "Cold Streak",
+            desc: `${currentLossStreak} Cold Streak`,
+            icon: "AcUnit",
+            color: "#3174fa"
+        });
+        console.log("pushed chip");
+    }
+    const currentWinStreak = reversedMatchOutcomes.reduce((streak, outcome)=>outcome === "Victory" ? streak + 1 : 0, 0);
+    if (currentWinStreak >= 3) {
+        playerChips.push({
+            name: "Hot Streak",
+            desc: `${currentWinStreak} Hot Streak`,
+            icon: "WhatshotIcon",
+            color: "#ff4e50"
+        });
+        console.log("pushed chip");
+    }
+    console.log(playerChips);
+    return filteredMatchData;
+}
+async function getMatchData(apiKey, puuid, platform) {
+    // Set your API key, puuid, and platform
+    // Get the matches
+    const matchesResponse = await fetch(`https://${platform}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=19&api_key=${apiKey}`);
+    if (!matchesResponse.ok) {
+        throw new Error("Failed to fetch match data");
+    }
+    const matches = await matchesResponse.json();
+    // Fetch the match data using the fetchMatchData function
+    const matchData = await fetchMatchData(matches, apiKey, puuid, platform);
+    // Filter out any null values
+    const filteredMatchData = matchData.filter((match)=>match !== null);
+    // Do something with the match data
+    console.log(filteredMatchData);
+}
+function calculateChampionStats(matchData) {
+    const championStats = {};
+    matchData.forEach((matchEntry)=>{
+        championStats[matchEntry.champion_name] = championStats[matchEntry.champion_name] || {
+            gamesPlayed: 0,
+            wins: 0
+        };
+        championStats[matchEntry.champion_name].gamesPlayed++;
+        if (matchEntry.win) {
+            championStats[matchEntry.champion_name].wins++;
+        }
+    });
+    const sortedChampionStats = {};
+    Object.entries(championStats).map(([champion_name, stats])=>({
+            champion_name,
+            ...stats
+        })).sort((a, b)=>b.gamesPlayed - a.gamesPlayed) // Sort in descending order of games played
+    .forEach((entry)=>{
+        sortedChampionStats[entry.champion_name] = {
+            gamesPlayed: entry.gamesPlayed,
+            wins: entry.wins,
+            winRate: entry.wins / entry.gamesPlayed * 100
+        };
+    });
+    return sortedChampionStats;
+}
+function formatTimeSinceMatch(timeSinceMatch) {
+    if (timeSinceMatch < 60) {
+        return `${timeSinceMatch} second${timeSinceMatch !== 1 ? "s" : ""} ago`;
+    } else if (timeSinceMatch < 60 * 60) {
+        const minutes = Math.floor(timeSinceMatch / 60);
+        return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
+    } else if (timeSinceMatch < 24 * 60 * 60) {
+        const hours = Math.floor(timeSinceMatch / (60 * 60));
+        return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+    } else {
+        const days = Math.floor(timeSinceMatch / (24 * 60 * 60));
+        return `${days} day${days !== 1 ? "s" : ""} ago`;
+    }
+}
+function formatGameDuration(duration) {
+    const minutes = Math.floor(duration / 60);
+    const seconds = duration % 60;
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+}
+function getQueueNameById(queueId, queueData) {
+    const queue = queueData.find((q)=>q.queueId === queueId);
+    return queue ? queue.description : "Unknown";
+}
+function getSummonerSpellNameById(summonerSpellId, summonerSpellData) {
+    const summonerSpellName = summonerSpellData[summonerSpellId];
+    return summonerSpellName || "Unknown";
+}
+// Move the summonerLiveResponse fetching inside a separate function
+async function fetchSummonerLive(apiKey, summonerId, modifiedRegion) {
+    const summonerLiveResponse = await fetch(`https://${modifiedRegion}.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${summonerId}?api_key=${apiKey}`);
+    if (summonerLiveResponse.ok) {
+        return await summonerLiveResponse.json();
+    } else if (summonerLiveResponse.status === 404) {
+        console.log("Summoner is not in a game");
+        return null;
+    } else {
+        throw new Error("Failed to fetch summoner live data");
+    }
+}
+// Inside your main handler
+// const summonerLive = await fetchSummonerLive(apiKey, summonerData.summonerId, modifiedRegion);
+/* harmony default export */ const _username_ = (handler);
 
-/***/ "(api)/./pages/api/summoner/[region]/summonerSpells.json":
-/*!*********************************************************!*\
-  !*** ./pages/api/summoner/[region]/summonerSpells.json ***!
-  \*********************************************************/
-/***/ ((module) => {
-
-module.exports = JSON.parse('{"1":"SummonerBoost","3":"SummonerExhaust","4":"SummonerFlash","6":"SummonerHaste","7":"SummonerHeal","11":"SummonerSmite","12":"SummonerTeleport","14":"SummonerDot","21":"SummonerBarrier"}');
 
 /***/ })
 
@@ -70,7 +460,7 @@ module.exports = JSON.parse('{"1":"SummonerBoost","3":"SummonerExhaust","4":"Sum
 var __webpack_require__ = require("../../../../webpack-api-runtime.js");
 __webpack_require__.C(exports);
 var __webpack_exec__ = (moduleId) => (__webpack_require__(__webpack_require__.s = moduleId))
-var __webpack_exports__ = (__webpack_exec__("(api)/./pages/api/summoner/[region]/[username].ts"));
+var __webpack_exports__ = (__webpack_exec__(4986));
 module.exports = __webpack_exports__;
 
 })();

@@ -1,4 +1,5 @@
 // RankedBox.tsx
+import Image from 'next/image';
 import styles from '../styles/Summonerpage.module.css';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -39,9 +40,11 @@ const RankedBox: React.FC<RankedBoxProps> = ({ queueName, tier, rank, leaguePoin
           {queueName}
         </Typography>
         {/* <div className={styles.leagueV4BoxText}>{queueName}</div> */}
-        <img
+        <Image
           className={styles.LeagueV4RankImage}
           alt="Summoner Profile"
+          width={50}
+          height={50}
           src={`https://static.bigbrain.gg/assets/lol/ranks/s13/${tier.toLowerCase()}.png`}
         />
         <Typography className={styles.LeagueV4Rank}>

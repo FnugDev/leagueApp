@@ -1,4 +1,7 @@
 import Image from 'next/image';
+import { useRouter } from 'next/router';
+import { useTheme } from '@mui/material/styles';
+
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
@@ -6,8 +9,7 @@ import styles from '../styles/MatchHistory.module.css';
 import runesData from '../data/runes/13.13/en_GB/runes.json';
 import React from 'react';
 import { block, For } from 'million/react';
-import { useTheme } from '@mui/material/styles';
-import { useRouter } from 'next/router';
+
 
 
 
@@ -16,12 +18,13 @@ const MatchBox: React.FC<{ match: any; itemImageUrl: string; summonerImageUrl: s
   itemImageUrl,
   summonerImageUrl,
 }) => {
+  const router = useRouter(); // Call useRouter at the top level
+  const theme = useTheme();
   if (!match) {
     return null; 
   }
 
-  const router = useRouter();
-  const theme = useTheme(); // Get the current theme
+
 
 
   const findPerkIconById = (perkId: number) => {

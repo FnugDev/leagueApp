@@ -5,6 +5,9 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Skeleton from '@mui/material/Skeleton'; // Import Skeleton component
 import Grid from '@mui/material/Grid';
+import Chip from '@mui/material/Chip';
+import WhatshotIcon from '@mui/icons-material/Whatshot';
+import AcUnitIcon from '@mui/icons-material/AcUnit';
 import { styled, useTheme } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
@@ -28,6 +31,7 @@ import LoginAndRegister from '../../../components/LoginRegistration';
 import SideMenu from '../../../components/SideMenu';
 import AnimatedBubblesChip from '../../../components/animatedChip';
 import React from 'react';
+import AcUnit from '@mui/icons-material/AcUnit';
 
 const debounce = <T extends any[]>(func: (...args: T) => void, delay: number) => {
   let timer: NodeJS.Timeout;
@@ -40,11 +44,19 @@ const debounce = <T extends any[]>(func: (...args: T) => void, delay: number) =>
   };
 };
 
+const chipIconMapping = {
+  'AcUnit': AcUnitIcon,
+  'WhatshotIcon': WhatshotIcon,
+
+  // Add other icons and their names here
+};
+
 const IndexPage = () => {
   const router = useRouter();
   const { region, username } = router.query;
   const [data, setData] = useState<{
     summonerData: any;
+    playerChips: any;
     soloQueueInfo: any;
     flexQueueInfo: any;
     matchHistory: any;
@@ -66,7 +78,7 @@ const IndexPage = () => {
     backgroundColor: theme.palette.mode === 'dark' ? styles.darkModePaper : '#fbfcff',
 
   };
-  
+
   useEffect(() => {
     fetchDataFromCache(); // Initial data load
 
@@ -344,6 +356,40 @@ const IndexPage = () => {
     );
   }
 
+interface PlayerChip {
+  name: string;
+  desc: string;
+  icon: string | null;
+  color: string;
+}
+
+// ... rest of your code
+
+let summonerChipsElement: JSX.Element | null = null;
+if (data?.playerChips) {
+  summonerChipsElement = (
+    <div className={styles.summonerChipsContainer}>
+      {data.playerChips.map((chip: PlayerChip, index: number) => {
+        const ChipIcon = chip.icon ? chipIconMapping[chip.icon] : null; // Use chip.icon if it's not null
+        return (
+          <Tooltip key={index} title={chip.desc} arrow>
+            <Chip
+              label={chip.name}
+              style={{ color: chip.color }}
+              className={styles.summonerChips}
+              icon={ChipIcon ? <ChipIcon className={styles.smallIcon} style={{ color: chip.color }} /> : <div />} // Use a default empty div as the icon
+            />
+          </Tooltip>
+        );
+      })}
+    </div>
+  );
+}
+
+
+  
+
+
 
   let liveGameButtonElement: JSX.Element | null = null;
   if (data?.summonerLive) {
@@ -447,6 +493,9 @@ const IndexPage = () => {
       <div className={styles.containerMain}>
       <div className={styles.parentContainer}>
         <div className={styles.profileContainer}>
+
+
+          {summonerChipsElement}
           {profilePictureElement}
           {usernameElement}
           {liveGameButtonElement}
@@ -470,7 +519,7 @@ const IndexPage = () => {
                   match ? (
                     <MatchBox key={match.matchId} match={match} itemImageUrl={itemImageUrl} summonerImageUrl={SummonerImageUrl} />
                   ) : (
-                    <Skeleton className={MatchStyles.matchBox} variant="rectangular" width="100%" height={120} animation="wave" style={{ marginBottom: '16px' }} />
+                    <Skeleton key={null} className={MatchStyles.matchBox} variant="rectangular" width="100%" height={120} animation="wave" style={{ marginBottom: '16px' }} />
                   )
                 ))}
               </Box>

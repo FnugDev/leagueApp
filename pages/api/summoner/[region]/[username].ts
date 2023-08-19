@@ -4,6 +4,9 @@ import fetch from 'node-fetch';
 import queueData from './queues.json'; // Import the queues.json file
 import summonerSpellData from './summonerSpells.json'; // Import the queues.json file
 import cache from 'memory-cache';
+import OpenAIApi from 'openai';
+
+
 
 type RegionCode = keyof typeof regionCodeMap;
 type PlatformCode = keyof typeof platformToRegionMap;
@@ -53,8 +56,46 @@ type ChampionStats = {
     winRate: number;
   };
 };
+
+interface PlayerChip {
+  name: string;
+  desc: string;
+  icon: any;
+  color: string;
+}
+
+const playerChips: PlayerChip[] = [];
+
+// async function generateSuggestionsForImprovement(newMatchData: any[]) {
+//   // Accumulate and analyze participant data from all matches
+//   const aggregatedParticipantData = newMatchData.map(match => match.participant);
+//   // Process and analyze the aggregated data as needed
+
+//   // Convert the aggregated participant data to a text format for analysis
+//   const analysisText = JSON.stringify(aggregatedParticipantData, null, 2);
+
+//   // Initialize the OpenAI API client with your API key
+
+//   const apiKey = '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';
+//   const openai = new OpenAIApi({ apiKey: apiKey });
+
+//   // Compose the prompt for OpenAI
+//   const prompt = `Based on your recent matches, here are some suggestions to help you improve your performance:\n\nAnalyze the following participant data:\n${analysisText}`;
+
+//   // Use the OpenAI API to generate suggestions
+//   const response = await openai.complete(prompt);
+//   const chat_completion = await openai.createChatCompletion({
+//     model: "gpt-3.5-turbo",
+//     messages: [{ role: "user", content: "Hello world" }],
+// });
+
+
+//   return response.choices[0].text;
+// }
+
+
 const CACHE_DURATION = 1 * 60 * 1000;
-const MAX_MATCH_HISTORY_COUNT = 20; 
+const MAX_MATCH_HISTORY_COUNT = 19; 
 const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
   const apiKey = 'RGAPI-70e20392-19ee-4299-acf3-23d42e90fac9';
   const region = _req.query.region as RegionCode;
@@ -74,12 +115,16 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
   const cacheKey = `${modifiedRegion}-${summonerName}`;
   
 
+
+  console.log("chip")
+  
   try {
     // const summonerName = 'fnug';
     const cachedData = cache.get(cacheKey);
     if (cachedData) {
-      console.log('Data fetched from cache');
       return res.status(200).json(cachedData);
+      console.log('Data fetched from cache');
+
     }
 console.log("hello")
     const summonerResponse = await fetch(`https://${modifiedRegion}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}?api_key=${apiKey}`);
@@ -114,6 +159,8 @@ console.log("hello")
     // } else {
     //   throw new Error('Failed to fetch summoner live data');
     // }
+
+   
 
     const leagueV4 = await summonerLeagueV4.json();
 
@@ -169,8 +216,11 @@ console.log("hello")
     if (!cachedData || !cachedData.matchHistory) {
       const newMatchData = await fetchMatchData(newMatches, apiKey, summonerData.puuid, platform);
       const championStats: ChampionStats = calculateChampionStats(newMatchData);
+//       const improvementSuggestionsText = await generateSuggestionsForImprovement(newMatchData);
+// console.log(improvementSuggestionsText);
       cache.put(cacheKey, {
         summonerData,
+        playerChips,
         soloQueueInfo,
         flexQueueInfo,
         championStats,
@@ -178,6 +228,7 @@ console.log("hello")
       }, CACHE_DURATION);
       return res.status(200).json({
         summonerData,
+        playerChips,
         soloQueueInfo,
         flexQueueInfo,
         championStats,
@@ -196,6 +247,7 @@ console.log("hello")
     // Store the updated data
     cache.put(cacheKey, {
       summonerData,
+      playerChips,
       soloQueueInfo,
       flexQueueInfo,
       championStats,
@@ -203,7 +255,8 @@ console.log("hello")
     }, CACHE_DURATION);
 
     res.status(200).json({ 
-      summonerData, 
+      summonerData,
+      playerChips, 
       soloQueueInfo, 
       flexQueueInfo, 
       championStats, 
@@ -216,17 +269,44 @@ console.log("hello")
   }
 };
 
+const retryableFetch = async (url: string, retries: number = 0, maxRetries: number) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch data. Status code: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    if (retries < maxRetries) {
+      console.warn(`Request failed. Retrying (Attempt ${retries + 1})...`);
+      return retryableFetch(url, retries + 1, maxRetries);
+    } else {
+      console.error(`Request failed after ${maxRetries} attempts. Error:`, error);
+      throw error;
+    }
+  }
+};
+
 async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platform: string) {
   const currentTime = Date.now();
+  playerChips.length = 0;
+
+  const matchOutcomes: string[] = []; 
+  
 
   const matchPromises = matches.map(async (matchId: any) => {
     try {
-      const response = await fetch(`https://${platform}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${apiKey}`);
-      if (!response.ok) {
-        // throw new Error(`Failed to fetch match ${matchId}`);
-        return
+      const gameData = await retryableFetch(
+        `https://${platform}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${apiKey}`,
+        0, // Initial retry count
+        5 // The maximum number of retries you want
+      );
+      // const gameData = await response.json();
+
+      // Filter out matches with queueId 1700
+      if (gameData.info.queueId === 1700) {
+        return null; // Skip this match
       }
-      const gameData = await response.json();
 
       const participant = gameData.info.participants.find((p: { puuid: any; }) => p.puuid === puuid);
       if (!participant) {
@@ -238,10 +318,7 @@ async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platfo
       const { gameMode, gameId, gameCreation, gameEndTimestamp, gameDuration, queueId } = gameData.info;
 
 
-      // Filter out matches with queueId 1700
-      if (queueId === 1700) {
-        return null; // Skip this match
-      }
+
 
       const queueName = getQueueNameById(gameData.info.queueId, queueData);
 
@@ -262,6 +339,8 @@ async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platfo
       const participantChampionIds = gameData.info.participants.map(
         (p: { championId: any }) => p.championId
       );
+
+
 
       return {
         
@@ -290,6 +369,8 @@ async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platfo
         perks: perks,
         timeSinceMatch: timeSinceMatchText,
         gameDuration: formattedGameDuration,
+        gameEndTimestamp,
+        participant,
       };
     } catch (error) {
       console.error(`Error fetching match ${matchId}:`, error);
@@ -299,8 +380,49 @@ async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platfo
 
   const matchData = await Promise.all(matchPromises);
 
+
   // Filter out null and undefined matches
   const filteredMatchData = matchData.filter(match => match !== null && match !== undefined);
+
+
+  // Sort filteredMatchData by gameEndTimestamp
+  const sortedMatchData = filteredMatchData.sort((a, b) => b?.gameEndTimestamp - a?.gameEndTimestamp);
+
+  // Populate matchOutcomes array using sortedMatchData
+  sortedMatchData.forEach(match => {
+    matchOutcomes.push(match?.win ? "Victory" : "Defeat");
+  });
+  
+  // Reverse matchOutcomes array
+  const reversedMatchOutcomes = matchOutcomes.slice().reverse();
+  
+  // Calculate current loss streak using reversedMatchOutcomes array
+  const currentLossStreak = reversedMatchOutcomes.reduce((streak, outcome) => outcome === "Defeat" ? streak + 1 : 0, 0);
+  if (currentLossStreak >= 3) {
+    playerChips.push({
+      name: "Cold Streak",
+      desc: `${currentLossStreak} Cold Streak`,
+      icon: 'AcUnit',
+      color: '#3174fa',
+    });
+    console.log("pushed chip")
+  }
+
+  const currentWinStreak = reversedMatchOutcomes.reduce((streak, outcome) => outcome === "Victory" ? streak + 1 : 0, 0);
+  if (currentWinStreak >= 3) {
+
+    playerChips.push({
+      name: "Hot Streak",
+      desc: `${currentWinStreak} Hot Streak`,
+      icon: 'WhatshotIcon',
+      color: '#ff4e50'
+    });
+    console.log("pushed chip")
+  }
+
+  
+  
+  console.log(playerChips)
 
   return filteredMatchData;
 }
