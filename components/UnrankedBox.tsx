@@ -3,6 +3,8 @@ import styles from '../styles/Summonerpage.module.css';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
+import type {} from '@mui/material/themeCssVarsAugmentation';
+import { styled } from '@mui/material/styles';
 import React from 'react';
 
 interface UnrankedBoxProps {
@@ -11,21 +13,26 @@ interface UnrankedBoxProps {
 }
 
 const UnrankedBox: React.FC<UnrankedBoxProps> = ({ title, text }) => {
-  const theme = useTheme(); // Get the current theme
+  const CustomPaper = styled(Paper)(({ theme }) => ({
+    // backdropFilter: 'blur(10px)',
+    backgroundColor: theme.vars.palette.cbox,
+    // boxShadow: '0px 0px 1px #d9d9d9, 0px 1px 1px #d9d9d9',
 
-  const paperStyle = {
-    backgroundColor: theme.palette.mode === 'dark' ? styles.darkModePaper : '#fbfcff',
-
-  };
+    [theme.getColorSchemeSelector('dark')]: {
+      // backdropFilter: 'blur(10px)',
+      backgroundColor: theme.vars.palette.cbox,
+      // boxShadow: '0 0 5px rgba(0, 0, 0, 0.5)',
+    },
+  }));
   return (
-    <Paper className={styles.LeagueV4Unranked} style={paperStyle}>
+    <CustomPaper className={styles.LeagueV4Unranked}>
       <Typography className={styles.LeagueV4Title}>
         {title}
       </Typography>
       <Typography className={styles.LeagueV4UnrankedText}>
         {text}
       </Typography>
-    </Paper>
+    </CustomPaper>
   );
 };
 

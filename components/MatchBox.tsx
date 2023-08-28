@@ -97,15 +97,17 @@ const MatchBox: React.FC<{ match: any; itemImageUrl: string; summonerImageUrl: s
         </Grid>
 
 
-        
-        <Image
-          alt="Summoner Profile"
-          width={52}
-          height={52}
-          className={styles.matchChampionImage}
-          style={{ width: "52", height: "52" }} // Add this line
-          src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${match.championId}.png`}
-        />
+        <div className={styles.matchChampionImageContainer}>
+          <Image
+            alt="Summoner Profile"
+            width={52}
+            height={52}
+            className={styles.matchChampionImage}
+            style={{ width: "52", height: "52" }} // Add this line
+            src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${match.championId}.png`}
+          />
+        </div>
+
 
         <Grid container className={styles.matchGridTwo}>
           <Image

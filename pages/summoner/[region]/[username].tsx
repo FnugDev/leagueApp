@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { block, For } from 'million/react';
 import Box from '@mui/material/Box';
@@ -8,7 +8,6 @@ import Grid from '@mui/material/Grid';
 import Chip from '@mui/material/Chip';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import AcUnitIcon from '@mui/icons-material/AcUnit';
-import { styled, useTheme } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import VerifiedIcon from '@mui/icons-material/Verified';
@@ -16,12 +15,16 @@ import ErrorIcon from '@mui/icons-material/Error';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
+import Backdrop from '@mui/material/Backdrop';
 import styles from '../../../styles/Summonerpage.module.css';
 import MatchStyles from '../../../styles/MatchHistory.module.css';
 import Paper from '@mui/material/Paper';
+import type {} from '@mui/material/themeCssVarsAugmentation';
+import { styled } from '@mui/material/styles';
 import { getFirestore,getDoc, doc, setDoc } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
+import SearchBar from '../../../components/searchBar';
 import ProfilePicture from '../../../components/ProfilePicture';
 import ClaimAccount from '../../../components/ClaimAccount';
 import RankedBox from '../../../components/RankedBox';
@@ -30,6 +33,19 @@ import UnrankedBox from '../../../components/UnrankedBox';
 import LoginAndRegister from '../../../components/LoginRegistration';
 import SideMenu from '../../../components/SideMenu';
 import AnimatedBubblesChip from '../../../components/animatedChip';
+import SummonerSearch from '../../../components/searchSummoner';
+import { useBackdropContext } from '../../../components/BackdropContext';
+// import challengerSVG from '../../../public/vercel.svg';
+// import grandmasterSVG from '../../../data/ranks/grandmaster.svg'; // Don't forget the .svg extension for each SVG file
+// import masterSVG from '../../../data/ranks/master.svg';
+// import diamondSVG from '../../../data/ranks/diamond.svg';
+// import emeraldSVG from '../../../data/ranks/emerald.svg';
+// import platinumSVG from '../../../data/ranks/platinum.svg';
+// import goldSVG from '../../../data/ranks/gold.svg';
+// import silverSVG from '../../../data/ranks/silver.svg';
+// import bronzeSVG from '../../../data/ranks/bronze.svg';
+// import ironSVG from '../../../data/ranks/iron.svg';
+// import { ReactComponent as MySvg } from '../public/vercel.svg';
 import React from 'react';
 import AcUnit from '@mui/icons-material/AcUnit';
 
@@ -47,6 +63,7 @@ const debounce = <T extends any[]>(func: (...args: T) => void, delay: number) =>
 const chipIconMapping = {
   'AcUnit': AcUnitIcon,
   'WhatshotIcon': WhatshotIcon,
+  // 'Challenger': challengerSVG,
 
   // Add other icons and their names here
 };
@@ -62,7 +79,6 @@ const IndexPage = () => {
     matchHistory: any;
     summonerLive: any;
   } | null>(null);
-  const theme = useTheme();
 
   const [latestVersion, setLatestVersion] = useState<string | null>(null);
   const itemImageUrl = `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/img/item/`;
@@ -72,15 +88,10 @@ const IndexPage = () => {
   const [isClaimed, setIsClaimed] = useState(false);
   const [isAccHasClaimed, setAccHasClaimed] = useState(false);
   const [authacc, setAuthacc] = useState<string | null>(null);
-
-
-  const paperStyle = {
-    backgroundColor: theme.palette.mode === 'dark' ? styles.darkModePaper : '#fbfcff',
-
-  };
+  const { openBackdrop, closeBackdrop, backdropOpen } = useBackdropContext();
 
   useEffect(() => {
-    fetchDataFromCache(); // Initial data load
+    fetchData(); // Initial data load
 
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -174,7 +185,7 @@ const IndexPage = () => {
     if (cachedData) {
       try {
         const parsedData = JSON.parse(cachedData);
-        const cacheExpiration = parsedData?.timestamp + 520000; // Cache expires after 2 minutes (100 requests in 2 minutes)
+        const cacheExpiration = new Date(parsedData.timestamp).getTime() + 2 * 60 * 1000; // Cache expires after 2 minutes (100 requests in 2 minutes)
         const cachedUsername = parsedData?.data?.summonerData?.name;
         if (Date.now() < cacheExpiration && cachedUsername === username) {
           // Use the cached data only if the username matches the current username in the state
@@ -189,7 +200,10 @@ const IndexPage = () => {
     fetchData();
   };
 
-  const debouncedFetchData = debounce(fetchDataFromCache, 1000); // Debounce the API request with a delay of 1 second
+  const debouncedFetchData = useCallback(
+    debounce(fetchDataFromCache, 1000),
+    [fetchDataFromCache]
+  ); // Debounce the API request with a delay of 1 second
 
 
   const totalSoloGames = data?.soloQueueInfo?.wins + data?.soloQueueInfo?.losses;
@@ -210,6 +224,7 @@ const IndexPage = () => {
       // Document reference for the claimed account
       const docSnapshot = await getDoc(claimDocRef); // Get the document snapshot
 
+      console.log(docSnapshot)
       if (docSnapshot.exists()) {
         // Account is claimed
         setIsClaimed(true);
@@ -312,49 +327,34 @@ const IndexPage = () => {
   };
 
 
-  let profilePictureElement: JSX.Element | null = null;
-  if (data?.summonerData?.profileIcon !== undefined) {
-    profilePictureElement = <ProfilePicture profileIcon={data.summonerData.profileIcon} />;
-  } else {
-    profilePictureElement = (
-      <Skeleton className={styles.profilePictureContainer} variant="circular" width={96} height={96} animation="wave" />
-    );
-  }
+  const profilePictureElement = useMemo(() => {
+    if (data?.summonerData?.profileIcon !== undefined) {
+      return <ProfilePicture profileIcon={data.summonerData.profileIcon} isClaimed={isClaimed} claimAcc={handleStartClaimAccount} />;
+    } else {
+      return (
+        <Skeleton className={styles.profilePictureContainer} variant="circular" width={96} height={96} animation="wave" />
+      );
+    }
+  }, [data?.summonerData?.profileIcon]);
 
-  let usernameElement: JSX.Element | null = null;
-  if (isClaimed || (!isAccHasClaimed && authacc)) {
-    usernameElement = (
-      <div className={styles.usernameContainer}>
-      {data?.summonerData?.name  ? (
-        <Typography className={styles.username}>
-          {data?.summonerData?.name}
-        </Typography>
-      ) : (
-        <Skeleton width={96} variant="text" sx={{ fontSize: '1rem' }} />
-      )}
-      {isClaimed ? (
-        <Tooltip title="Claimed account">
-          <VerifiedIcon color="info" />
-        </Tooltip>
-      ) : (
-        <Tooltip title="Unclaimed account press to claim">
-          <ErrorIcon onClick={handleStartClaimAccount} />
-        </Tooltip>
-      )}
-      </div>
-    );
-  } else {
-    usernameElement = (
-      <div className={styles.usernameContainer}>
-      <Typography className={styles.username}>
-        {data?.summonerData?.name}
-      </Typography>
-      <Tooltip title="Unclaimed account">
-        <ErrorIcon />
-      </Tooltip>
-      </div>
-    );
-  }
+  const Username = ({ name }) => {
+    const usernameElement = useMemo(() => {
+      return (
+        <div className={styles.usernameContainer}>
+          {name ? (
+            <Typography className={styles.username}>
+              {name}
+            </Typography>
+          ) : (
+            <Skeleton width={96} variant="text" sx={{ fontSize: '1rem' }} />
+          )}
+        </div>
+      );
+    }, [name]);
+  
+    return usernameElement;
+  };  
+  
 
 interface PlayerChip {
   name: string;
@@ -363,30 +363,60 @@ interface PlayerChip {
   color: string;
 }
 
+
 // ... rest of your code
 
-let summonerChipsElement: JSX.Element | null = null;
-if (data?.playerChips) {
-  summonerChipsElement = (
-    <div className={styles.summonerChipsContainer}>
-      {data.playerChips.map((chip: PlayerChip, index: number) => {
-        const ChipIcon = chip.icon ? chipIconMapping[chip.icon] : null; // Use chip.icon if it's not null
-        return (
-          <Tooltip key={index} title={chip.desc} arrow>
-            <Chip
-              label={chip.name}
-              style={{ color: chip.color }}
-              className={styles.summonerChips}
-              icon={ChipIcon ? <ChipIcon className={styles.smallIcon} style={{ color: chip.color }} /> : <div />} // Use a default empty div as the icon
-            />
-          </Tooltip>
-        );
-      })}
-    </div>
-  );
-}
+const summonerChipsElement = useMemo(() => {
+  if (data?.playerChips) {
+    return (
+      <div className={styles.summonerChipsContainer}>
+        {data.playerChips.map((chip: PlayerChip, index: number) => {
+          const ChipIcon = chip.icon ? chipIconMapping[chip.icon] : null; // Use chip.icon if it's not null
+          return (
+            <Tooltip key={index} title={chip.desc} arrow>
+              <Chip
+                label={chip.name}
+                style={{ color: chip.color }}
+                className={styles.summonerChips}
+                icon={ChipIcon ? <ChipIcon className={styles.smallIcon} style={{ color: chip.color }} /> : <div />} // Use a default empty div as the icon
+              />
+            </Tooltip>
+          );
+        })}
+      </div>
+    );
+  } else {
+    return null; // Return null if data.playerChips is falsy
+  }
+}, [data?.playerChips]);
 
-
+// let summonerChipsElement: JSX.Element | null = null;
+// if (data?.playerChips) {
+//   summonerChipsElement = (
+//     <div className={styles.summonerChipsContainer}>
+//       {data.playerChips.map((chip: PlayerChip, index: number) => {
+//         const ChipIcon = chip.icon ? chipIconMapping[chip.icon] : null; // Use chip.icon if it's not null
+//         return (
+//           <Tooltip key={index} title={chip.desc} arrow>
+//             <Chip
+//               label={chip.name}
+//               style={{ color: chip.color }}
+//               className={styles.summonerChips}
+//               icon={
+//                 <img
+//                   src={"../../ranks/master.svg"}
+       
+//                   className={styles.smallIcon}
+      
+//                 />
+//               } // Use a default empty div as the icon
+//             />
+//           </Tooltip>
+//         );
+//       })}
+//     </div>
+//   );
+// }
   
 
 
@@ -434,70 +464,68 @@ if (data?.playerChips) {
     setRotation({ x: 0, y: 0 }); // Reset rotation when cursor leaves
   };
 
-  let soloQueueRankedBoxElement: JSX.Element | null = null;
-  if (data?.soloQueueInfo) {
-    soloQueueRankedBoxElement = (
-      <div
-      className={styles.container}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
-      }}
-    >
-      <RankedBox
-        queueName="Ranked Solo"
-        tier={data.soloQueueInfo.tier}
-        rank={data.soloQueueInfo.rank}
-        leaguePoints={data.soloQueueInfo.leaguePoints}
-        wins={data.soloQueueInfo.wins}
-        losses={data.soloQueueInfo.losses}
-        winRate={SoloQWinRate}
-      />
-      </div>
+  const soloQueueRankedBoxElement = useMemo(() => {
+    if (data?.soloQueueInfo) {
+      return (
+        <RankedBox
+          queueName="Ranked Solo"
+          tier={data.soloQueueInfo.tier}
+          rank={data.soloQueueInfo.rank}
+          leaguePoints={data.soloQueueInfo.leaguePoints}
+          wins={data.soloQueueInfo.wins}
+          losses={data.soloQueueInfo.losses}
+          winRate={SoloQWinRate}
+        />
+      );
+    } else {
+      return <UnrankedBox title="Ranked Solo" text="UNRANKED" />;
+    }
+  }, [data?.soloQueueInfo, SoloQWinRate]);
 
-    );
-  } else {
-    soloQueueRankedBoxElement = <UnrankedBox title="Ranked Solo" text="UNRANKED" />;
-  }
+  const flexQueueRankedBoxElement = useMemo(() => {
+    if (data?.flexQueueInfo) {
+      return (
+        <RankedBox
+          queueName="Ranked Flex"
+          tier={data.flexQueueInfo.tier}
+          rank={data.flexQueueInfo.rank}
+          leaguePoints={data.flexQueueInfo.leaguePoints}
+          wins={data.flexQueueInfo.wins}
+          losses={data.flexQueueInfo.losses}
+          winRate={FlexWinRate}
+        />
+      );
+    } else {
+      return <UnrankedBox title="Ranked Flex" text="UNRANKED" />;
+    }
+  }, [data?.flexQueueInfo, FlexWinRate]);
 
-  let flexQueueRankedBoxElement: JSX.Element | null = null;
-  if (data?.flexQueueInfo) {
-    flexQueueRankedBoxElement = (
-      <div
-      className={styles.container2}
-      onMouseMove={handleMouseMove2}
-      onMouseLeave={handleMouseLeave2}
-      style={{
-        transform: `rotateX(${rotation2.x}deg) rotateY(${rotation2.y}deg)`,
-      }}
-    >
-      <RankedBox
-        queueName="Ranked Flex"
-        tier={data.flexQueueInfo.tier}
-        rank={data.flexQueueInfo.rank}
-        leaguePoints={data.flexQueueInfo.leaguePoints}
-        wins={data.flexQueueInfo.wins}
-        losses={data.flexQueueInfo.losses}
-        winRate={FlexWinRate}
-      />
-      </div>
-    );
-  } else {
-    flexQueueRankedBoxElement = <UnrankedBox title="Ranked Flex" text="UNRANKED" />;
-  }
 
+  const CustomPaper = styled(Paper)(({ theme }) => ({
+    // backdropFilter: 'blur(10px)',
+    backgroundColor: theme.vars.palette.cbox,
+    // boxShadow: '0px 0px 1px #d9d9d9, 0px 1px 1px #d9d9d9',
+  
+    [theme.getColorSchemeSelector('dark')]: {
+      // backdropFilter: 'blur(10px)',
+      backgroundColor: theme.vars.palette.cbox,
+      // boxShadow: '0 0 5px rgba(0, 0, 0, 0.5)',
+    },
+  }));
 
   return (
     <div className={styles.fullScreenContainer}>
-      <div className={styles.containerMain}>
+ 
       <div className={styles.parentContainer}>
+      <div className={styles.parentContainerContent}>
+      <div className={styles.contentWrapper}>
         <div className={styles.profileContainer}>
 
 
           {summonerChipsElement}
           {profilePictureElement}
-          {usernameElement}
+          <Username name={data?.summonerData?.name} />
+
           {liveGameButtonElement}
         </div>
         
@@ -509,7 +537,7 @@ if (data?.playerChips) {
           </div>
 
           {/* Match History */}
-          <Paper className={MatchStyles.matchHistoryContainer} style={paperStyle}>
+          <CustomPaper className={MatchStyles.matchHistoryContainer}>
             <Box className={MatchStyles.matchHistoryBox}>
               <Box className={MatchStyles.matchHistoryHeader}>
                 <Typography className={MatchStyles.matchHistoryHeaderText} variant="h6">Match History</Typography>
@@ -524,14 +552,16 @@ if (data?.playerChips) {
                 ))}
               </Box>
             </Box>
-          </Paper>
+          </CustomPaper>
+        </div>
+        </div>
         </div>
 
           {/* Side Menu */}
         <div>
           <SideMenu
-            showLoginForm={showLoginForm}
-            showLogin={showLogin}
+      
+        
           />
           <div>
             {showLoginForm && <LoginAndRegister />}
@@ -540,7 +570,25 @@ if (data?.playerChips) {
             {showClaimAccountForm && <ClaimAccount onConfirm={handleClaimAccount} />}
           </div>
         </div>
-      </div>
+  
+      <Backdrop
+     sx={{
+        color: '#fff',
+        
+        backdropFilter: 'blur(4px)',
+
+        top: 0,
+
+        width: '100%',
+        height: '100%',
+        zIndex: 100000000,
+      }}
+      invisible={true}
+      open={backdropOpen}
+      onClick={closeBackdrop}
+>
+  <SummonerSearch/>
+</Backdrop>
     </div>
   );
 };

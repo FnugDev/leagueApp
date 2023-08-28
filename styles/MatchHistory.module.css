@@ -3,7 +3,7 @@
   
 .matchHistoryContainer {
   position: absolute;
-  height: 100%;
+  height: auto;
   left: calc(65% - 345px); /* Set initial spacing */
   right: 5vw; /* Set initial spacing */
   /* Adjust this value as needed */
@@ -13,7 +13,8 @@
   overflow: scroll;
   width: 700px;
   
-  padding-bottom: 10px;
+  padding-bottom: 0px;
+  /* margin-bottom: 20px; */
 }
 
 
@@ -330,16 +331,26 @@ margin-top: 20px;
   /* border:1px solid red; */
 }
 
-.matchChampionImage {
-
-  margin-left:3vw;
-  border-radius: 4px;
+.matchChampionImageContainer {
+  clip-path: inset(4px); /* Trim 2px from all sides */
+  display: inline-block; /* Maintain container size */
+  border-radius: 18px !important;
+  overflow: hidden; /* Hide clipped parts */
+  margin-left: 1vw;
 
 }
 
+.matchChampionImage {
+  display: block;
+  width: 100%; /* Fill the container */
+  height: auto;
+
+
+}
+
+
 .summonerImage {
 
-  margin-left: 0.2vw;
   border-radius: 4px;
 
 }
@@ -406,15 +417,16 @@ top: 3px;
   margin-top: 0px;
   font-size: 0.5em;
   font-weight: 600;
+ /* border:1px solid red; */
  
   font-family: 'Space Grotesk' !important;
 }
 
 .summonersColumn {
-  display: flex;
-  flex-direction: column;
+
+
   gap: 2px;
-  margin-left: 0px;
+  margin-right: 0px;
   
   width: 10px; /* Adjust the width as needed */
   /* border: 1px solid red; */
@@ -426,7 +438,8 @@ top: 3px;
   white-space: nowrap;
   width: 75px; /* Adjust the width as needed */
   /* border: 1px solid red; */
-  color: #424955FF;
+  /* color: #424955FF; */
+  color: var(--mui-palette-text-primary);
   text-decoration: none; /* Remove underline */
   transition: text-decoration 0.3s ease-in-out; 
 }

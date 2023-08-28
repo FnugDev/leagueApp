@@ -1,13 +1,5 @@
 {
   "/_app": "pages/_app.js",
-  "/_document": "pages/_document.js",
-  "/api/live/[region]/[username]": "pages/api/live/[region]/[username].js",
   "/_error": "pages/_error.js",
-  "/api/profile": "pages/api/profile.js",
-  "/api/hello": "pages/api/hello.js",
-  "/api/matchHistory": "pages/api/matchHistory.js",
-  "/summoner/[region]/[username]": "pages/summoner/[region]/[username].html",
-  "/": "pages/index.html",
-  "/api/summoner/[region]/[username]": "pages/api/summoner/[region]/[username].js",
-  "/404": "pages/404.html"
+  "/_document": "pages/_document.js"
 }

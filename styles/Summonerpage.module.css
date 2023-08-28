@@ -2,38 +2,126 @@
 
 
 .fullScreenContainer {
-  display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-  height: 100vh; /* Use full viewport height */
-  overflow: hidden; /* Prevent unnecessary scrollbars */
+
+
+  width: 100vw;
+
+
+/* border: 1px solid red; */
+}
+.badgeIcon {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+z-index: 10000000000000000 !important;
+border-radius: 50%;
+background-color: var(--mui-palette-background-paper);
+ border: 2px solid var(--mui-palette-background-paper) !important;
+
+
+/* border: 1px solid red; */
 }
 
-.containerMain {
-  position: absolute;
-  width: 89%;
-  height: 100%;
-  left: 5vw; /* Set initial spacing */
-  right: 5vw; /* Set initial spacing */
-  top: 50%; /* Vertically center the element */
-  transform: translate(0, -50%); /* Adjust to vertically center the element */
-  display: flex;
-  align-items: center;
-  /* other styles */
-  /* border: 1px solid red; */
+.searchSummoner {
+  height: 200px;
+  border-radius: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
+.searchSummonerMenu {
+  border-radius: 5px;
+  position: absolute;
+  left:51.65%;
+  width: 200px !important;
+  padding-right: 0px !important;
+
+  top:51%;
+z-index: 99999999999999999999 !important;
+}
+.searchSummonerMenuItem {
+height:25px;
+margin-left: 8px;
+border-radius: 5px;
+
+font-family: 'Space Grotesk' !important;
+font-size: 0.775rem; 
+font-weight: bold;
+
+/* border:1px solid red;       */
+display: flex;
+
+flex-direction: column;
+line-height: 1em;
+align-items: center;
+z-index: 99999999999999999999 !important;
+}
+
+
 
 .parentContainer {
+position: absolute;
+  height: 100vh;
+  width: 100%;
+ /* Center both horizontally and vertically */
+  top: 0%; /* Vertically position the element */
+  /* other styles */
+  overflow-y: scroll;
+  /* border: 1px solid red; */
+  background-color: var(--mui-palette-primary-error);
+}
+.parentContainerContent {
   position: absolute;
-  height: 100%;
+  height: 100vh;
   width: 1035px;
+  z-index: 10 !important;
+
   left: 50%; /* Horizontally center the element */
   transform: translate(-50%, -50%); /* Center both horizontally and vertically */
-  top: 60%; /* Vertically position the element */
+  top:60%; /* Vertically position the element */
   /* other styles */
+
   /* border: 1px solid red; */
 }
 
+.appBarStyle {
+
+  overflow:none;
+}
+
+.searchBarInput {
+  font-family: 'Space Grotesk' !important;
+  font-size: 0.875rem;       
+}
+.searchBarStyle {
+       padding-left: 4.8px;
+      
+        position: relative;
+        /* background-color: rgba(243, 246, 249,0.8); */
+        color: rgb(67, 77, 91);
+        font-size: 0.875rem;
+        /* border: 1px solid rgba(218, 226, 237,0.8); */
+        border-radius: 10px;
+        cursor: pointer !important;
+        transition-property: all;
+        transition-duration: 150ms;
+        width: 160px;
+        margin: 0;
+}
+.searchBarStyle:hover {
+
+        background-color: rgba(0, 0, 0,0.03);
+
+}
+.searchBarCommand {
+  position: absolute;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 20px;
+  margin-right: 5px;
+  right:0;
+  /* border: 1px solid rgb(218, 226, 237); */
+  /* background-color: rgb(255, 255, 255); */
+  padding: 0px 4px;
+  border-radius: 7px;
+}
 
 
 .leagueV4Container {
@@ -51,17 +139,18 @@ top:40%;
     display: flex;
     flex-direction: column;
     align-items: center;
+
 }
 
   .SideMenu {
     display: none; 
     position: fixed;
-    z-index: 10000;
+    z-index: 99999999999999990000000000 !important;
     height: 100%;
     width: 15%;
     top: 0;
     border-radius: 0px;
-    right: 0;
+    right: 0px;
   }
   
   .SideMenuContainer {
@@ -69,6 +158,7 @@ top:40%;
     height: 100%;
     top: 0;
     left: 1px;
+    
     margin-top: 0;
     padding-top: 30px;
     box-sizing: border-box;
@@ -82,6 +172,7 @@ top:40%;
   
 .summonerChipsContainer {
   /* border:1px solid red; */
+
 margin-top: 35px;
 }
 .summonerChips {
@@ -220,15 +311,15 @@ margin-right:5px;
   width: 96px;
   height: 96px;
   border-radius: 50px;
-  overflow: hidden;
+
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .profilePicture {
-  width: 100%;
-  height: 100%;
-  border-radius: 50px;
-  border: 2px solid #414165;
+  width: 90px;
+  height: 90px;
+
+
   transition: border-color 0.3s ease-in-out;
 }
 

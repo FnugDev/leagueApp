@@ -116,7 +116,7 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
   
 
 
-  console.log("chip")
+  // console.log(cacheKey)
   
   try {
     // const summonerName = 'fnug';
@@ -159,6 +159,8 @@ console.log("hello")
     // } else {
     //   throw new Error('Failed to fetch summoner live data');
     // }
+    // const cacheKey = `${modifiedRegion}-${summonerName}`;
+
 
    
 
@@ -370,7 +372,7 @@ async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platfo
         timeSinceMatch: timeSinceMatchText,
         gameDuration: formattedGameDuration,
         gameEndTimestamp,
-        participant,
+     
       };
     } catch (error) {
       console.error(`Error fetching match ${matchId}:`, error);
@@ -421,6 +423,30 @@ async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platfo
   }
 
   
+  playerChips.push({
+    name: "Viola",
+    desc: `Viola creator`,
+    icon: 'WhatshotIcon',
+    color: '#ff4e50'
+  });
+  playerChips.push({
+    name: "S12 Diamond",
+    desc: `Cold Streak`,
+    icon: null,
+    color: '#3174fa',
+  });
+  playerChips.push({
+    name: "S11 Diamond",
+    desc: `Cold Streak`,
+    icon: null,
+    color: '#3174fa',
+  });
+  playerChips.push({
+    name: "S13-1 Master",
+    desc: `Viola creator`,
+    icon: null,
+    color: '#ff4e50'
+  });
   
   console.log(playerChips)
 
