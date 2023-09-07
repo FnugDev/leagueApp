@@ -66,18 +66,20 @@ const UnrankedBox: React.FC = () => {
     backdropFilter: 'blur(10px)',
     backgroundColor: theme.vars.palette.sidemenu,
     boxShadow: '0px 0px 1px #d9d9d9, 0px 1px 1px #d9d9d9',
+    transition: "width 0.2s ease-in-out",
 
     [theme.getColorSchemeSelector('dark')]: {
       backdropFilter: 'blur(10px)',
       backgroundColor: theme.vars.palette.sidemenu,
       boxShadow: '0 0 5px rgba(0, 0, 0, 0.5)',
+      transition: "width 0.2s ease-in-out",
     },
   }));
   
   return (
 
 
-    <CustomPaper elevation={0} className={`${styles.sideMenuDrawer} ${isDrawerHovered ? styles.expanded : ''}`}
+    <CustomPaper elevation={0} className={styles.sideMenuDrawer}
     onMouseEnter={() => setIsDrawerHovered(true)}
     onMouseLeave={() => setIsDrawerHovered(false)}
  
@@ -87,7 +89,7 @@ const UnrankedBox: React.FC = () => {
 
 <div className={styles.sideMenuHeader}>
 <div className={styles.imageAndDividerContainer}>
-    <Avatar src="../../viola.png" sx={{ width: 50, height: 50 }} />
+    <Avatar src="../../viola.png" alt='viola' sx={{ width: 50, height: 50 }} />
     <Divider className={styles.sideMenuHeaderDivider} />
   </div>
 </div>

@@ -1,12 +1,42 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
 import { Client, Summoner, Region } from 'shieldbow';
 import fetch from 'node-fetch';
 import queueData from './queues.json'; // Import the queues.json file
 import summonerSpellData from './summonerSpells.json'; // Import the queues.json file
 import cache from 'memory-cache';
-import OpenAIApi from 'openai';
+import { sql } from "@vercel/postgres";
 
+export async function getSummonerData(cacheKey: string) {
+  const { rows } = await sql`SELECT * FROM summoners WHERE cache_key=${cacheKey} LIMIT 1`;
+  return rows.length > 0 ? rows[0] : null;
+}
 
+export async function initializeDatabase() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS summoners (
+      cache_key TEXT UNIQUE,
+      data JSONB
+    );
+  `;
+}
+
+async function startApp() {
+  await initializeDatabase();
+  // Your code to start the server
+}
+
+// startApp();
+
+export async function updateSummonerData(cacheKey: string, data: any) {
+  // Updating the data for the given cache key. If it doesn't exist, it will be created.
+  await sql`
+    INSERT INTO summoners (cache_key, data)
+    VALUES (${cacheKey}, ${JSON.stringify(data)})
+    ON CONFLICT (cache_key)
+    DO UPDATE SET data = ${JSON.stringify(data)};
+  `;
+}
 
 type RegionCode = keyof typeof regionCodeMap;
 type PlatformCode = keyof typeof platformToRegionMap;
@@ -29,6 +59,7 @@ const regionCodeMap = {
   tw: 'TW2',
   vn: 'VN2',
 };
+
 
 const platformToRegionMap = {
   BR1: 'americas',
@@ -64,75 +95,54 @@ interface PlayerChip {
   color: string;
 }
 
+type QueueType = 'RANKED_SOLO_5x5' | 'RANKED_FLEX_SR';
+type QueueInfo = {
+  queueType: QueueType;
+  tier: string;
+  rank: string;
+  leaguePoints: number;
+  wins: number;
+  losses: number;
+  veteran: boolean;
+  inactive: boolean;
+  freshBlood: boolean;
+  hotStreak: boolean;
+};
+
+
+
 const playerChips: PlayerChip[] = [];
-
-// async function generateSuggestionsForImprovement(newMatchData: any[]) {
-//   // Accumulate and analyze participant data from all matches
-//   const aggregatedParticipantData = newMatchData.map(match => match.participant);
-//   // Process and analyze the aggregated data as needed
-
-//   // Convert the aggregated participant data to a text format for analysis
-//   const analysisText = JSON.stringify(aggregatedParticipantData, null, 2);
-
-//   // Initialize the OpenAI API client with your API key
-
-//   const apiKey = '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';
-//   const openai = new OpenAIApi({ apiKey: apiKey });
-
-//   // Compose the prompt for OpenAI
-//   const prompt = `Based on your recent matches, here are some suggestions to help you improve your performance:\n\nAnalyze the following participant data:\n${analysisText}`;
-
-//   // Use the OpenAI API to generate suggestions
-//   const response = await openai.complete(prompt);
-//   const chat_completion = await openai.createChatCompletion({
-//     model: "gpt-3.5-turbo",
-//     messages: [{ role: "user", content: "Hello world" }],
-// });
-
-
-//   return response.choices[0].text;
-// }
-
 
 const CACHE_DURATION = 1 * 60 * 1000;
 const MAX_MATCH_HISTORY_COUNT = 19; 
 const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
-  const apiKey = 'RGAPI-70e20392-19ee-4299-acf3-23d42e90fac9';
-  const region = _req.query.region as RegionCode;
-  const summonerName = _req.query.username as string;
+  const { region, username: summonerName } = _req.query as { region: RegionCode, username: string };
   const modifiedRegion = regionCodeMap[region] as PlatformCode;
+  const platform = platformToRegionMap[modifiedRegion]?.toUpperCase();
 
-  if (!modifiedRegion) {
+  if (!modifiedRegion || !platform) {
     return res.status(400).json({ message: 'Invalid region code.' });
   }
-  
-  const plat = platformToRegionMap[modifiedRegion];
-  if (!plat) {
-    return res.status(400).json({ message: 'Invalid region code.' });
-  }
-  
-  const platform = plat.toUpperCase();
+
   const cacheKey = `${modifiedRegion}-${summonerName}`;
-  
-
-
-  // console.log(cacheKey)
+  const apiKey = 'RGAPI-70e20392-19ee-4299-acf3-23d42e90fac9';
   
   try {
-    // const summonerName = 'fnug';
     const cachedData = cache.get(cacheKey);
-    if (cachedData) {
-      return res.status(200).json(cachedData);
-      console.log('Data fetched from cache');
+    let storedData = cachedData;
 
-    }
-console.log("hello")
-    const summonerResponse = await fetch(`https://${modifiedRegion}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}?api_key=${apiKey}`);
-    if (!summonerResponse.ok) {
-      throw new Error('Failed to fetch summoner data');
+    // If no data in cache, check the database
+    if (!cachedData) {
+      const dbData = await getSummonerData(cacheKey);
+      if (dbData) {
+        console.log("Fetched data from database");
+        storedData = dbData.data;
+      }
     }
 
-    const summoner = await summonerResponse.json();
+    const summoner = await fetchData(`https://${modifiedRegion}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}?api_key=${apiKey}`);
+    const leagueV4 = await fetchData(`https://${modifiedRegion}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summoner.id}?api_key=${apiKey}`);
+    const newMatches: string[] = await fetchData(`https://${platform}.api.riotgames.com/lol/match/v5/matches/by-puuid/${summoner.puuid}/ids?start=0&count=${MAX_MATCH_HISTORY_COUNT}&api_key=${apiKey}`);
 
     const summonerData = {
       name: summoner.name,
@@ -143,11 +153,6 @@ console.log("hello")
       profileIcon: summoner.profileIconId,
     };
 
-    const summonerLeagueV4 = await fetch(`https://${modifiedRegion}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerData.summonerId}?api_key=${apiKey}`);
-    if (!summonerLeagueV4.ok) {
-      throw new Error('Failed to fetch summoner leagueV4');
-    }
-    
     // const summonerLiveResponse = await fetch(`https://${modifiedRegion}.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${summonerData.summonerId}?api_key=${apiKey}`);
 
     // let summonerLive = null;
@@ -161,73 +166,22 @@ console.log("hello")
     // }
     // const cacheKey = `${modifiedRegion}-${summonerName}`;
 
-
-   
-
-    const leagueV4 = await summonerLeagueV4.json();
-
-    const soloQueueData = leagueV4.find((queue: { queueType: string; }) => queue.queueType === 'RANKED_SOLO_5x5');
-
-    // Get Flex Queue data (if available)
-    const flexQueueData = leagueV4.find((queue: { queueType: string; }) => queue.queueType === 'RANKED_FLEX_SR');
-
-    // Check if Solo Queue data exists and store its properties
-    const soloQueueInfo = soloQueueData
-      ? {
-          queueType: soloQueueData.queueType,
-          tier: soloQueueData.tier,
-          rank: soloQueueData.rank,
-          leaguePoints: soloQueueData.leaguePoints,
-          wins: soloQueueData.wins,
-          losses: soloQueueData.losses,
-          veteran: soloQueueData.veteran,
-          inactive: soloQueueData.inactive,
-          freshBlood: soloQueueData.freshBlood,
-          hotStreak: soloQueueData.hotStreak,
-        }
-      : null;
-
-    // Check if Flex Queue data exists and store its properties
-    const flexQueueInfo = flexQueueData
-      ? {
-          queueType: flexQueueData.queueType,
-          tier: flexQueueData.tier,
-          rank: flexQueueData.rank,
-          leaguePoints: flexQueueData.leaguePoints,
-          wins: flexQueueData.wins,
-          losses: flexQueueData.losses,
-          veteran: flexQueueData.veteran,
-          inactive: flexQueueData.inactive,
-          freshBlood: flexQueueData.freshBlood,
-          hotStreak: flexQueueData.hotStreak,
-        }
-      : null;
-
-
- 
-   
-
-    // Fetch new match history
-    const matchesResponse = await fetch(`https://${platform}.api.riotgames.com/lol/match/v5/matches/by-puuid/${summonerData.puuid}/ids?start=0&count=${MAX_MATCH_HISTORY_COUNT}&api_key=${apiKey}`);
-    if (!matchesResponse.ok) {
-      throw new Error('Failed to fetch match data');
-    }
-    const newMatches: string[] = await matchesResponse.json();
+    const soloQueueInfo = getQueueInfo('RANKED_SOLO_5x5', leagueV4);
+    const flexQueueInfo = getQueueInfo('RANKED_FLEX_SR', leagueV4);
 
     // If cache is empty or doesn't have match history, populate it with fetched match data
-    if (!cachedData || !cachedData.matchHistory) {
+    if (!storedData) {
       const newMatchData = await fetchMatchData(newMatches, apiKey, summonerData.puuid, platform);
       const championStats: ChampionStats = calculateChampionStats(newMatchData);
-//       const improvementSuggestionsText = await generateSuggestionsForImprovement(newMatchData);
-// console.log(improvementSuggestionsText);
-      cache.put(cacheKey, {
+
+      await updateSummonerData(cacheKey, {
         summonerData,
         playerChips,
         soloQueueInfo,
         flexQueueInfo,
         championStats,
         matchHistory: newMatchData,
-      }, CACHE_DURATION);
+      });
       return res.status(200).json({
         summonerData,
         playerChips,
@@ -238,15 +192,27 @@ console.log("hello")
       });
     }
 
-    // Compare with previously stored match IDs to identify new matches
-    const storedMatches = cachedData.matchHistory || [];
-    const newMatchesToFetch = newMatches.filter(matchId => !storedMatches.includes(matchId));
+    // Fetch only new matches if we already have stored data
+    const storedMatches = storedData.matchHistory || [];
+    const storedMatchIds = storedMatches.map(match => match.matchId);  // Extract just the match IDs
+    const newMatchesToFetch = newMatches.filter(matchId => !storedMatchIds.includes(matchId));
 
-    // Fetch and update data for new matches
-    const newMatchData = await fetchMatchData(newMatchesToFetch, apiKey, summonerData.puuid, platform);
-    const updatedMatchHistory = [...newMatchData, ...(cachedData.matchHistory || [])];
-    const championStats: ChampionStats = calculateChampionStats(updatedMatchHistory);
-    // Store the updated data
+
+      const newMatchData = await fetchMatchData(newMatchesToFetch, apiKey, summonerData.puuid, platform);
+      const updatedMatchHistory = [...newMatchData, ...storedMatches];
+      console.log('New Matches to Fetch:', newMatchesToFetch);  // Add for debugging
+      const championStats: ChampionStats = calculateChampionStats(updatedMatchHistory);
+    
+    // Update database and cache
+    await updateSummonerData(cacheKey, {
+      summonerData,
+      playerChips,
+      soloQueueInfo,
+      flexQueueInfo,
+      championStats,
+      matchHistory: updatedMatchHistory,
+    });
+    
     cache.put(cacheKey, {
       summonerData,
       playerChips,
@@ -255,21 +221,78 @@ console.log("hello")
       championStats,
       matchHistory: updatedMatchHistory,
     }, CACHE_DURATION);
-
+    
     res.status(200).json({ 
       summonerData,
-      playerChips, 
-      soloQueueInfo, 
-      flexQueueInfo, 
-      championStats, 
-      matchHistory: updatedMatchHistory 
+      playerChips,
+      soloQueueInfo,
+      flexQueueInfo,
+      championStats,
+      matchHistory: updatedMatchHistory,
     });
+
+
 
   } catch (error) {
     console.error('Error fetching summoner:', error);
     res.status(500).json({ message: 'Failed to fetch summoner data' });
   }
 };
+class RequestQueue {
+  private queue: (() => Promise<any>)[] = [];
+  private concurrentRequests: number;
+  private running: number = 0;
+  private idleResolve: (() => void) | null = null;
+  private idlePromise: Promise<void> | null = null;
+
+  constructor(concurrentRequests: number = 5) {
+    this.concurrentRequests = concurrentRequests;
+  }
+
+  enqueue(fn: () => Promise<any>) {
+    this.queue.push(fn);
+    this.processQueue();
+  }
+
+  onIdle(): Promise<void> {
+    if (this.running === 0 && this.queue.length === 0) {
+      return Promise.resolve();
+    }
+
+    this.idlePromise = new Promise(resolve => {
+      this.idleResolve = resolve;
+    });
+
+    return this.idlePromise;
+  }
+
+  async processQueue() {
+    if (this.running >= this.concurrentRequests || this.queue.length === 0) {
+      if (this.running === 0 && this.idleResolve) {
+        this.idleResolve();
+        this.idlePromise = null;
+        this.idleResolve = null;
+      }
+      return;
+    }
+
+    this.running++;
+    const fn = this.queue.shift()!;
+
+    try {
+      await fn();
+    } catch (err) {
+      console.error('An error occurred:', err);
+    }
+
+    this.running--;
+    this.processQueue();
+  }
+}
+
+
+
+
 
 const retryableFetch = async (url: string, retries: number = 0, maxRetries: number) => {
   try {
@@ -292,20 +315,19 @@ const retryableFetch = async (url: string, retries: number = 0, maxRetries: numb
 async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platform: string) {
   const currentTime = Date.now();
   playerChips.length = 0;
-
+  const requestQueue = new RequestQueue(5);
+  const matchData: any[] = [];
   const matchOutcomes: string[] = []; 
   
 
-  const matchPromises = matches.map(async (matchId: any) => {
-    try {
-      const gameData = await retryableFetch(
-        `https://${platform}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${apiKey}`,
-        0, // Initial retry count
-        5 // The maximum number of retries you want
-      );
-      // const gameData = await response.json();
+  matches.forEach(matchId => {
+    requestQueue.enqueue(async () => {
+      try {
+        const gameData = await retryableFetch(
+          `https://${platform}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${apiKey}`,
+          0, 5
+        );
 
-      // Filter out matches with queueId 1700
       if (gameData.info.queueId === 1700) {
         return null; // Skip this match
       }
@@ -342,10 +364,7 @@ async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platfo
         (p: { championId: any }) => p.championId
       );
 
-
-
-      return {
-        
+      const processedData = {
         matchId,
         game_mode: gameMode,
         queueId: queueId,
@@ -372,16 +391,18 @@ async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platfo
         timeSinceMatch: timeSinceMatchText,
         gameDuration: formattedGameDuration,
         gameEndTimestamp,
-     
       };
+      
+      matchData.push(processedData);
     } catch (error) {
       console.error(`Error fetching match ${matchId}:`, error);
-      return null;
+
     }
   });
+})
 
-  const matchData = await Promise.all(matchPromises);
-
+  // const matchData = await Promise.all(matchPromises);
+  await requestQueue.onIdle();
 
   // Filter out null and undefined matches
   const filteredMatchData = matchData.filter(match => match !== null && match !== undefined);
@@ -447,7 +468,7 @@ async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platfo
     icon: null,
     color: '#ff4e50'
   });
-  
+
   console.log(playerChips)
 
   return filteredMatchData;
@@ -550,6 +571,40 @@ async function fetchSummonerLive(apiKey: any, summonerId: any, modifiedRegion: a
 // Inside your main handler
 // const summonerLive = await fetchSummonerLive(apiKey, summonerData.summonerId, modifiedRegion);
 
+function getQueueInfo(queueType: QueueType, leagueData: any[]): QueueInfo | null {
+  const queueData = leagueData.find((queue) => queue.queueType === queueType);
+  if (!queueData) {
+    return null;
+  }
+  
+  const { tier, rank, leaguePoints, wins, losses, veteran, inactive, freshBlood, hotStreak } = queueData;
+
+  return {
+    queueType,
+    tier,
+    rank,
+    leaguePoints,
+    wins,
+    losses,
+    veteran,
+    inactive,
+    freshBlood,
+    hotStreak,
+  };
+}
+
+async function fetchData(url: string): Promise<any> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch data from ${url}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error; // Re-throw the error to be handled in the caller function
+  }
+}
 
 
 export default handler;

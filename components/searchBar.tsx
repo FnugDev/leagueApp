@@ -112,7 +112,7 @@ onClick={handleOpen}
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: theme.spacing(4),
+    
             height: theme.spacing(2.8),
             color: theme.vars.palette.text.secondary,
             backgroundColor: styles.darkModePaper,

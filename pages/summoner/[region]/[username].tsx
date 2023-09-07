@@ -118,10 +118,33 @@ const IndexPage = () => {
   }, [region, username, router.query.region, router.query.username]);
 
   useEffect(() => {
-    if (username && region) {
-      checkClaimStatus();
-    }
+    let isMounted = true; // Flag to track if the component is mounted
+  
+    const checkClaimStatus = async () => {
+      try {
+        const db = getFirestore();
+        const claimDocRef = doc(db, "claimedAccounts", `${username}(${region})`);
+        const docSnapshot = await getDoc(claimDocRef);
+  
+        if (isMounted) { // Check if the component is still mounted before updating state
+          if (docSnapshot.exists()) {
+            setIsClaimed(true);
+          } else {
+            setIsClaimed(false);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking claim status:", error);
+      }
+    };
+  
+    checkClaimStatus();
+  
+    return () => {
+      isMounted = false; // Set the flag to false when the component unmounts
+    };
   }, [username, region]);
+  
 
   useEffect(() => {
     const checkUserClaims = async () => {
@@ -214,28 +237,7 @@ const IndexPage = () => {
   const FlexWinRate = totalFlexGames === 0 ? 0 : (data?.flexQueueInfo?.wins / totalFlexGames) * 100;
   
 
-  const checkClaimStatus = async () => {
-    try {
- 
 
-      // Get the Firestore instance
-      const db = getFirestore();
-      const claimDocRef = doc(db, "claimedAccounts", `${username}(${region})`);
-      // Document reference for the claimed account
-      const docSnapshot = await getDoc(claimDocRef); // Get the document snapshot
-
-      console.log(docSnapshot)
-      if (docSnapshot.exists()) {
-        // Account is claimed
-        setIsClaimed(true);
-      } else {
-        // Account is not claimed
-        setIsClaimed(false);
-      }
-    } catch (error) {
-      console.error("Error checking claim status:", error);
-    }
-  };
   const showLogin = () => {
     setShowLoginForm(true);
 
@@ -515,7 +517,8 @@ const summonerChipsElement = useMemo(() => {
 
   return (
     <div className={styles.fullScreenContainer}>
- 
+ <div className={styles.blurGradient}></div>
+ <div className={styles.blurGradient2}></div>
       <div className={styles.parentContainer}>
       <div className={styles.parentContainerContent}>
       <div className={styles.contentWrapper}>
@@ -559,10 +562,7 @@ const summonerChipsElement = useMemo(() => {
 
           {/* Side Menu */}
         <div>
-          <SideMenu
-      
-        
-          />
+          <SideMenu/>
           <div>
             {showLoginForm && <LoginAndRegister />}
           </div>

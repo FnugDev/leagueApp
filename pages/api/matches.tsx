@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import RateLimit from 'axios-rate-limit'; // For rate limiting
+import { MetricsAxios } from 'axios-metrics';
 import NodeCache from 'node-cache'; // For caching
 
 // ... (previous code)
@@ -15,6 +16,8 @@ const axiosWithRateLimit = RateLimit(axios.create(), {
   maxRequests: 20, // Maximum number of requests per 1 second
   perMilliseconds: 1000, // 1 second
 });
+
+const metricsAxios = new MetricsAxios(axiosWithRateLimit);
 
 interface MatchResponseData {
   // Define the structure of the match response data here
@@ -74,7 +77,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             continue;
           }
 
-          const leagueEntriesResponse = await axiosWithRateLimit.get(
+          const leagueEntriesResponse = await metricsAxios.get(
             `${regionBaseUrl}/lol/league/v4/entries/RANKED_SOLO_5x5/${tier}/${division}`,
             {
               headers: {
@@ -87,7 +90,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
           for (const entry of leagueEntriesResponse.data) {
             try {
-              const summonerResponse = await axiosWithRateLimit.get(
+              const summonerResponse = await metricsAxios.get(
                 `${regionBaseUrl}/lol/summoner/v4/summoners/${entry.summonerId}`,
                 {
                   headers: {
@@ -98,7 +101,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
               const accountId = summonerResponse.data.puuid;
 
-              const matchlistResponse = await axiosWithRateLimit.get(
+              const matchlistResponse = await metricsAxios.get(
                 `https://${regionPlatformId}.api.riotgames.com/lol/match/v5/matches/by-puuid/${accountId}/ids`,
                 {
                   headers: {
@@ -110,7 +113,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
 console.log("matchlist", region,tier,division)
               for (const matchId of matchlistResponse.data) {
-                const matchResponse = await axiosWithRateLimit.get<MatchResponseData>(
+                const matchResponse = await metricsAxios.get<MatchResponseData>(
                   `https://${regionPlatformId}.api.riotgames.com/lol/match/v5/matches/${matchId}`,
                   {
                     headers: {

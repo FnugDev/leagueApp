@@ -23,11 +23,34 @@ interface RankedBoxProps {
 
 
 const RankedBox: React.FC<RankedBoxProps> = ({ queueName, tier, rank, leaguePoints, wins, losses, winRate }) => {
-  const CustomPaper = styled(Paper)(({ theme }) => ({
-    // backdropFilter: 'blur(10px)',
-    backgroundColor: theme.vars.palette.cbox,
-    // boxShadow: '0px 0px 1px #d9d9d9, 0px 1px 1px #d9d9d9',
+  const CustomContainer = styled(Paper)(({ theme }) => ({
 
+    marginRight: '50px',
+    marginBottom:'20px',
+    padding: 'calc(7px)', // Use the provided variable values
+    backgroundColor: 'transparent',
+    outline: 'var(--t) solid black', // Apply the provided border color and thickness
+    outlineOffset: 'calc(-1*var(--t))', // Apply the negative of the border thickness
+    WebkitMask: `
+    conic-gradient(at var(--s) var(--s),#0000 75%,#000 0)
+    0 0/calc(100% - var(--s)) calc(100% - var(--s)),
+    linear-gradient(#000 0 0) content-box
+    `,
+  
+    '--s': '50px', // Corner size
+    '--t': '2px', // Border thickness
+    '--g': '10px', // Gap between border and image
+
+    [theme.getColorSchemeSelector('dark')]: {
+      // backdropFilter: 'blur(10px)',
+      backgroundColor: 'transparent',
+      background: 'transparent',
+      // boxShadow: '0 0 5px rgba(0, 0, 0, 0.5)',
+    },
+  }));
+  const CustomPaper = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.vars.palette.cbox,
+    
     [theme.getColorSchemeSelector('dark')]: {
       // backdropFilter: 'blur(10px)',
       backgroundColor: theme.vars.palette.cbox,
@@ -40,6 +63,7 @@ const RankedBox: React.FC<RankedBoxProps> = ({ queueName, tier, rank, leaguePoin
     }
     
     return (
+ 
       <CustomPaper className={styles.leagueV4Box}>
         <Typography className={styles.leagueV4BoxText}>
           {queueName}
@@ -60,6 +84,7 @@ const RankedBox: React.FC<RankedBoxProps> = ({ queueName, tier, rank, leaguePoin
         <div className={styles.LeagueV4WinLoss}>{wins}W {losses}L</div>
         <div className={styles.LeagueV4WinLoss}>{winRate.toFixed(2)}% Win Rate</div>
       </CustomPaper>
+
     );
 };
 

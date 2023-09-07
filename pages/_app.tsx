@@ -20,7 +20,7 @@ import { amber, grey, deepOrange } from '@mui/material/colors';
 // pages/_app.js
 import Container from '@mui/material/Container';
 import '../styles/scrollbar.css';
-// import '../styles/globals.css';
+import '../styles/globals.css';
 
 
 import Button from '@mui/material/Button';
@@ -54,7 +54,7 @@ const theme = extendTheme({
           sidemenu: "#eaeffc",
           cbox: "#fbfcff",
           appbar: {
-            background: "rgba(240, 244, 254, 0.8)",
+            background: "rgba(240, 244, 254, 0.4)",
             shadow: "string",
           },
           success: {

@@ -68,7 +68,7 @@ const AppBarComponent = ({  }) => {
   const { mode, setMode } = useColorScheme();
 
   const CustomAppBar = styled(AppBar)(({ theme }) => ({
-    backdropFilter: 'blur(10px)',
+    backdropFilter: 'blur(7px)',
     backgroundColor: theme.vars.palette.appbar.background,
     boxShadow: '0px 0px 1px #d9d9d9, 0px 1px 1px #d9d9d9',
 
@@ -85,6 +85,7 @@ const AppBarComponent = ({  }) => {
         color="primary" 
         className={styles.appBarStyle} 
         position="fixed" 
+        title='hello'
 
     >
         <Toolbar>

@@ -11,7 +11,90 @@ import React from 'react';
 import { block, For } from 'million/react';
 
 
+const MatchItemsBlock = block(
+  function MatchItems({ match, itemImageUrl }) {
+    return (
+      <Grid container className={styles.itemsContainer} spacing={0}>
+        <For each={match.items ? Object.values(match.items) : []} memo>
+          {(itemId: unknown, index: number) => (
+            <Grid item xs={2} sm={4} key={index} style={{ margin: 0 }}>
+              {itemId !== 0 ? (
+                <Image
+                  className={styles.itemImage}
+                  key={itemId as string}
+                  alt="Item"
+                  width={25}
+                  height={25}
+                  src={`${itemImageUrl}${itemId as string}.png`}
+                />
+              ) : (
+                <div className={styles.missingItem} />
+              )}
+            </Grid>
+          )}
+        </For>
+      </Grid>
+    );
+  },
+);
 
+const SummonersContentBlock = block(
+  function SummonersContentComponent({ match, router }) {
+    return (
+      <Grid container className={styles.summonersContent} spacing={0}>
+        {/* Summoners Column 1 */}
+        <Grid item container xs={6} sm={6} className={styles.summonersColumn}>
+          <For each={match.summoners ? match.summoners.slice(0, 5) : []} memo index="index">
+            {(summoner: string, index: number) => (
+              <Grid item xs={12} key={index} className={styles.summonerName}>
+                <div className={styles.summonerInfo}>
+                  <Image
+                    className={styles.championImage}
+                    width={15}
+                    height={15}
+                    src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${match.championIds[index]}.png`}
+                    alt={`Champion ${match.championIds[index]} Image`}
+                  />
+                  <a
+                    href={`/summoner/${router.query.region}/${encodeURIComponent(summoner)}`}
+                    className={styles.summonerName}
+                  >
+                    {summoner}
+                  </a>
+                </div>
+              </Grid>
+            )}
+          </For>
+        </Grid>
+
+        {/* Summoners Column 2 */}
+        <Grid item container xs={6} sm={6} className={styles.summonersColumn}>
+          <For each={match.summoners ? match.summoners.slice(5, 10) : []} memo index="index">
+            {(summoner: string, index: number) => (
+              <Grid item xs={12} key={index} className={styles.summonerName}>
+                <div className={styles.summonerInfo}>
+                  <Image
+                    className={styles.championImage}
+                    width={15}
+                    height={15}
+                    src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${match.championIds[index + 5]}.png`}
+                    alt={`Champion ${match.championIds[index + 5]} Image`}
+                  />
+                  <a
+                    href={`/summoner/${router.query.region}/${encodeURIComponent(summoner)}`}
+                    className={styles.summonerName}
+                  >
+                    {summoner}
+                  </a>
+                </div>
+              </Grid>
+            )}
+          </For>
+        </Grid>
+      </Grid>
+    );
+  },
+);
 
 const MatchBox: React.FC<{ match: any; itemImageUrl: string; summonerImageUrl: string }> = ({
   match,
@@ -97,11 +180,30 @@ const MatchBox: React.FC<{ match: any; itemImageUrl: string; summonerImageUrl: s
         </Grid>
 
 
+        {/* {
+  match.teamPosition ? (
+    <div className={styles.matchPosition}>
+      <Image
+        alt="Summoner role"
+        width={15}
+        height={15}
+        src={`/roles/${match.teamPosition}.svg`}
+      />
+    </div>
+  ) : (
+    <div className={styles.matchPosition}></div>
+  )
+} */}
+
+
+
+
         <div className={styles.matchChampionImageContainer}>
           <Image
             alt="Summoner Profile"
             width={52}
             height={52}
+            
             className={styles.matchChampionImage}
             style={{ width: "52", height: "52" }} // Add this line
             src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${match.championId}.png`}
@@ -170,76 +272,10 @@ const MatchBox: React.FC<{ match: any; itemImageUrl: string; summonerImageUrl: s
 
 
 
-        <Grid container className={styles.itemsContainer} spacing={0}>
-          <For each={match.items ? Object.values(match.items) : []}>
-            {(itemId: unknown, index: number) => (
-              <Grid item xs={2} sm={4} key={index} style={{ margin: 0 }}>
-                {itemId !== 0 ? (
-                  <Image
-                    className={styles.itemImage}
-                    key={itemId as string}
-                    alt="Item"
-                    width={25}
-                    height={25}
-                    src={`${itemImageUrl}${itemId as string}.png`}
-                  />
-                ) : (
-                  <div className={styles.missingItem} />
-                )}
-              </Grid>
-            )}
-          </For>
-        </Grid>
+<MatchItemsBlock match={match} itemImageUrl={itemImageUrl} />
+<SummonersContentBlock match={match} router={router} />
 
-        <Grid container className={styles.summonersContent} spacing={0}>
-  <Grid item container xs={6} sm={6} className={styles.summonersColumn}>
-    <For each={match.summoners ? match.summoners.slice(0, 5) : []} index="index">
-      {(summoner: string, index: number) => (
-        <Grid item xs={12} key={index} className={styles.summonerName}>
-          <div className={styles.summonerInfo}>
-            <Image
-              className={styles.championImage}
-              width={15}
-              height={15}
-              src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${match.championIds[index]}.png`}
-              alt={`Champion ${match.championIds[index]} Image`}
-            />
-                <a
-                  href={`/summoner/${router.query.region}/${encodeURIComponent(summoner)}`}
-                  className={styles.summonerName}
-                >
-                  {summoner}
-                </a>
-          </div>
-        </Grid>
-      )}
-    </For>
-  </Grid>
-  <Grid item container xs={6} sm={6} className={styles.summonersColumn}>
-    <For each={match.summoners ? match.summoners.slice(5, 10) : []} index="index">
-      {(summoner: string, index: number) => (
-        <Grid item xs={12} key={index} className={styles.summonerName}>
-          <div className={styles.summonerInfo}>
-            <Image
-              className={styles.championImage}
-              width={15}
-              height={15}
-              src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${match.championIds[index + 5]}.png`}
-              alt={`Champion ${match.championIds[index + 5]} Image`}
-            />
-                <a
-                  href={`/summoner/${router.query.region}/${encodeURIComponent(summoner)}`}
-                  className={styles.summonerName}
-                >
-                  {summoner}
-                </a>
-                
-          </div>
-        </Grid>
-      )}
-    </For>
-  </Grid>
-</Grid>
+
 
 
 

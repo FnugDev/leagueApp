@@ -54,12 +54,15 @@ width: 12.5vw !important;
 box-shadow: none;
   }
   
-  
+  .sideMenuDrawer,
+.sideMenuDrawer:hover {
+  transition: width 0.2s ease-in-out !important;
+}
 
   
   .sideMenuDrawer {
     width: 75px; /* Start with a small width */
-    transition: width 5.3s ease-in-out !important;
+
     overflow: hidden;
     position: absolute;
     right: 0;
@@ -86,7 +89,7 @@ box-shadow: none;
   }
   
   
-  .expanded {
+  .sideMenuDrawer:hover {
     width: 200px; /* Expand width on hover */
   }
   

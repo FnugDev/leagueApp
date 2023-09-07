@@ -110,6 +110,34 @@ position: absolute;
         background-color: rgba(0, 0, 0,0.03);
 
 }
+.blurGradient {
+  height: 12rem;
+  width: 50%;
+
+background-image: linear-gradient(to bottom right,#f65c5c38,rgba(139,92,246,0));
+--tw-gradient-from: #8b5cf6;
+--tw-gradient-stops: #8b5cf6,rgba(139,92,246,0);
+--tw-gradient-to: #c084fc;
+--tw-blur: blur(106px);
+filter: blur(100px) ;
+
+}
+.blurGradient2 {
+  position: absolute;
+  height: 10rem;
+  width: 50%;
+  bottom: 0px;
+  right:0;
+
+background-image: linear-gradient(to bottom right,#5cbef638,rgba(139,92,246,0));
+--tw-gradient-from: #8b5cf6;
+--tw-gradient-stops: #8b5cf6,rgba(139,92,246,0);
+--tw-gradient-to: #c084fc;
+--tw-blur: blur(106px);
+filter: blur(100px) ;
+
+}
+
 .searchBarCommand {
   position: absolute;
   font-size: 0.75rem;
@@ -119,7 +147,7 @@ position: absolute;
   right:0;
   /* border: 1px solid rgb(218, 226, 237); */
   /* background-color: rgb(255, 255, 255); */
-  padding: 0px 4px;
+  padding: 4px 8px;
   border-radius: 7px;
 }
 
@@ -257,7 +285,7 @@ margin-right:5px;
 .usernameContainer {
   font-family: 'Space Grotesk' !important;
   position: absolute;
-  left: 12.5%;
+  left: 13.5%;
   top:18%;
   /* border:1px solid red; */
   display: flex;
@@ -299,6 +327,48 @@ margin-right:5px;
     url(https://grainy-gradients.vercel.app/noise.svg);
 }
 
+
+@keyframes rotateAnimation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+
+
+.profilePictureContainerSpin {
+
+  position: absolute;
+
+  animation: rotateAnimation 10s linear infinite; /* Adjust duration and timing function as needed */
+
+  height: 136px;
+  /* border: 1px solid red; */
+}
+.profilePictureContainerLeague {
+
+  position: absolute;
+
+
+
+
+  height: 96px;
+
+}
+.profilePictureContainerLeague2 {
+  height: 136px;
+}
+.profilePictureContainerLeague3 {
+position: absolute;
+left:0;
+  bottom: 0; /* Align to the bottom of the container */
+  height: 136px;
+  transform: rotateX(180deg);
+}
 /* Add a metal shiny border effect to the profile picture container */
 .profilePictureContainer {
   display: flex;

@@ -1,6 +1,7 @@
 // ProfilePicture.tsx
 import Image from 'next/image';
-import styles from '..//styles/Summonerpage.module.css';
+import styles from '../styles/Summonerpage.module.css';
+
 import { block } from 'million/react';
 import Badge from '@mui/material/Badge';
 import VerifiedIcon from '@mui/icons-material/Verified';
@@ -13,6 +14,11 @@ import React from 'react';
 const ProfilePicture: React.FC<{ profileIcon: number, isClaimed: boolean, claimAcc: () => void }> = ({ profileIcon, isClaimed, claimAcc }) => {
   return (
     <div className={styles.profilePictureContainer}>
+      <div className={styles.profilePictureContainerSpin}>
+            <img className={styles.profilePictureContainerLeague2} src="/league/spin1.webp" alt="Ring" />
+            <img className={styles.profilePictureContainerLeague3} src="/league/spin1.webp" alt="Ring" />
+      </div>
+            <img className={styles.profilePictureContainerLeague} draggable={false} src="/league/loader.webp" alt="Ring" />
       {isClaimed ? (
         <Badge
           overlap="circular"
