@@ -1,26 +1,47 @@
 {
   "polyfillFiles": [
-    "static/chunks/polyfills.js"
+    "static/chunks/polyfills-78c92fac7aa8fdd8.js"
   ],
-  "devFiles": [
-    "static/chunks/react-refresh.js"
-  ],
+  "devFiles": [],
   "ampDevFiles": [],
   "lowPriorityFiles": [
-    "static/development/_buildManifest.js",
-    "static/development/_ssgManifest.js"
+    "static/RnVBGMDevfuKLgupO6HoU/_buildManifest.js",
+    "static/RnVBGMDevfuKLgupO6HoU/_ssgManifest.js"
   ],
   "rootMainFiles": [],
   "pages": {
+    "/": [
+      "static/chunks/webpack-586c355fdba180a7.js",
+      "static/chunks/framework-305cb810cde7afac.js",
+      "static/chunks/main-cc511be69636b358.js",
+      "static/chunks/42a06aec-963b4a0b49d7dc02.js",
+      "static/chunks/841-66e9ce952d0a8ca3.js",
+      "static/css/e63c6a9971c0a0ab.css",
+      "static/chunks/pages/index-694d145b50a0516d.js"
+    ],
     "/_app": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/_app.js"
+      "static/chunks/webpack-586c355fdba180a7.js",
+      "static/chunks/framework-305cb810cde7afac.js",
+      "static/chunks/main-cc511be69636b358.js",
+      "static/css/249cc55e8365af65.css",
+      "static/chunks/pages/_app-1c67812e071e308f.js"
     ],
     "/_error": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/_error.js"
+      "static/chunks/webpack-586c355fdba180a7.js",
+      "static/chunks/framework-305cb810cde7afac.js",
+      "static/chunks/main-cc511be69636b358.js",
+      "static/chunks/pages/_error-e4f561a102d9bb14.js"
+    ],
+    "/summoner/[region]/[username]": [
+      "static/chunks/webpack-586c355fdba180a7.js",
+      "static/chunks/framework-305cb810cde7afac.js",
+      "static/chunks/main-cc511be69636b358.js",
+      "static/chunks/42a06aec-963b4a0b49d7dc02.js",
+      "static/chunks/7112840a-7f6785b2af4ffde6.js",
+      "static/chunks/841-66e9ce952d0a8ca3.js",
+      "static/chunks/551-a1290fbdadc7d1b2.js",
+      "static/css/e4513220a233ee1d.css",
+      "static/chunks/pages/summoner/[region]/[username]-6e9d36d6d69b7e61.js"
     ]
   },
   "ampFirstPages": []

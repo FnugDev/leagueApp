@@ -61,7 +61,7 @@ const ChampionStats: React.FC<ChampionStatsProps> = ({ championStats }) => {
 
 <div className={styles.ChampionStatsContainer}>
 {championStats && Object.entries(championStats).map(([championId, stat]: [string, ChampionStat], index) => (
-  <div className={styles.ChampionStatsContent}>
+  <div className={styles.ChampionStatsContent} key={championId}>
         <Grid container key={index} spacing={2}>
         <div className={styles.ChampionStatsContent2}>
           <Grid item xs={4}>
@@ -100,6 +100,6 @@ const ChampionStats: React.FC<ChampionStatsProps> = ({ championStats }) => {
     );
 };
 
-// const ChampionStatsBlock = block(ChampionStats)
+const ChampionStatsBlock = block(ChampionStats)
 
 export default ChampionStats;
