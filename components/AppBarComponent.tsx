@@ -85,7 +85,7 @@ const AppBarComponent = ({  }) => {
         color="primary" 
         className={styles.appBarStyle} 
         position="fixed" 
-        title='hello'
+  
 
     >
         <Toolbar>

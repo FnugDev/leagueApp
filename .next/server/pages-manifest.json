@@ -1,14 +1,7 @@
 {
   "/_app": "pages/_app.js",
-  "/_document": "pages/_document.js",
-  "/api/hello": "pages/api/hello.js",
   "/_error": "pages/_error.js",
-  "/api/matchHistory": "pages/api/matchHistory.js",
-  "/api/live/[region]/[username]": "pages/api/live/[region]/[username].js",
-  "/api/matches": "pages/api/matches.js",
-  "/summoner/[region]/[username]": "pages/summoner/[region]/[username].html",
-  "/api/profile": "pages/api/profile.js",
-  "/api/summoner/[region]/[username]": "pages/api/summoner/[region]/[username].js",
-  "/": "pages/index.html",
-  "/404": "pages/404.html"
+  "/_document": "pages/_document.js",
+  "/summoner/[region]/[username]": "pages/summoner/[region]/[username].js",
+  "/api/summoner/[region]/[username]": "pages/api/summoner/[region]/[username].js"
 }

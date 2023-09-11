@@ -89,6 +89,7 @@ interface ChampionStats {
     deaths: number;
     assists: number;
     kda: number;
+    totalKDA: number;
   };
 }
 
@@ -513,15 +514,26 @@ function calculateChampionStats(matchData: any[]): ChampionStats {
         kills: matchEntry.kills,
         deaths: matchEntry.deaths,
         assists: matchEntry.assists,
-        kda:matchEntry.kda, 
+        totalKDA: 0,
+        kda:0, 
       }; // Updated to champion_name
     }
 
     championStats[championId].gamesPlayed++;
+    const newKDA = parseFloat(matchEntry.kda);
+    championStats[championId].totalKDA += newKDA;
+
+    console.log(championStats[championId].championName,championStats[championId].totalKDA)
 
     if (matchEntry.win) {
       championStats[championId].wins++;
     }
+    Object.keys(championStats).forEach((championId) => {
+      const champStat = championStats[championId];
+      champStat.kda = champStat.totalKDA / champStat.gamesPlayed;
+    });
+    // const { kda, gamesPlayed } = championStats[championId];
+    // championStats[championId].kda = kda / gamesPlayed;
   });
 
   return championStats;
