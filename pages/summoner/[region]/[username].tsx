@@ -610,6 +610,6 @@ const summonerChipsElement = useMemo(() => {
 
  
 
-const IndexPageBlock = block(IndexPage);
+
 
 export default IndexPage;

@@ -100,6 +100,6 @@ const ChampionStats: React.FC<ChampionStatsProps> = ({ championStats }) => {
     );
 };
 
-const ChampionStatsBlock = block(ChampionStats)
+// const ChampionStatsBlock = block(ChampionStats)
 
 export default ChampionStats;

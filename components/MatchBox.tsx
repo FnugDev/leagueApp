@@ -291,6 +291,6 @@ const MatchBox: React.FC<{ match: any; itemImageUrl: string; summonerImageUrl: s
   );
 };
 
-// const MatchBoxBlock = block(MatchBox);
+
 
 export default MatchBox;
