@@ -48,7 +48,7 @@ const platformToRegionMap = {
     VN2: 'asia',
   };
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const allMatches = {};
 
@@ -144,3 +144,5 @@ console.log("matchlist", region,tier,division)
     res.status(500).json({ error: 'An error occurred' });
   }
 };
+
+export default handler;

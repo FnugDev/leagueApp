@@ -377,7 +377,7 @@ left:0;
   position: absolute;
   top: 14%;
 
-
+left:0px;
   width: 96px;
   height: 96px;
   border-radius: 50px;
@@ -456,6 +456,147 @@ left:0;
 
 
 /* Container 6336 */
+.ChampionStatsBox {
+  position: relative; 
+  margin-bottom: 10px;
+  width: 315px;
+padding-bottom: 75px;
+  border-radius: 4px;
+}
+
+.ChampionStatsContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* Add this line to center vertically */
+  margin-bottom: 10px;
+  top: 60px;
+  margin: 0 auto; /* Center horizontally using margin */
+  /* border: 1px solid red; */
+
+
+}
+
+.ChampionStatsContent {
+  position: relative;
+  width: 100%;
+  height: 70px;
+  border-top: 1px solid var(--mui-palette-background-paper);
+  border-bottom: 1px solid var(--mui-palette-background-paper);
+  /* border: 1px solid red; */
+}
+.ChampionStatsContent2 {
+  position: absolute;
+  
+  width: 90%;
+  height: 52px;
+  left:15px;
+  top:8px;
+/* border: 1px solid red; */
+}
+.ChampionStatsContent:hover {
+/* border: 1px solid red; */
+height: 70px;
+opacity: 0.6 !important;
+}
+
+.ChampionStatsImage {
+  position: absolute;
+top:0px;
+  left:10px;
+  clip-path: inset(4px); /* Trim 2px from all sides */
+  border-radius: 20px;
+}
+
+.ChampionStatsName {
+  position: absolute;
+  top:22%;
+  left:70px;
+  font-family: 'Space Grotesk' !important;
+font-size: 0.65em;
+}
+.ChampionStatsKDA {
+  position: absolute;
+  top:25%;
+  left:45.3%;
+  width: 60px;
+  /* border: 1px solid red; */
+  text-align: center;
+  font-family: 'Space Grotesk' !important;
+font-size: 0.6em;
+font-weight: bold;
+
+}
+.ChampionStatsKDA2 {
+  position: absolute;
+  top:22%;
+  left:45%;
+  display: none;
+  font-family: 'Space Grotesk' !important;
+font-size: 0.6em;
+
+}
+
+.ChampionStatsPlayed {
+  position: absolute;
+  top:25%;
+  left:80%;
+  font-family: 'Space Grotesk' !important;
+font-size: 0.6em;
+}
+.ChampionStatsWR {
+  position: absolute;
+  top:75%;
+  left:50%;
+  font-weight: bold;
+  font-family: 'Space Grotesk' !important;
+font-size: 0.6em;
+}
+
+/* Add these styles to your CSS file (Summonerpage.module.css) */
+
+.ProgressBar {
+  width: 70%;
+  top:55%;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  z-index: 10000000;
+  left:70px;
+  height: 8px; /* Adjust the height as needed */
+  background-color: var(--mui-palette-background-paper); /* Gray background for the progress bar */
+  border-radius: 3px; /* Rounded corners */
+
+  overflow: hidden; /* Hide overflow for the fluid effect */
+  border: 0.1px solid var(--mui-palette-background-paper);
+  padding: 1px;
+}
+
+.TrendingBar {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #ff4e50, #3174fa); /* Gradient from red to blue */
+  animation: trending 2s linear infinite; /* Animation for the trending effect */
+}
+
+/* Animation for the trending effect */
+@keyframes trending {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+
+
+
+
+
+
 .leagueV4Box {
   position: relative; 
   margin-bottom: 10px;

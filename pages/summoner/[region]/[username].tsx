@@ -28,6 +28,7 @@ import SearchBar from '../../../components/searchBar';
 import ProfilePicture from '../../../components/ProfilePicture';
 import ClaimAccount from '../../../components/ClaimAccount';
 import RankedBox from '../../../components/RankedBox';
+import ChampionStats from '../../../components/ChampionStats';
 import MatchBox from '../../../components/MatchBox';
 import UnrankedBox from '../../../components/UnrankedBox';
 import LoginAndRegister from '../../../components/LoginRegistration';
@@ -77,6 +78,7 @@ const IndexPage = () => {
     soloQueueInfo: any;
     flexQueueInfo: any;
     matchHistory: any;
+    championStats: any;
     summonerLive: any;
   } | null>(null);
 
@@ -502,7 +504,19 @@ const summonerChipsElement = useMemo(() => {
     }
   }, [data?.flexQueueInfo, FlexWinRate]);
 
-
+  const renderLoginForm = () => {
+    if (showLoginForm) {
+      return <LoginAndRegister />;
+    }
+    return null;
+  };
+  
+  const renderClaimAccountForm = () => {
+    if (showClaimAccountForm) {
+      return <ClaimAccount onConfirm={handleClaimAccount} />;
+    }
+    return null;
+  };
   const CustomPaper = styled(Paper)(({ theme }) => ({
     // backdropFilter: 'blur(10px)',
     backgroundColor: theme.vars.palette.cbox,
@@ -537,6 +551,7 @@ const summonerChipsElement = useMemo(() => {
           <div className={styles.leagueV4Container}>
             {soloQueueRankedBoxElement}
             {flexQueueRankedBoxElement}
+            <ChampionStats championStats={data?.championStats || {}} />
           </div>
 
           {/* Match History */}
@@ -564,11 +579,11 @@ const summonerChipsElement = useMemo(() => {
         <div>
           <SideMenu/>
           <div>
-            {showLoginForm && <LoginAndRegister />}
-          </div>
-          <div>
-            {showClaimAccountForm && <ClaimAccount onConfirm={handleClaimAccount} />}
-          </div>
+  {renderLoginForm()}
+</div>
+<div>
+  {renderClaimAccountForm()}
+</div>
         </div>
   
       <Backdrop

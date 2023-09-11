@@ -80,13 +80,18 @@ const platformToRegionMap = {
   VN2: 'asia',
 };
 
-type ChampionStats = {
-  [champion_name: string]: {
+interface ChampionStats {
+  [championId: string]: {
     gamesPlayed: number;
     wins: number;
-    winRate: number;
+    championName: string;
+    kills: number;
+    deaths: number;
+    assists: number;
+    kda: number;
   };
-};
+}
+
 
 interface PlayerChip {
   name: string;
@@ -338,7 +343,7 @@ async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platfo
         return null;
       }
 
-      const { win, kills, deaths, assists, championName, championId, summoner1Id, summoner2Id, item0, item1, item2, item3, item4, item5, perks, totalMinionsKilled, teamEarlySurrendered, teamId,teamPosition } = participant;
+      const { win, kills, deaths, assists, championName, championId, summoner1Id, summoner2Id, item0, item1, item2, item3, item4, item5, perks, totalMinionsKilled, teamEarlySurrendered, teamId,teamPosition, individualPosition} = participant;
       const { gameMode, gameId, gameCreation, gameEndTimestamp, gameDuration, queueId } = gameData.info;
 
 
@@ -495,32 +500,33 @@ async function getMatchData(apiKey: string, puuid: any, platform: string) {
 }
 
 
-
 function calculateChampionStats(matchData: any[]): ChampionStats {
   const championStats: ChampionStats = {};
 
   matchData.forEach((matchEntry) => {
-    championStats[matchEntry.champion_name] = championStats[matchEntry.champion_name] || { gamesPlayed: 0, wins: 0 };
-    championStats[matchEntry.champion_name].gamesPlayed++;
+    const championId = matchEntry.championId; // Updated to championId
+    if (!championStats[championId]) {
+      championStats[championId] = { 
+        gamesPlayed: 0, 
+        wins: 0, 
+        championName: matchEntry.champion_name,
+        kills: matchEntry.kills,
+        deaths: matchEntry.deaths,
+        assists: matchEntry.assists,
+        kda:matchEntry.kda, 
+      }; // Updated to champion_name
+    }
+
+    championStats[championId].gamesPlayed++;
+
     if (matchEntry.win) {
-      championStats[matchEntry.champion_name].wins++;
+      championStats[championId].wins++;
     }
   });
 
-  const sortedChampionStats: ChampionStats = {};
-  Object.entries(championStats)
-    .map(([champion_name, stats]) => ({ champion_name, ...stats }))
-    .sort((a, b) => b.gamesPlayed - a.gamesPlayed) // Sort in descending order of games played
-    .forEach((entry) => {
-      sortedChampionStats[entry.champion_name] = {
-        gamesPlayed: entry.gamesPlayed,
-        wins: entry.wins,
-        winRate: (entry.wins / entry.gamesPlayed) * 100,
-      };
-    });
-
-  return sortedChampionStats;
+  return championStats;
 }
+
 
 
 function formatTimeSinceMatch(timeSinceMatch: number) {
