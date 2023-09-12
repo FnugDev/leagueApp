@@ -2,6 +2,6 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/summoner/[region]/[username]": "pages/summoner/[region]/[username].js",
-  "/api/summoner/[region]/[username]": "pages/api/summoner/[region]/[username].js"
+  "/api/summoner/[region]/[username]": "pages/api/summoner/[region]/[username].js",
+  "/summoner/[region]/[username]": "pages/summoner/[region]/[username].js"
 }
