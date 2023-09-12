@@ -106,126 +106,14 @@ const theme = extendTheme({
     },
     // ...other properties
 });
-// const getDesignTokens = (mode: PaletteMode) => ({
-//   palette: {
-//     mode,
-//     ...(mode === 'light'
-//       ? {
-//           // palette values for light mode
-//           divider: grey[300],
-//           drawer: '#000000',
-//           custom: {
-//             main: grey[900],
-//           },
-//           success: {
-//             main: '#44b700',
-//           },
-//           primary: {
-//             main: '#f4f7ff',
-//           },
-//           warning: {
-//             main: grey[500],
-//           },
-//           text: {
-//             primary: "#424955FF",
-//             secondary: grey[800],
-//           },
-//           background: {
-//             default: '#f4f7ff',
-//             paper: '#f4f7ff',
-//             drawer: '#000000',
-//           },
-//         }
-//       : {
-//           // palette values for dark mode
-//           drawer: '#000000',
-//           divider: '#000000',
-//           success: {
-//             main: '#44b700',
-//           },
-//           custom: {
-//             main: grey[100],
-//           },
-//           warning: {
-//             main: grey[500],
-//           },
-//           background: {
-//             default: '#0e1129',
-//             paper: '#0e1129',
-//             drawer: '#000000',
-//           },
-//           text: {
-//             primary: '#ffffff',
-//             secondary: '#ffffff',
-//           },
-//         }),
-//   },
-// });
 
 export interface MyAppProps extends AppProps {
   emotionCache?: EmotionCache;
 }
 
 
-// pages/_app.tsx
-// ... (previous imports)
-
-// ... (previous code)
-const ModeSwitcher = () => {
-  const { mode, setMode } = useColorScheme();
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    // for server-side rendering
-    // learn more at https://github.com/pacocoursey/next-themes#avoid-hydration-mismatch
-    return null;
-  }
-
-  return (
-    <Button
-      variant="outlined"
-      onClick={() => {
-        if (mode === 'light') {
-          setMode('dark');
-        } else {
-          setMode('light');
-        }
-      }}
-    >
-      {mode === 'light' ? 'Dark' : 'Light'}
-    </Button>
-  );
-};
 export default function MyApp(props: MyAppProps) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
-  // const [mode, setMode] = React.useState<PaletteMode>('light');
-
-  // React.useEffect(() => {
-  //   // Check if the user's system prefers dark mode
-  //   const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  //   // Retrieve the mode preference from local storage if it exists
-  //   const savedMode = localStorage.getItem('darkMode');
-
-  //   if (savedMode) {
-  //     setMode(savedMode as PaletteMode);
-  //   } else if (prefersDarkMode) {
-  //     setMode('dark');
-  //   } else {
-  //     setMode('light');
-  //   }
-  // }, []);
-
-  // const theme = React.useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
-
-  // const toggleTheme = () => {
-  //   const newMode = mode === 'light' ? 'dark' : 'light';
-  //   setMode(newMode);
-  //   localStorage.setItem('darkMode', newMode); // Save the new mode preference to local storage
-  // };
 
   return (
 

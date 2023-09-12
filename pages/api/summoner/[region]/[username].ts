@@ -80,17 +80,23 @@ const platformToRegionMap = {
   VN2: 'asia',
 };
 
+interface QueueSpecificChampionStat {
+  gamesPlayed: number;
+  wins: number;
+  kills: number;
+  deaths: number;
+  assists: number;
+  totalKDA: number;
+  kda: number;
+}
+
+interface ChampionStat {
+  statsPerQueue: { [queueName: string]: QueueSpecificChampionStat };
+  championName: string;
+}
+
 interface ChampionStats {
-  [championId: string]: {
-    gamesPlayed: number;
-    wins: number;
-    championName: string;
-    kills: number;
-    deaths: number;
-    assists: number;
-    kda: number;
-    totalKDA: number;
-  };
+  [championId: string]: ChampionStat;
 }
 
 
@@ -501,39 +507,49 @@ async function getMatchData(apiKey: string, puuid: any, platform: string) {
 }
 
 
-function calculateChampionStats(matchData: any[]): ChampionStats {
-  const championStats: ChampionStats = {};
+function calculateChampionStats(matchData: any[]): { [key: string]: ChampionStat } {
+  const championStats: { [key: string]: ChampionStat } = {};
 
   matchData.forEach((matchEntry) => {
-    const championId = matchEntry.championId; // Updated to championId
+    const { queueName, championId, champion_name, kills, deaths, assists, win, kda } = matchEntry;
+
     if (!championStats[championId]) {
-      championStats[championId] = { 
-        gamesPlayed: 0, 
-        wins: 0, 
-        championName: matchEntry.champion_name,
-        kills: matchEntry.kills,
-        deaths: matchEntry.deaths,
-        assists: matchEntry.assists,
+      championStats[championId] = {
+        statsPerQueue: {},
+        championName: champion_name,
+      };
+    }
+
+    if (!championStats[championId].statsPerQueue[queueName]) {
+      championStats[championId].statsPerQueue[queueName] = {
+        gamesPlayed: 0,
+        wins: 0,
+        kills: 0,  // Initialize to 0
+        deaths: 0, // Initialize to 0
+        assists: 0,// Initialize to 0
         totalKDA: 0,
-        kda:0, 
-      }; // Updated to champion_name
+        kda: 0,
+      };
     }
 
-    championStats[championId].gamesPlayed++;
-    const newKDA = parseFloat(matchEntry.kda);
-    championStats[championId].totalKDA += newKDA;
+    const stat = championStats[championId].statsPerQueue[queueName];
+    stat.gamesPlayed++;
+    stat.kills += kills;  // Aggregate kills
+    stat.deaths += deaths; // Aggregate deaths
+    stat.assists += assists; // Aggregate assists
+    const newKDA = parseFloat(kda);
+    stat.totalKDA += newKDA;
 
-    console.log(championStats[championId].championName,championStats[championId].totalKDA)
-
-    if (matchEntry.win) {
-      championStats[championId].wins++;
+    if (win) {
+      stat.wins++;
     }
-    Object.keys(championStats).forEach((championId) => {
-      const champStat = championStats[championId];
-      champStat.kda = champStat.totalKDA / champStat.gamesPlayed;
+  });
+
+  // Recalculate KDA
+  Object.values(championStats).forEach((champStat) => {
+    Object.values(champStat.statsPerQueue).forEach((queueStat) => {
+      queueStat.kda = queueStat.totalKDA / queueStat.gamesPlayed;
     });
-    // const { kda, gamesPlayed } = championStats[championId];
-    // championStats[championId].kda = kda / gamesPlayed;
   });
 
   return championStats;
