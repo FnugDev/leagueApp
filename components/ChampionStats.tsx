@@ -1,54 +1,37 @@
+// React and Next.js
+import React, { useState } from 'react';
 import Image from 'next/image';
-import styles from '../styles/Summonerpage.module.css';
-import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+
+// Material UI
+import {
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Paper,
+  Grid,
+  Typography,
+  Button,
+  styled,
+} from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import SortIcon from '@mui/icons-material/Sort';
-import React from 'react';
+
+// Local imports
+import styles from '../styles/Summonerpage.module.css';
 import { block, For } from 'million/react';
-import type {} from '@mui/material/themeCssVarsAugmentation';
-import { styled } from '@mui/material/styles';
 
-interface QueueSpecificStats {
-  gamesPlayed: number;
-  wins: number;
-  kills: number;
-  deaths: number;
-  assists: number;
-  kda: number;
-}
-
-interface ChampionStat {
-  championName: string;
-  statsPerQueue: { [queueName: string]: QueueSpecificStats };
-}
-
-interface ChampionStatsProps {
-  championStats: { [key: string]: ChampionStat };
-}
-
+interface QueueSpecificStats { gamesPlayed: number; wins: number; kills: number; deaths: number; assists: number; kda: number;}
+interface ChampionStat { championName: string; statsPerQueue: { [queueName: string]: QueueSpecificStats };}
+interface ChampionStatsProps { championStats: { [key: string]: ChampionStat };}
 
 const ChampionStats: React.FC<ChampionStatsProps> = ({ championStats }) => {
   const [sortKey, setSortKey] = React.useState<'gamesPlayed' | 'kda' | 'winrate'>('gamesPlayed');
   const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc');
-  const ALL_QUEUES = "ALL_QUEUES";
-  const [selectedQueue, setSelectedQueue] = React.useState<string | null>(ALL_QUEUES);
+  const [selectedQueue, setSelectedQueue] = React.useState<string | null>("ALL_QUEUES");
   const [showAllMatches, setShowAllMatches] = React.useState(false);
-
-  const handleShowAllMatchesClick = () => {
-    setShowAllMatches(true);
-  };
-
-  const handleShowLessMatchesClick = () => {
-    setShowAllMatches(false);
-  };
-
-
   const queueTypes = [
-    { label: 'All', value: ALL_QUEUES },
+    { label: 'All', value: "ALL_QUEUES" },
     { label: 'Ranked', value: 'All Ranked' },
     { label: 'Solo', value: 'Ranked Solo ' },
     { label: 'Flex', value: 'Ranked Flex ' },
@@ -56,19 +39,7 @@ const ChampionStats: React.FC<ChampionStatsProps> = ({ championStats }) => {
     { label: 'Normal Draft', value: 'Draft Pick ' },
     { label: 'Normal Blind', value: 'Blind Pick ' },
   ];
-  const CustomSelect = styled(Select)`
-  .MuiOutlinedInput-root {
-    & fieldset {
-      border: none;
-    }
-    &:hover fieldset {
-      border: none;
-    }
-    &.Mui-focused fieldset {
-      border: none;
-    }
-  }
-`;
+
   const sortChampionStats = (stats: { [key: string]: ChampionStat }) => {
     const aggregatedStats = Object.entries(stats).reduce((acc, [championId, stat]) => {
       Object.entries(stat.statsPerQueue).forEach(([queueName, queueStat]) => {
@@ -118,15 +89,13 @@ const ChampionStats: React.FC<ChampionStatsProps> = ({ championStats }) => {
 
   const displayedStats = showAllMatches ? sortedStats : sortedStats.slice(0, 6);
 
-  const CustomPaper = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.vars.palette.cbox,
-    
-    [theme.getColorSchemeSelector('dark')]: {
-      // backdropFilter: 'blur(10px)',
-      backgroundColor: theme.vars.palette.cbox,
-      // boxShadow: '0 0 5px rgba(0, 0, 0, 0.5)',
-    },
-  }));
+  const handleShowAllMatchesClick = () => {
+    setShowAllMatches(true);
+  };
+
+  const handleShowLessMatchesClick = () => {
+    setShowAllMatches(false);
+  };
 
   function getKDABadgeColor(kda) {
     if (kda > 5) {
@@ -149,22 +118,27 @@ const ChampionStats: React.FC<ChampionStatsProps> = ({ championStats }) => {
       return '#ff4e50';
     }
   }
+  const ColoredArrowIcon = (props) => {
+    return <ArrowDropDownIcon {...props} />;
+  };
     
   return (
- 
-      <CustomPaper className={styles.ChampionStatsBox}>
-        <Typography className={styles.leagueV4BoxText}>
-          Champion stats
-        </Typography>
-        <div className={styles.ChampionStatsQueueForm}>
+    <CustomPaper className={styles.ChampionStatsBox}>
 
+      <Typography className={styles.leagueV4BoxText}>
+        Champion stats
+      </Typography>
+
+      <div className={styles.ChampionStatsQueueForm}>
         <CustomSelect
           value={selectedQueue}
           onChange={(e) => setSelectedQueue(e.target.value as string)}
           label="Queue Type"
-          IconComponent={ArrowDropDownIcon}
+          variant="standard"
+          color="info"
+          disableUnderline
+          IconComponent={ColoredArrowIcon}
           className={styles.ChampionStatsQueueFormSelect}
-
         >
           {queueTypes.map((queue, index) => (
             <MenuItem key={index} value={queue.value}>
@@ -173,52 +147,52 @@ const ChampionStats: React.FC<ChampionStatsProps> = ({ championStats }) => {
           ))}
         </CustomSelect>
 
-    </div>
-        <div className={styles.ChampionStatsSorting}>
-          <SortIcon color="info" className={styles.ChampionStatsSortingIcon}/>
-          <Typography className={styles.ChampionStatsSortingText}>
-            Filter
-          </Typography>
-          <Button className={styles.ChampionStatsSortingBtn} variant="outlined" disabled={sortKey === 'gamesPlayed'} color="info" onClick={() => setSortKey('gamesPlayed')}>Played</Button>
-          <Button className={styles.ChampionStatsSortingBtn} variant="outlined" disabled={sortKey === 'kda'} color="info" onClick={() => setSortKey('kda')}>KDA</Button>
-          <Button className={styles.ChampionStatsSortingBtn} variant="outlined" disabled={sortKey === 'winrate'} color="info" onClick={() => setSortKey('winrate')}>W/R</Button>
-
+      </div>
+      <div className={styles.ChampionStatsSorting}>
+        <SortIcon color="info" className={styles.ChampionStatsSortingIcon}/>
+        <Typography className={styles.ChampionStatsSortingText}>
+          Filter
+        </Typography>
+        <Button className={styles.ChampionStatsSortingBtn} variant="outlined" disabled={sortKey === 'gamesPlayed'} color="info" onClick={() => setSortKey('gamesPlayed')}>Played</Button>
+        <Button className={styles.ChampionStatsSortingBtn} variant="outlined" disabled={sortKey === 'kda'} color="info" onClick={() => setSortKey('kda')}>KDA</Button>
+        <Button className={styles.ChampionStatsSortingBtn} variant="outlined" disabled={sortKey === 'winrate'} color="info" onClick={() => setSortKey('winrate')}>W/R</Button>
       </div>
       
-<div className={styles.ChampionStatsContainer}>
-{displayedStats.map((stat, index) => (
-  <div className={styles.ChampionStatsContent} key={`${stat.championId}-${stat.queueName}`}>
-    <Grid container key={index} spacing={2}>
-      <div className={styles.ChampionStatsContent2}>
-        <Grid item xs={4}>
-          <Image
-            className={styles.ChampionStatsImage}
-            src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${stat.championId}.png`}
-            alt={stat.championName}
-            width={50}
-            height={50}
-          />
-        </Grid>
-        <Grid item xs={8}>
-          <Typography className={styles.ChampionStatsName} variant="body2">{stat.championName}</Typography>
-          <Typography className={styles.ChampionStatsPlayed} variant="body2">{stat.gamesPlayed} games</Typography>
-          <Typography className={styles.ChampionStatsKDA} variant="body2" style={{ color: getKDABadgeColor(stat.kda)}}>{(stat.kda).toFixed(2)} kda</Typography>
-          <Typography className={styles.ChampionStatsKDA2} variant="body2">{stat.kills} / {stat.deaths} / {stat.assists}</Typography>
-          {/* <Typography className={styles.ChampionStatsWR} variant="body2" style={{ color: getWinrateColor(((stat.wins / stat.gamesPlayed) * 100))}}> */}
-          <Typography className={styles.ChampionStatsWR} variant="body2">
-            {((stat.wins / stat.gamesPlayed) * 100).toFixed(1)}%
-          </Typography>
-          <div className={styles.ProgressBar}>
-            <div className={styles.TrendingBar} style={{ width: `${(stat.wins / stat.gamesPlayed) * 100}%` }}></div>
-          </div>
-        </Grid>
-      </div>
-    </Grid>
-  </div>
-))}
+      <div className={styles.ChampionStatsContainer}>
+        <For each={displayedStats}>
+          {(stat, index) => (
+            <div className={styles.ChampionStatsContent} key={`${stat.championId}-${stat.queueName}`}>
+              <Grid container key={index} spacing={2}>
+                <div className={styles.ChampionStatsContent2}>
+                  <Grid item xs={4}>
+                    <Image
+                      className={styles.ChampionStatsImage}
+                      src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${stat.championId}.png`}
+                      alt={stat.championName}
+                      width={50}
+                      height={50}
+                    />
+                  </Grid>
+                  <Grid item xs={8}>
+                    <Typography className={styles.ChampionStatsName} variant="body2">{stat.championName}</Typography>
+                    <Typography className={styles.ChampionStatsPlayed} variant="body2">{stat.gamesPlayed} games</Typography>
+                    <Typography className={styles.ChampionStatsKDA} variant="body2" style={{ color: getKDABadgeColor(stat.kda)}}>{(stat.kda).toFixed(2)} kda</Typography>
+                    <Typography className={styles.ChampionStatsKDA2} variant="body2">{stat.kills} / {stat.deaths} / {stat.assists}</Typography>
+                    {/* <Typography className={styles.ChampionStatsWR} variant="body2" style={{ color: getWinrateColor(((stat.wins / stat.gamesPlayed) * 100))}}> */}
+                    <Typography className={styles.ChampionStatsWR} variant="body2">
+                      {((stat.wins / stat.gamesPlayed) * 100).toFixed(1)}%
+                    </Typography>
+                    <div className={styles.ProgressBar}>
+                      <div className={styles.TrendingBar} style={{ width: `${(stat.wins / stat.gamesPlayed) * 100}%` }}></div>
+                    </div>
+                  </Grid>
+                </div>
+              </Grid>
+            </div>
+          )}
+        </For>
 
-
-{!showAllMatches && sortedStats.length > 6 && (
+        {!showAllMatches && sortedStats.length > 6 && (
           <Button
             className={styles.ShowAllButton}
             variant="text"
@@ -229,7 +203,7 @@ const ChampionStats: React.FC<ChampionStatsProps> = ({ championStats }) => {
           </Button>
         )}
 
-{showAllMatches && (
+        {showAllMatches && (
           <Button
             className={styles.ShowAllButton}
             variant="text"
@@ -239,14 +213,30 @@ const ChampionStats: React.FC<ChampionStatsProps> = ({ championStats }) => {
             Show Less
           </Button>
         )}
-
-</div>
-
-
-      </CustomPaper>
-
+      </div>
+    </CustomPaper>
     );
 };
+
+const CustomPaper = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.vars.palette.cbox,
+  
+  [theme.getColorSchemeSelector('dark')]: {
+    // backdropFilter: 'blur(10px)',
+    backgroundColor: theme.vars.palette.cbox,
+    // boxShadow: '0 0 5px rgba(0, 0, 0, 0.5)',
+  },
+}));
+
+const CustomSelect = styled(Select)(({ theme }) => ({
+  backgroundColor: theme.vars.palette.cbox,
+  boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1)',
+  textAlign: 'center',
+  
+  [theme.getColorSchemeSelector('dark')]: {
+    backgroundColor: theme.vars.palette.cbox,
+  },
+}));
 
 const ChampionStatsBlock = block(ChampionStats)
 

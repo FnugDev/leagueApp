@@ -7,9 +7,9 @@ import Document, {
   DocumentProps,
   DocumentContext,
 } from 'next/document';
+import { getInitColorSchemeScript } from '@mui/material/styles';
 import createEmotionServer from '@emotion/server/create-instance';
 import { AppType } from 'next/app';
-import { getInitColorSchemeScript } from '@mui/material/styles';
 import theme, { roboto } from '../config/theme';
 import createEmotionCache from '../config/createEmotionCache';
 import { MyAppProps } from './_app';
@@ -22,8 +22,7 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
   return (
     <Html lang="en" className={roboto.className}>
       <Head>
-        {/* PWA primary color */}
-  
+        
         <link rel="shortcut icon" href="/favicon.ico" />
         <meta name="emotion-insertion-point" content="" />
         {emotionStyleTags}
@@ -40,27 +39,7 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
 // `getInitialProps` belongs to `_document` (instead of `_app`),
 // it's compatible with static-site generation (SSG).
 MyDocument.getInitialProps = async (ctx: DocumentContext) => {
-  // Resolution order
-  //
-  // On the server:
-  // 1. app.getInitialProps
-  // 2. page.getInitialProps
-  // 3. document.getInitialProps
-  // 4. app.render
-  // 5. page.render
-  // 6. document.render
-  //
-  // On the server with error:
-  // 1. document.getInitialProps
-  // 2. app.render
-  // 3. page.render
-  // 4. document.render
-  //
-  // On the client
-  // 1. app.getInitialProps
-  // 2. page.getInitialProps
-  // 3. app.render
-  // 4. page.render
+
 
   const originalRenderPage = ctx.renderPage;
 
