@@ -208,13 +208,13 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
     const storedMatches = storedData.matchHistory || [];
     const storedMatchIds = storedMatches.map(match => match.matchId);  // Extract just the match IDs
     const newMatchesToFetch = newMatches.filter(matchId => !storedMatchIds.includes(matchId));
-
+    const storedMatchesWithTime = storedMatches.map(match => calculateTimeSinceMatch(match));
 
       const newMatchData = await fetchMatchData(newMatchesToFetch, apiKey, summonerData.puuid, platform);
-      const updatedMatchHistory = [...newMatchData, ...storedMatches];
+      const updatedMatchHistory = [...newMatchData, ...storedMatchesWithTime];
       console.log('New Matches to Fetch:', newMatchesToFetch);  // Add for debugging
       const championStats: ChampionStats = calculateChampionStats(updatedMatchHistory);
-    
+      updatePlayerStreaksAndChips(updatedMatchHistory,playerChips)
     // Update database and cache
     await updateSummonerData(cacheKey, {
       summonerData,
@@ -324,22 +324,18 @@ const retryableFetch = async (url: string, retries: number = 0, maxRetries: numb
   }
 };
 
-async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platform: string) {
+async function fetchMatchData(matches: string[], apiKey: string, puuid: string, platform: string) {
   const currentTime = Date.now();
+  // Assuming playerChips is globally accessible
   playerChips.length = 0;
-  const requestQueue = new RequestQueue(5);
-  const matchData: any[] = [];
-  const matchOutcomes: string[] = []; 
-  
 
-  matches.forEach(matchId => {
-    requestQueue.enqueue(async () => {
-      try {
-        const gameData = await retryableFetch(
-          `https://${platform}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${apiKey}`,
-          0, 5
-        );
-
+  const fetchMatch = async (matchId: string) => {
+    try {
+      const gameData = await retryableFetch(
+        `https://${platform}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${apiKey}`,
+        0, 5
+      );
+      
       if (gameData.info.queueId === 1700) {
         return null; // Skip this match
       }
@@ -352,9 +348,6 @@ async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platfo
 
       const { win, kills, deaths, assists, championName, championId, summoner1Id, summoner2Id, item0, item1, item2, item3, item4, item5, perks, totalMinionsKilled, teamEarlySurrendered, teamId,teamPosition, individualPosition} = participant;
       const { gameMode, gameId, gameCreation, gameEndTimestamp, gameDuration, queueId } = gameData.info;
-
-
-
 
       const queueName = getQueueNameById(gameData.info.queueId, queueData);
 
@@ -404,107 +397,125 @@ async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platfo
         gameDuration: formattedGameDuration,
         gameEndTimestamp,
       };
-      
-      matchData.push(processedData);
+      return processedData; // Replace processedData with your actual processed data.
     } catch (error) {
       console.error(`Error fetching match ${matchId}:`, error);
-
+      return null;
     }
-  });
-})
+  };
 
-  // const matchData = await Promise.all(matchPromises);
-  await requestQueue.onIdle();
+  const matchPromises = matches.map(fetchMatch);
+  const settledMatches = await Promise.allSettled(matchPromises);
 
-  // Filter out null and undefined matches
-  const filteredMatchData = matchData.filter(match => match !== null && match !== undefined);
+  const filteredMatchData = settledMatches.reduce((acc, settled) => {
+    if (settled.status === 'fulfilled' && settled.value !== null) {
+      acc.push(settled.value);
+    }
+    return acc;
+  }, [] as any[]);
 
-
-  // Sort filteredMatchData by gameEndTimestamp
-  const sortedMatchData = filteredMatchData.sort((a, b) => b?.gameEndTimestamp - a?.gameEndTimestamp);
-
-  // Populate matchOutcomes array using sortedMatchData
-  sortedMatchData.forEach(match => {
-    matchOutcomes.push(match?.win ? "Victory" : "Defeat");
-  });
+  // Do something with the filteredMatchData if needed.
   
-  // Reverse matchOutcomes array
-  const reversedMatchOutcomes = matchOutcomes.slice().reverse();
-  
-  // Calculate current loss streak using reversedMatchOutcomes array
-  const currentLossStreak = reversedMatchOutcomes.reduce((streak, outcome) => outcome === "Defeat" ? streak + 1 : 0, 0);
-  if (currentLossStreak >= 3) {
-    playerChips.push({
-      name: "Cold Streak",
-      desc: `${currentLossStreak} Cold Streak`,
-      icon: 'AcUnit',
-      color: '#3174fa',
-    });
-    console.log("pushed chip")
-  }
-
-  const currentWinStreak = reversedMatchOutcomes.reduce((streak, outcome) => outcome === "Victory" ? streak + 1 : 0, 0);
-  if (currentWinStreak >= 3) {
-
-    playerChips.push({
-      name: "Hot Streak",
-      desc: `${currentWinStreak} Hot Streak`,
-      icon: 'WhatshotIcon',
-      color: '#ff4e50'
-    });
-    console.log("pushed chip")
-  }
-
-  
-  playerChips.push({
-    name: "Viola",
-    desc: `Viola creator`,
-    icon: 'WhatshotIcon',
-    color: '#ff4e50'
-  });
-  playerChips.push({
-    name: "S12 Diamond",
-    desc: `Cold Streak`,
-    icon: null,
-    color: '#3174fa',
-  });
-  playerChips.push({
-    name: "S11 Diamond",
-    desc: `Cold Streak`,
-    icon: null,
-    color: '#3174fa',
-  });
-  playerChips.push({
-    name: "S13-1 Master",
-    desc: `Viola creator`,
-    icon: null,
-    color: '#ff4e50'
-  });
-
-  console.log(playerChips)
-
   return filteredMatchData;
 }
-async function getMatchData(apiKey: string, puuid: any, platform: string) {
-  // Set your API key, puuid, and platform
+
+// async function fetchMatchData(matches: any[], apiKey: string, puuid: any, platform: string) {
+//   const currentTime = Date.now();
+//   playerChips.length = 0;
+//   const requestQueue = new RequestQueue(5);
+//   const matchData: any[] = [];
+//   const matchOutcomes: string[] = []; 
+  
+
+//   matches.forEach(matchId => {
+//     requestQueue.enqueue(async () => {
+//       try {
+//         const gameData = await retryableFetch(
+//           `https://${platform}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${apiKey}`,
+//           0, 5
+//         );
+
+//       if (gameData.info.queueId === 1700) {
+//         return null; // Skip this match
+//       }
+
+//       const participant = gameData.info.participants.find((p: { puuid: any; }) => p.puuid === puuid);
+//       if (!participant) {
+//         console.log(`Participant for summoner not found in match ${matchId}`);
+//         return null;
+//       }
+
+//       const { win, kills, deaths, assists, championName, championId, summoner1Id, summoner2Id, item0, item1, item2, item3, item4, item5, perks, totalMinionsKilled, teamEarlySurrendered, teamId,teamPosition, individualPosition} = participant;
+//       const { gameMode, gameId, gameCreation, gameEndTimestamp, gameDuration, queueId } = gameData.info;
 
 
-  // Get the matches
-  const matchesResponse = await fetch(`https://${platform}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=19&api_key=${apiKey}`);
-  if (!matchesResponse.ok) {
-    throw new Error('Failed to fetch match data');
-  }
-  const matches: string[] = await matchesResponse.json();
 
-  // Fetch the match data using the fetchMatchData function
-  const matchData = await fetchMatchData(matches, apiKey, puuid, platform);
 
-  // Filter out any null values
-  const filteredMatchData = matchData.filter(match => match !== null);
+//       const queueName = getQueueNameById(gameData.info.queueId, queueData);
 
-  // Do something with the match data
-  console.log(filteredMatchData);
-}
+//       const summoner1Name = getSummonerSpellNameById(summoner1Id, summonerSpellData);
+//       const summoner2Name = getSummonerSpellNameById(summoner2Id, summonerSpellData);
+
+//       const timeSinceMatch = Math.floor((currentTime - gameEndTimestamp) / 1000);
+//       const timeSinceMatchText = formatTimeSinceMatch(timeSinceMatch);
+
+//       const formattedGameDuration = formatGameDuration(gameDuration);
+
+//       const csPerMinute = (totalMinionsKilled / (gameDuration / 60)).toFixed(1);
+//       const kda = ((kills + assists) / deaths).toFixed(2);
+
+//       const participantSummonerNames = gameData.info.participants.map(
+//         (p: { summonerName: any }) => p.summonerName
+//       );
+//       const participantChampionIds = gameData.info.participants.map(
+//         (p: { championId: any }) => p.championId
+//       );
+
+//       const processedData = {
+//         matchId,
+//         game_mode: gameMode,
+//         queueId: queueId,
+//         queueName,
+//         summoners: participantSummonerNames,
+//         championIds: participantChampionIds,
+//         win,
+//         kills,
+//         deaths,
+//         assists,
+//         kda,
+//         totalMinionsKilled,
+//         csPerMinute,
+//         teamEarlySurrendered, 
+//         teamId,
+//         teamPosition,
+//         champion_name: championName,
+//         championId,
+//         summoner1Id,
+//         summoner1Name,
+//         summoner2Name,
+//         items: { item0, item1, item2, item3, item4, item5 },
+//         perks: perks,
+//         timeSinceMatch: timeSinceMatchText,
+//         gameDuration: formattedGameDuration,
+//         gameEndTimestamp,
+//       };
+      
+//       matchData.push(processedData);
+//     } catch (error) {
+//       console.error(`Error fetching match ${matchId}:`, error);
+
+//     }
+//   });
+// })
+
+//   // const matchData = await Promise.all(matchPromises);
+//   await requestQueue.onIdle();
+
+//   // Filter out null and undefined matches
+//   const filteredMatchData = matchData.filter(match => match !== null && match !== undefined);
+
+//   return filteredMatchData;
+// }
 
 
 function calculateChampionStats(matchData: any[]): { [key: string]: ChampionStat } {
@@ -554,7 +565,15 @@ function calculateChampionStats(matchData: any[]): { [key: string]: ChampionStat
 
   return championStats;
 }
-
+function calculateTimeSinceMatch(match) {
+  const currentTime = Date.now();
+  const timeSinceMatch = Math.floor((currentTime - match.gameEndTimestamp) / 1000);
+  const timeSinceMatchText = formatTimeSinceMatch(timeSinceMatch);
+  return {
+    ...match,
+    timeSinceMatch: timeSinceMatchText,
+  };
+}
 
 
 function formatTimeSinceMatch(timeSinceMatch: number) {
@@ -625,6 +644,37 @@ function getQueueInfo(queueType: QueueType, leagueData: any[]): QueueInfo | null
     freshBlood,
     hotStreak,
   };
+}
+
+function updatePlayerStreaksAndChips(filteredMatchData: any[], playerChips: any[]) {
+  const sortedMatchData2 = filteredMatchData.sort((a, b) => b?.gameEndTimestamp - a?.gameEndTimestamp);
+  const matchOutcomes = sortedMatchData2.map(match => match?.win ? "Victory" : "Defeat");
+  const reversedMatchOutcomes = matchOutcomes.slice().reverse();
+
+  const calculateStreak = (outcome: string) => reversedMatchOutcomes.reduce((streak, currentOutcome) => currentOutcome === outcome ? streak + 1 : 0, 0);
+
+  const currentLossStreak = calculateStreak("Defeat");
+  const currentWinStreak = calculateStreak("Victory");
+
+  if (currentLossStreak >= 3) {
+    playerChips.push({
+      name: "Cold Streak",
+      desc: `${currentLossStreak} Cold Streak`,
+      icon: 'AcUnit',
+      color: '#3174fa',
+    });
+  }
+
+  if (currentWinStreak >= 3) {
+    playerChips.push({
+      name: "Hot Streak",
+      desc: `${currentWinStreak} Hot Streak`,
+      icon: 'WhatshotIcon',
+      color: '#ff4e50'
+    });
+  }
+
+  // Add other player chips here...
 }
 
 async function fetchData(url: string): Promise<any> {
