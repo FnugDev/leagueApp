@@ -77,16 +77,17 @@ const UnrankedBox: React.FC = () => {
   };
 
   const login = () => {
-    window.location.href = '/api/authLogin';
+    // window.location.href = '/api/authLogin';
+
+      const currentUrl = window.location.href;
+      window.location.href = `/api/authLogin?prevUrl=${encodeURIComponent(currentUrl)}`;
+    
   };
 
   const logout = async () => {
-    await fetch('/api/logout', {
+    await fetch('/api/authLogout', {
       method: 'POST', // or GET
     });
-  
-    // Redirect user to homepage or login page
-    window.location.href = '/';
   };
   const paperStyle = {
     backgroundColor: theme.palette.mode === 'dark' ? styles.darkModePaper : '#eaeffc',
