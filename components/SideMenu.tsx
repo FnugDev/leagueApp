@@ -13,7 +13,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import type {} from '@mui/material/themeCssVarsAugmentation';
 import { styled } from '@mui/material/styles';
 import Slide from '@mui/material/Slide';
-
+import axios from 'axios';
 // import styles from '../styles/Summonerpage.module.css';
 import styles from '../styles/SideMenu.module.css'; 
 import { block } from 'million/react';
@@ -26,6 +26,23 @@ const UnrankedBox: React.FC = () => {
   const isDarkMode = theme.palette.mode === 'dark';
   const [showLoginButton, setShowLoginButton] = useState(false);
   const [isDrawerHovered, setIsDrawerHovered] = useState(false); // Add state for hover
+  const [accountData, setAccountData] = useState(null); // You can also provide an initial value and specify a type
+
+  useEffect(() => {
+    const fetchLolAccount = async () => {
+      try {
+        const res = await axios.get('/api/getLolAccount');
+        console.log('Account info:', res.data);
+
+        // Update the state variable with the fetched data
+        setAccountData(res.data);
+      } catch (error) {
+        console.error('Failed to fetch account:', error);
+      }
+    };
+
+    fetchLolAccount();
+  }, []);
 
   useEffect(() => {
     const auth = getAuth();
@@ -39,6 +56,7 @@ const UnrankedBox: React.FC = () => {
       unsubscribe(); // Clean up the subscription when the component unmounts
     };
   }, []);
+
 
   const handleSignOut = async () => {
     try {
@@ -60,6 +78,15 @@ const UnrankedBox: React.FC = () => {
 
   const login = () => {
     window.location.href = '/api/authLogin';
+  };
+
+  const logout = async () => {
+    await fetch('/api/logout', {
+      method: 'POST', // or GET
+    });
+  
+    // Redirect user to homepage or login page
+    window.location.href = '/';
   };
   const paperStyle = {
     backgroundColor: theme.palette.mode === 'dark' ? styles.darkModePaper : '#eaeffc',
@@ -121,7 +148,7 @@ const UnrankedBox: React.FC = () => {
   <div className={styles.MuiTypography}>Material UI</div>
 </li> */}
 
-{showLoginButton ? (
+{accountData ? (
         <Button
           color="info"
           className={styles.SidemenuButton}
@@ -139,7 +166,7 @@ const UnrankedBox: React.FC = () => {
         <Button
           color="error"
           className={styles.SidemenuButton}
-          onClick={handleSignOut}
+          onClick={logout}
         >
           Sign Out
         </Button>
