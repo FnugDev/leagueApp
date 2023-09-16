@@ -21,6 +21,34 @@ import SortIcon from '@mui/icons-material/Sort';
 import styles from '../styles/Summonerpage.module.css';
 import { block, For } from 'million/react';
 
+
+interface ProgressBarProps {
+  stat: {
+    wins: number;
+    gamesPlayed: number;
+  };
+}
+
+const ProgressBar: React.FC<ProgressBarProps> = ({ stat }) => {
+  const percentage = (stat.wins / stat.gamesPlayed) * 100;
+
+  return (
+    <div className={styles.ProgressBar}>
+      <div className={styles.TrendingBarWrapper}>
+        <div className={styles.TrendingBar}></div>
+      </div>
+      <div 
+        className={styles.TrendingMask}
+        style={{ width: `${100 - percentage}%` }}
+      >
+      </div>
+    </div>
+  );
+}
+
+
+
+
 interface QueueSpecificStats { gamesPlayed: number; wins: number; kills: number; deaths: number; assists: number; kda: number;}
 interface ChampionStat { championName: string; statsPerQueue: { [queueName: string]: QueueSpecificStats };}
 interface ChampionStatsProps { championStats: { [key: string]: ChampionStat };}
@@ -118,6 +146,18 @@ const ChampionStats: React.FC<ChampionStatsProps> = ({ championStats }) => {
       return '#ff4e50';
     }
   }
+
+  function getTrendingBarColor(winRate: number) {
+    if (winRate > 80) {
+      return "linear-gradient(90deg, #00c6ff, #f8b664)";
+    } else if (winRate > 50) {
+      return "linear-gradient(90deg, #00c6ff, #3174fa)";
+    } else {
+      return "linear-gradient(90deg, #00c6ff, #ff4e50)";
+    }
+  }
+
+  
   const ColoredArrowIcon = (props) => {
     return <ArrowDropDownIcon {...props} />;
   };
@@ -182,9 +222,7 @@ const ChampionStats: React.FC<ChampionStatsProps> = ({ championStats }) => {
                     <Typography className={styles.ChampionStatsWR} variant="body2">
                       {((stat.wins / stat.gamesPlayed) * 100).toFixed(1)}%
                     </Typography>
-                    <div className={styles.ProgressBar}>
-                      <div className={styles.TrendingBar} style={{ width: `${(stat.wins / stat.gamesPlayed) * 100}%` }}></div>
-                    </div>
+                    <ProgressBar stat={stat} />
                   </Grid>
                 </div>
               </Grid>

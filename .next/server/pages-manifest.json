@@ -1,7 +1,18 @@
 {
-  "/_app": "pages/_app.js",
-  "/_error": "pages/_error.js",
+  "/api/authLogin": "pages/api/authLogin.js",
   "/_document": "pages/_document.js",
+  "/api/hello": "pages/api/hello.js",
+  "/api/getLolAccount": "pages/api/getLolAccount.js",
+  "/api/live/[region]/[username]": "pages/api/live/[region]/[username].js",
+  "/_app": "pages/_app.js",
+  "/api/oauthCallback": "pages/api/oauthCallback.js",
+  "/_error": "pages/_error.js",
+  "/api/matchHistory": "pages/api/matchHistory.js",
+  "/api/matches": "pages/api/matches.js",
+  "/api/summoner/[region]/[username]": "pages/api/summoner/[region]/[username].js",
+  "/api/profile": "pages/api/profile.js",
+  "/tos": "pages/tos.js",
   "/summoner/[region]/[username]": "pages/summoner/[region]/[username].js",
-  "/TOS": "pages/TOS.js"
+  "/": "pages/index.js",
+  "/privacy": "pages/privacy.js"
 }

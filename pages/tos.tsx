@@ -19,7 +19,7 @@ const TOS: React.FC = () => {
 
       <h2>Accounts</h2>
       <p>
-        Creating an account on Viola requires accurate and complete information. You are responsible for any activities occurring under your account. Unauthorized use of another person's account is strictly prohibited.
+        Creating an account on Viola requires accurate and complete information. You are responsible for any activities occurring under your account. Unauthorized use of another person&apos;s account is strictly prohibited.
       </p>
       <p>
         Viola reserves the right to terminate any account or limit access to specific content for behavior considered harmful to our community or in breach of these terms.
@@ -42,12 +42,12 @@ const TOS: React.FC = () => {
 
       <h2>General Disclaimer</h2>
       <p>
-        YOUR USE OF VIOLA IS AT YOUR OWN RISK. VIOLA IS PROVIDED "AS IS" WITHOUT ANY WARRANTIES, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. Viola is not liable for actions or content from third parties.
+        YOUR USE OF VIOLA IS AT YOUR OWN RISK. VIOLA IS PROVIDED &quot;AS IS&quot; WITHOUT ANY WARRANTIES, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. Viola is not liable for actions or content from third parties.
       </p>
 
       <h2>Limitation of Liability</h2>
       <p>
-        Viola's total liability will not exceed the greater of one hundred dollars ($100) or the amount you have paid us in the past twelve months. Some jurisdictions may not allow the limitation or exclusion of liability, so the above may not apply to you.
+        Viola&apos;s total liability will not exceed the greater of one hundred dollars ($100) or the amount you have paid us in the past twelve months. Some jurisdictions may not allow the limitation or exclusion of liability, so the above may not apply to you.
       </p>
     </div>
   );

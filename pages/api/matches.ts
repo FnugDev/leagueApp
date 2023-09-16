@@ -2,19 +2,35 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import RateLimit from 'axios-rate-limit'; // For rate limiting
 import NodeCache from 'node-cache'; // For caching
+import axiosRetry from 'axios-retry';
+import { MongoClient } from 'mongodb';
 
 // ... (previous code)
+const client = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017');
 
-const RIOT_API_KEY = 'RGAPI-70e20392-19ee-4299-acf3-23d42e90fac9';
+const RIOT_API_KEY = 'RGAPI-0cadcd0b-3bd8-472f-8b2e-36b86fc2e973';
 const BASE_URL = 'https://{region}.api.riotgames.com'; // Use a placeholder for region
 
 const cache = new NodeCache({ stdTTL: 6000 }); // Cache with 10-minute expiration
 
-// Create an instance of axios with rate limiting
+
+// Existing rate-limited axios instance
 const axiosWithRateLimit = RateLimit(axios.create(), {
-  maxRequests: 20, // Maximum number of requests per 1 second
-  perMilliseconds: 1000, // 1 second
+  maxRequests: 500,
+  perMilliseconds: 10000, // 10 seconds in milliseconds
 });
+
+// Configure retries
+axiosRetry(axiosWithRateLimit, {
+  retries: 3,
+  retryDelay: (retryCount) => {
+    return retryCount * 1000; // time interval between retries
+  },
+  retryCondition: (error) => {
+    return error.response?.status === 429;
+  },
+});
+
 
 interface MatchResponseData {
   // Define the structure of the match response data here
@@ -22,12 +38,12 @@ interface MatchResponseData {
   matchId: any;
   // Other properties...
 }
-const regions = ['br1', 'eun1', 'euw1']; // Add more regions if needed
-const tiers = ['DIAMOND']; // Add more tiers if needed
-const divisions = ['I']; // Add more divisions if needed
-// const regions = ['br1', 'eun1', 'euw1', 'jp1', 'kr', 'la1', 'la2', 'na1', 'oc1', 'tr1', 'ru', 'ph2', 'sg2', 'th2', 'tw2', 'vn2']; // Add more regions if needed
-// const tiers = ['DIAMOND', 'EMERALD', 'PLATINUM', 'GOLD', 'SILVER', 'BRONZE', 'IRON']; // Add more tiers if needed
-// const divisions = ['I', 'II', 'III', 'IV']; // Add more divisions if needed
+// const regions = ['br1', 'eun1', 'euw1']; // Add more regions if needed
+// const tiers = ['DIAMOND']; // Add more tiers if needed
+// const divisions = ['I']; // Add more divisions if needed
+const regions = ['br1', 'eun1', 'euw1', 'jp1', 'kr', 'la1', 'la2', 'na1', 'oc1', 'tr1', 'ru', 'ph2', 'sg2', 'th2', 'tw2', 'vn2']; // Add more regions if needed
+const tiers = ['DIAMOND', 'EMERALD', 'PLATINUM', 'GOLD', 'SILVER', 'BRONZE', 'IRON']; // Add more tiers if needed
+const divisions = ['I', 'II', 'III', 'IV']; // Add more divisions if needed
 
 const platformToRegionMap = {
     BR1: 'americas',
@@ -50,6 +66,10 @@ const platformToRegionMap = {
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
+    await client.connect();
+    const db = client.db('riotGames');
+    const collection = db.collection('matches');
+
     const allMatches = {};
 
     for (const region of regions) {
@@ -138,9 +158,16 @@ console.log("matchlist", region,tier,division)
       }
     }
 
+    await collection.insertOne(allMatches);
+
+    await client.close();
+
     res.json(allMatches);
   } catch (error) {
     console.error('Error:', error);
+
+    await client.close();
+    
     res.status(500).json({ error: 'An error occurred' });
   }
 };

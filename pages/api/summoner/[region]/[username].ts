@@ -137,7 +137,7 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
   }
 
   const cacheKey = `${modifiedRegion}-${summonerName}`;
-  const apiKey = 'RGAPI-70e20392-19ee-4299-acf3-23d42e90fac9';
+  const apiKey = 'RGAPI-0cadcd0b-3bd8-472f-8b2e-36b86fc2e973';
   
   try {
     const cachedData = cache.get(cacheKey);
@@ -673,6 +673,31 @@ function updatePlayerStreaksAndChips(filteredMatchData: any[], playerChips: any[
       color: '#ff4e50'
     });
   }
+
+  playerChips.push({
+    name: "Viola",
+    desc: `Viola creator`,
+    icon: 'WhatshotIcon',
+    color: '#ff4e50'
+  });
+  playerChips.push({
+    name: "S12 Diamond",
+    desc: `Cold Streak`,
+    icon: null,
+    color: '#3174fa',
+  });
+  playerChips.push({
+    name: "S11 Diamond",
+    desc: `Cold Streak`,
+    icon: null,
+    color: '#3174fa',
+  });
+  playerChips.push({
+    name: "S13-1 Master",
+    desc: `Viola creator`,
+    icon: null,
+    color: '#ff4e50'
+  });
 
   // Add other player chips here...
 }

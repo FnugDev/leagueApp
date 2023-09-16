@@ -57,6 +57,10 @@ const UnrankedBox: React.FC = () => {
       console.error("Error signing out:", error);
     }
   };
+
+  const login = () => {
+    window.location.href = '/api/authLogin';
+  };
   const paperStyle = {
     backgroundColor: theme.palette.mode === 'dark' ? styles.darkModePaper : '#eaeffc',
 
@@ -121,7 +125,7 @@ const UnrankedBox: React.FC = () => {
         <Button
           color="info"
           className={styles.SidemenuButton}
-          onClick={handleLogin}
+          onClick={login}
         >
           {isDrawerHovered ? (
             <>

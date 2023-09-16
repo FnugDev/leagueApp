@@ -593,6 +593,7 @@ font-family: 'Space Grotesk';
 /* border: 1px solid red; */
 height: 70px;
 opacity: 0.6 !important;
+cursor: pointer !important;
 }
 
 .ChampionStatsImage {
@@ -665,17 +666,36 @@ font-size: 0.6em;
   border-radius: 3px; /* Rounded corners */
 
   overflow: hidden; /* Hide overflow for the fluid effect */
-  border: 0.1px solid var(--mui-palette-background-paper);
+  border: 1.5px solid var(--mui-palette-background-paper);
   padding: 1px;
 }
 
-.TrendingBar {
-  position: relative;
-  height: 100%;
+
+
+.TrendingBarWrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
+  height: 100%;
+  overflow: hidden;
   border-radius: 3px;
-  background: linear-gradient(90deg, #ff4e50, #3174fa); /* Gradient from red to blue */
-  animation: trending 2s linear infinite; /* Animation for the trending effect */
+}
+
+.TrendingBar {
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+
+  background: linear-gradient(90deg, #00c6ff, #ff6b6b);
+}
+
+.TrendingMask {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  background-color: var(--mui-palette-background-paper); /* your background color */
 }
 
 /* Animation for the trending effect */
