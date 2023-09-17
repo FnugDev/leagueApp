@@ -4,8 +4,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const prevUrl = req.query.prevUrl as string;
   const clientId = "28e556f6-deb6-41c4-9f92-b6c9e3554aba"
-  const redirectUri = prevUrl;
-//   const redirectUri = "https://viola-beta.vercel.app/";
+//   const redirectUri = prevUrl;
+  const redirectUri = "https://viola-beta.vercel.app/";
 //   const clientId = process.env.RIOT_CLIENT_ID;
 //   const redirectUri = process.env.RIOT_REDIRECT_URI;
 
