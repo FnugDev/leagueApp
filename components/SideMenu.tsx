@@ -150,28 +150,35 @@ const UnrankedBox: React.FC = () => {
 </li> */}
 
 {accountData ? (
-        <Button
-          color="info"
-          className={styles.SidemenuButton}
-          onClick={login}
-        >
-          {isDrawerHovered ? (
-            <>
-            <span className={styles.SidemenuButtonText}>Login</span> <AccountCircleIcon />
-            </>
-          ) : (
-            <AccountCircleIcon fontSize="large" />
-          )}
-        </Button>
-      ) : (
-        <Button
-          color="error"
-          className={styles.SidemenuButton}
-          onClick={logout}
-        >
-          Sign Out
-        </Button>
-      )}
+  <Button
+    color="error"
+    className={styles.SidemenuButton}
+    onClick={logout}
+  >
+    {isDrawerHovered ? (
+      <>
+        <span className={styles.SidemenuButtonText}>Sign Out</span> <AccountCircleIcon />
+      </>
+    ) : (
+      <AccountCircleIcon fontSize="large" />
+    )}
+  </Button>
+) : (
+  <Button
+    color="info"
+    className={styles.SidemenuButton}
+    onClick={login}
+  >
+    {isDrawerHovered ? (
+      <>
+        <span className={styles.SidemenuButtonText}>Login</span> <AccountCircleIcon />
+      </>
+    ) : (
+      <AccountCircleIcon fontSize="large" />
+    )}
+  </Button>
+)}
+
 
       
       {/* Rest of your UnrankedBox content */}
