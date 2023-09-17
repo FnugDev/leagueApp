@@ -12,6 +12,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const cpidResponse = await axios.get('https://auth.riotgames.com/userinfo', {
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
+
+    console.log(cpidResponse)
   
     const cpid = cpidResponse.data.cpid;
   
