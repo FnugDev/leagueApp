@@ -2,27 +2,30 @@ import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 import querystring from 'querystring'; 
 import jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
+const jti = uuidv4();
 
-const createSignedJwt = () => {
-    const payload = {
-      iss: 'YourApp',  // Issuer
-      sub: 'subject',  // Subject
-      aud: 'user',     // Audience
-      exp: Math.floor(Date.now() / 1000) + (60 * 60)  // Expires in 1 hour
-    };
+
+const createClientAssertion = () => {
+  const clientId = process.env.RIOT_CLIENT_ID; // replace with your client id
+  const clientSecret = process.env.RIOT_CLIENT_SECRET; // replace with your client secret
   
-    const secret = process.env.JWT_SECRET;  // Should be in your environment variables
-    
-    if (!secret) {
-      throw new Error("JWT_SECRET is not set in the environment variables.");
-    }
+  if (!clientId || !clientSecret) {
+    console.error('Environment variables are not set.');
+    return;
+  }
   
-    const token = jwt.sign(payload, secret, {
-      algorithm: 'HS256'
-    });
-  
-    return token;
+  const payload = {
+    iss: clientId,  // issuer: must be your client_id
+    sub: clientId,  // subject: must also be your client_id
+    aud: "https://auth.riotgames.com/token", // audience: the token endpoint URL
+    exp: Math.floor(Date.now() / 1000) + 60, // expiration time: current time + 60 seconds
+    jti: jti // A unique identifier for the token
   };
+  
+  return jwt.sign(payload, clientSecret, { algorithm: 'HS256' });
+};
+
   
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -42,7 +45,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (!clientId || !clientSecret || !redirectUri) {
       return res.status(500).send('Environment variables are not set.');
     }
-    const clientAssertion = createSignedJwt();
+    const clientAssertion = createClientAssertion();
 
     const tokenData = querystring.stringify({
       client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
