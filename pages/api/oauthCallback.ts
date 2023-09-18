@@ -3,9 +3,9 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const code = req.query.code as string;
 
-    // Read client ID and secret from environment variables
+    const accessCode = req.query.code;
+
     const clientId = process.env.RIOT_CLIENT_ID;
     const clientSecret = process.env.RIOT_CLIENT_SECRET;
     const redirectUri = process.env.RIOT_REDIRECT_URI;
@@ -14,10 +14,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(500).send('Environment variables are not set.');
     }
 
-    // Exchange the code for an access token
     const tokenResponse = await axios.post(
       'https://auth.riotgames.com/token',
-      `client_id=${clientId}&client_secret=${clientSecret}&redirect_uri=${redirectUri}&code=${code}&grant_type=authorization_code`,
+      `client_id=${clientId}&client_secret=${clientSecret}&redirect_uri=${redirectUri}&code=${accessCode}&grant_type=authorization_code`,
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -27,7 +26,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const accessToken = tokenResponse.data.access_token;
 
-
+    console.log(accessToken)
   } catch (error) {
     console.error('Error: ', error.response?.data || error.message);
     res.status(500).json({ error: error.response?.data || error.message });
