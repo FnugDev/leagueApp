@@ -9,9 +9,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const clientId = process.env.RIOT_CLIENT_ID;
     const clientSecret = process.env.RIOT_CLIENT_SECRET;
     const redirectUri = process.env.RIOT_REDIRECT_URI;
-    // const clientId = '28e556f6-deb6-41c4-9f92-b6c9e3554aba';
-    // const clientSecret = 'Txvwssci7xQmVLcLWJD0n3xk_cXukKrUPWSYSQ9He-0';
-    // const redirectUri = "https://viola-beta.vercel.app";
 
     if (!clientId || !clientSecret || !redirectUri) {
       return res.status(500).send('Environment variables are not set.');
@@ -47,8 +44,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     res.json({ cpid, account: accountResponse.data });
   } catch (error) {
-    console.error('Error in OAuth callback:', error);
-    res.status(500).send('An error occurred during the OAuth process.');
+    console.error('Error: ', error.response?.data || error.message);
+    res.status(500).json({ error: error.response?.data || error.message });
   }
 };
 
