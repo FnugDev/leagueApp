@@ -8,7 +8,8 @@ import { MongoClient } from 'mongodb';
 // ... (previous code)
 const client = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017');
 
-const RIOT_API_KEY = 'RGAPI-0cadcd0b-3bd8-472f-8b2e-36b86fc2e973';
+const RIOT_API_KEY = process.env.RIOT_API_KEY!;
+
 const BASE_URL = 'https://{region}.api.riotgames.com'; // Use a placeholder for region
 
 const cache = new NodeCache({ stdTTL: 6000 }); // Cache with 10-minute expiration

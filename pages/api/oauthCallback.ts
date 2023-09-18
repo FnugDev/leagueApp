@@ -6,12 +6,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const code = req.query.code as string;
 
     // Read client ID and secret from environment variables
-    // const clientId = process.env.RIOT_CLIENT_ID;
-    // const clientSecret = process.env.RIOT_CLIENT_SECRET;
-    // const redirectUri = process.env.RIOT_REDIRECT_URI;
-    const clientId = '28e556f6-deb6-41c4-9f92-b6c9e3554aba';
-    const clientSecret = 'Txvwssci7xQmVLcLWJD0n3xk_cXukKrUPWSYSQ9He-0';
-    const redirectUri = "https://viola-beta.vercel.app";
+    const clientId = process.env.RIOT_CLIENT_ID;
+    const clientSecret = process.env.RIOT_CLIENT_SECRET;
+    const redirectUri = process.env.RIOT_REDIRECT_URI;
+    // const clientId = '28e556f6-deb6-41c4-9f92-b6c9e3554aba';
+    // const clientSecret = 'Txvwssci7xQmVLcLWJD0n3xk_cXukKrUPWSYSQ9He-0';
+    // const redirectUri = "https://viola-beta.vercel.app";
 
     if (!clientId || !clientSecret || !redirectUri) {
       return res.status(500).send('Environment variables are not set.');

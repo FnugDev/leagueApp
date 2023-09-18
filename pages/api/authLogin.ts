@@ -9,8 +9,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { prevUrl }: QueryParams = req.query;
   
   // Use environment variables
-  const clientId = process.env.RIOT_CLIENT_ID || "28e556f6-deb6-41c4-9f92-b6c9e3554aba";
-  const redirectUri = process.env.RIOT_REDIRECT_URI || "https://viola-beta.vercel.app/api/oauthCallback";
+  const clientId = process.env.RIOT_CLIENT_ID;
+  const redirectUri = process.env.RIOT_REDIRECT_URI_CALLBACK;
 
   // Check for missing environment variables
   if (!clientId || !redirectUri) {

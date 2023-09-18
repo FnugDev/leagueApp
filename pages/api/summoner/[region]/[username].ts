@@ -137,7 +137,9 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
   }
 
   const cacheKey = `${modifiedRegion}-${summonerName}`;
-  const apiKey = 'RGAPI-0cadcd0b-3bd8-472f-8b2e-36b86fc2e973';
+  // const apiKey = 'RGAPI-0cadcd0b-3bd8-472f-8b2e-36b86fc2e973';
+  const apiKey = process.env.RIOT_API_KEY!;
+
   
   try {
     const cachedData = cache.get(cacheKey);
