@@ -2,36 +2,54 @@ import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const code = req.query.code as string;
-  
-  // Exchange the code for an access token
-  const tokenResponse = await axios.post('https://auth.riotgames.com/token', {
-    client_id: '28e556f6-deb6-41c4-9f92-b6c9e3554aba',
-    client_secret: 'Txvwssci7xQmVLcLWJD0n3xk_cXukKrUPWSYSQ9He-0',
-    redirect_uri: "https://viola-beta.vercel.app/",
-    code,
-    grant_type: 'authorization_code'
-  });
+  try {
+    const code = req.query.code as string;
 
-  const accessToken = tokenResponse.data.access_token;
+    // Read client ID and secret from environment variables
+    // const clientId = process.env.RIOT_CLIENT_ID;
+    // const clientSecret = process.env.RIOT_CLIENT_SECRET;
+    // const redirectUri = process.env.RIOT_REDIRECT_URI;
+    const clientId = '28e556f6-deb6-41c4-9f92-b6c9e3554aba';
+    const clientSecret = 'Txvwssci7xQmVLcLWJD0n3xk_cXukKrUPWSYSQ9He-0';
+    const redirectUri = "https://viola-beta.vercel.app/";
 
-  // Set the access token in a HttpOnly cookie
-  res.setHeader('Set-Cookie', `accessToken=${accessToken}; HttpOnly; Path=/;`);
+    if (!clientId || !clientSecret || !redirectUri) {
+      return res.status(500).send('Environment variables are not set.');
+    }
 
+    // Exchange the code for an access token
+    const tokenResponse = await axios.post(
+      'https://auth.riotgames.com/token',
+      `client_id=${clientId}&client_secret=${clientSecret}&redirect_uri=${redirectUri}&code=${code}&grant_type=authorization_code`,
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }
+    );
 
-  // Fetch the cpid
-  const cpidResponse = await axios.get('https://auth.riotgames.com/userinfo', {
-    headers: { 'Authorization': `Bearer ${accessToken}` }
-  });
+    const accessToken = tokenResponse.data.access_token;
 
-  const cpid = cpidResponse.data.cpid;
+    // Set the access token in a HttpOnly cookie
+    res.setHeader('Set-Cookie', `accessToken=${accessToken}; HttpOnly; Path=/;`);
 
-  // Fetch the LoL account information using the cpid to choose the appropriate DNS
-  const accountResponse = await axios.get(`https://${cpid}.api.riotgames.com/lol/summoner/v4/summoners/me`, {
-    headers: { 'Authorization': `Bearer ${accessToken}` }
-  });
+    // Fetch the cpid
+    const cpidResponse = await axios.get('https://auth.riotgames.com/userinfo', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
 
-  res.json({ cpid, account: accountResponse.data });
+    const cpid = cpidResponse.data.cpid;
+
+    // Fetch the LoL account information
+    const accountResponse = await axios.get(`https://${cpid}.api.riotgames.com/lol/summoner/v4/summoners/me`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    res.json({ cpid, account: accountResponse.data });
+  } catch (error) {
+    console.error('Error in OAuth callback:', error);
+    res.status(500).send('An error occurred during the OAuth process.');
+  }
 };
 
 export default handler;
