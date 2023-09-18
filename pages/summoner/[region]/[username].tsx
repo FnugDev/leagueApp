@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
-
+import { v4 as uuidv4 } from 'uuid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Skeleton from '@mui/material/Skeleton'; // Import Skeleton component
@@ -60,6 +60,7 @@ const debounce = <T extends any[]>(func: (...args: T) => void, delay: number) =>
     }, delay);
   };
 };
+
 
 const chipIconMapping = {
   'AcUnit': AcUnitIcon,
