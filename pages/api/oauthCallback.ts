@@ -6,9 +6,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   
   // Exchange the code for an access token
   const tokenResponse = await axios.post('https://auth.riotgames.com/token', {
-    client_id: 'YOUR_CLIENT_ID',
-    client_secret: 'YOUR_CLIENT_SECRET',
-    redirect_uri: 'YOUR_REDIRECT_URI',
+    client_id: '28e556f6-deb6-41c4-9f92-b6c9e3554aba',
+    client_secret: 'Txvwssci7xQmVLcLWJD0n3xk_cXukKrUPWSYSQ9He-0',
+    redirect_uri: "https://viola-beta.vercel.app/",
     code,
     grant_type: 'authorization_code'
   });

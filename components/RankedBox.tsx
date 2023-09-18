@@ -50,7 +50,8 @@ const RankedBox: React.FC<RankedBoxProps> = ({ queueName, tier, rank, leaguePoin
   }));
   const CustomPaper = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.vars.palette.cbox,
-    
+
+
     [theme.getColorSchemeSelector('dark')]: {
       // backdropFilter: 'blur(10px)',
       backgroundColor: theme.vars.palette.cbox,
