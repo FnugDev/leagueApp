@@ -11,20 +11,22 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const redirectUri = process.env.RIOT_REDIRECT_URI;
 
     if (!clientId || !clientSecret || !redirectUri) {
-      return res.status(500).send('Environment variables are not set');
+      return res.status(500).send('Environment variables are not set.');
     }
 
-    const tokenResponse = await axios.post('https://auth.riotgames.com/token', {
-        client_id: clientId,
-        client_secret: clientSecret,
-        redirect_uri: redirectUri,
-        code,
-        grant_type: 'authorization_code'
-      });
+    // Exchange the code for an access token
+    const tokenResponse = await axios.post(
+      'https://auth.riotgames.com/token',
+      `client_id=${clientId}&client_secret=${clientSecret}&redirect_uri=${redirectUri}&code=${code}&grant_type=authorization_code`,
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }
+    );
 
     const accessToken = tokenResponse.data.access_token;
 
-    console.log(accessToken);
 
   } catch (error) {
     console.error('Error: ', error.response?.data || error.message);
