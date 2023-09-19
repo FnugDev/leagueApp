@@ -29,8 +29,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     // Make the POST request to get the access token
     const tokenResponse = await axios.post('https://auth.riotgames.com/token', tokenData, {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${authHeader}`
+        Authorization: `Basic ${authHeader}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
       },
     });
 
