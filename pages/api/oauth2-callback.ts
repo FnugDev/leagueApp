@@ -1,15 +1,12 @@
 import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
-import querystring from 'querystring'; 
 import { v4 as uuidv4 } from 'uuid';
-import request from 'request';
 import jwt from 'jsonwebtoken';
+import request from 'request';
 
-// Environment Variables
 const clientId = process.env.RIOT_CLIENT_ID;
 const clientSecret = process.env.RIOT_CLIENT_SECRET;
 const redirectUri = process.env.RIOT_REDIRECT_URI;
-const JWT_SECRET = process.env.JWT_SECRET;
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -37,16 +34,19 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       redirect_uri: redirectUri,
     };
     
-
-    const tokenResponse = await axios.post('https://auth.riotgames.com/token', tokenData, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+    request.post({
+      url: 'https://auth.riotgames.com/token',
+      form: tokenData
+    }, function (error, response, body) {
+      if (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: error });
+      } else {
+        const parsedBody = JSON.parse(body);
+        const accessToken = parsedBody.access_token;
+        // The rest of your code...
+      }
     });
-
-    const accessToken = tokenResponse.data.access_token;
-
-    // The rest of your code...
   } catch (error) {
     console.error('Error: ', error.response?.data || error.message);
     res.status(500).json({ error: error.response?.data || error.message });
