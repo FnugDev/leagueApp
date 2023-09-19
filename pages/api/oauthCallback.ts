@@ -18,18 +18,19 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const authHeader = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
     const code = req.query.code as string;
+    const decodedCode = decodeURIComponent(code);
+
     const tokenData = querystring.stringify({
       grant_type: "authorization_code",
-      code,
+      code: decodedCode,
       redirect_uri: redirectUri,
     });
 
     console.log('Token Data:', tokenData);
 
-    // Make the POST request to get the access token
     const tokenResponse = await axios.post('https://auth.riotgames.com/token', tokenData, {
       headers: {
-        Authorization: `Basic ${authHeader}`,
+        'Authorization': `Basic ${authHeader}`,
         'Content-Type': 'application/x-www-form-urlencoded'
       },
     });
