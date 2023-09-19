@@ -23,7 +23,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       exp: Math.floor(Date.now() / 1000) + 6000,
     };
 
-    const signedJwt = jwt.sign(payload, clientSecret, { algorithm: 'HS256' });
+    const signedJwt = jwt.sign(payload, clientSecret, { algorithm: 'RS256' });
     
     const code = req.query.code as string;
     const tokenData = {
@@ -34,18 +34,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       redirect_uri: redirectUri,
     };
     
-    request.post({
-      url: 'https://auth.riotgames.com/token',
-      form: tokenData
-    }, function (error, response, body) {
-      if (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: error });
-      } else {
-        const parsedBody = JSON.parse(body);
-        const accessToken = parsedBody.access_token;
-        // The rest of your code...
-      }
+    const tokenResponse = await axios.post('https://auth.riotgames.com/token', tokenData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
     });
   } catch (error) {
     console.error('Error: ', error.response?.data || error.message);
