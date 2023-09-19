@@ -2,6 +2,7 @@ import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 import querystring from 'querystring'; 
 import { v4 as uuidv4 } from 'uuid';
+import request from 'request';
 import jwt from 'jsonwebtoken';
 
 // Environment Variables
@@ -34,6 +35,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       code,
       redirect_uri: redirectUri,
     });
+
+    console.log('Token Data:', tokenData);
+
 
     const tokenResponse = await axios.post('https://auth.riotgames.com/token', tokenData, {
       headers: {
