@@ -1,94 +1,49 @@
 import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 import querystring from 'querystring'; 
-import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-const jti = uuidv4();
+import jwt from 'jsonwebtoken';
 
-
-const createClientAssertion = () => {
-  const clientId = process.env.RIOT_CLIENT_ID; // replace with your client id
-  const clientSecret = process.env.RIOT_CLIENT_SECRET; // replace with your client secret
-  
-  if (!clientId || !clientSecret) {
-    console.error('Environment variables are not set.');
-    return;
-  }
-  
-  const payload = {
-    iss: clientId,  // issuer: must be your client_id
-    sub: clientId,  // subject: must also be your client_id
-    aud: "https://auth.riotgames.com/token", // audience: the token endpoint URL
-    exp: Math.floor(Date.now() / 1000) + 60, // expiration time: current time + 60 seconds
-    jti: jti // A unique identifier for the token
-  };
-  
-  return jwt.sign(payload, clientSecret, { algorithm: 'HS256' });
-};
-
-  
+// Environment Variables
+const clientId = process.env.RIOT_CLIENT_ID;
+const clientSecret = process.env.RIOT_CLIENT_SECRET;
+const redirectUri = process.env.RIOT_REDIRECT_URI;
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    // const accessCode = req.query.code as string;
-    // const decodedAccessCode = decodeURIComponent(accessCode); // URL Decoding
-
-    // // Read client ID and secret from environment variables
-    // const clientId = process.env.RIOT_CLIENT_ID;
-    // const clientSecret = process.env.RIOT_CLIENT_SECRET;
-    // const redirectUri = process.env.RIOT_REDIRECT_URI;
-    const code = req.query.code as string;
-    const clientId = process.env.RIOT_CLIENT_ID;
-    const clientSecret = process.env.RIOT_CLIENT_SECRET;
-    const redirectUri = process.env.RIOT_REDIRECT_URI;
-
     if (!clientId || !clientSecret || !redirectUri) {
       return res.status(500).send('Environment variables are not set.');
     }
-    const clientAssertion = createClientAssertion();
 
+    const uniqueId = uuidv4();
+    const payload = {
+      iss: clientId,
+      sub: clientId,
+      aud: 'https://auth.riotgames.com/token',
+      jti: uniqueId,
+      exp: Math.floor(Date.now() / 1000) + 60,
+    };
+
+    const signedJwt = jwt.sign(payload, clientSecret, { algorithm: 'HS256' });
+    
+    const code = req.query.code as string;
     const tokenData = querystring.stringify({
       client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-      client_assertion: clientAssertion,
+      client_assertion: signedJwt,
       grant_type: "authorization_code",
       code,
-      redirect_uri: redirectUri
+      redirect_uri: redirectUri,
     });
 
     const tokenResponse = await axios.post('https://auth.riotgames.com/token', tokenData, {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
     });
-
-    // const tokenResponse = await axios.post(
-    //     'https://auth.riotgames.com/token', 
-    //     tokenData, 
-    //     { 
-    //       headers: { 
-    //         'Content-Type': 'application/x-www-form-urlencoded'
-    //       }
-    //     }
-    //   );
 
     const accessToken = tokenResponse.data.access_token;
 
-    // Set the access token in a HttpOnly cookie
-    res.setHeader('Set-Cookie', `accessToken=${accessToken}; HttpOnly; Path=/;`);
-
-    // Fetch the cpid
-    const cpidResponse = await axios.get('https://auth.riotgames.com/userinfo', {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-
-    const cpid = cpidResponse.data.cpid;
-
-    // Fetch the LoL account information
-    const accountResponse = await axios.get(`https://${cpid}.api.riotgames.com/lol/summoner/v4/summoners/me`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-
-    res.json({ cpid, account: accountResponse.data });
+    // The rest of your code...
   } catch (error) {
     console.error('Error: ', error.response?.data || error.message);
     res.status(500).json({ error: error.response?.data || error.message });
