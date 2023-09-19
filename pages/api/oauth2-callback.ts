@@ -38,7 +38,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     };
     
 
-    const tokenResponse = await axios.post('https://auth.riotgames.com/token', tokenData);
+    const tokenResponse = await axios.post('https://auth.riotgames.com/token', tokenData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
 
     const accessToken = tokenResponse.data.access_token;
 
