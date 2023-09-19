@@ -2,7 +2,6 @@ import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
-import request from 'request';
 
 const clientId = process.env.RIOT_CLIENT_ID;
 const clientSecret = process.env.RIOT_CLIENT_SECRET;
@@ -19,7 +18,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       iss: clientId,
       sub: clientId,
       aud: 'https://auth.riotgames.com/token',
-      jti: uniqueId,
+      jti: clientSecret,
       exp: Math.floor(Date.now() / 1000) + 6000,
     };
 
