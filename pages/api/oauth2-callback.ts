@@ -23,7 +23,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       sub: clientId,
       aud: 'https://auth.riotgames.com/token',
       jti: uniqueId,
-      exp: Math.floor(Date.now() / 1000) + 60,
+      exp: Math.floor(Date.now() / 1000) + 6000,
     };
 
     const signedJwt = jwt.sign(payload, clientSecret, { algorithm: 'HS256' });
