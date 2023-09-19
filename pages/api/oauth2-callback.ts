@@ -23,7 +23,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       exp: Math.floor(Date.now() / 1000) + 6000,
     };
 
-    const signedJwt = jwt.sign(payload, clientSecret, { algorithm: 'RS256' });
+    const signedJwt = jwt.sign(payload, clientSecret, { algorithm: 'HS384' });
     
     const code = req.query.code as string;
     const tokenData = {
