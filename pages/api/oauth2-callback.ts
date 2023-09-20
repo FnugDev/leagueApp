@@ -15,7 +15,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     // Load the private key from the same directory as this file
-    const privateKey = fs.readFileSync(path.resolve(__dirname, 'private.pem'), 'utf8');
+    const privateKey = fs.readFileSync(path.resolve(process.cwd(), 'public/private.pem'), 'utf8');
+
 
     const uniqueId = uuidv4();
     const payload = {
