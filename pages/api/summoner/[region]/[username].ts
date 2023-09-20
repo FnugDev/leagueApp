@@ -326,6 +326,19 @@ const retryableFetch = async (url: string, retries: number = 0, maxRetries: numb
   }
 };
 
+const fetchTimeline = async (matchId: string, platform: string, apiKey: string) => {
+  try {
+    const timelineData = await retryableFetch(
+      `https://${platform}.api.riotgames.com/lol/match/v5/matches/${matchId}/timeline?api_key=${apiKey}`,
+      0, 5
+    );
+    return timelineData;
+  } catch (error) {
+    console.error(`Error fetching timeline for match ${matchId}:`, error);
+    return null;
+  }
+};
+
 async function fetchMatchData(matches: string[], apiKey: string, puuid: string, platform: string) {
   const currentTime = Date.now();
   // Assuming playerChips is globally accessible
@@ -340,6 +353,19 @@ async function fetchMatchData(matches: string[], apiKey: string, puuid: string, 
       
       if (gameData.info.queueId === 1700) {
         return null; // Skip this match
+      }
+
+      const timelineData = await fetchTimeline(matchId, platform, apiKey);  // Fetch the timeline data
+      
+      let killPositions: any[] = [];
+      if (timelineData) {
+        for (const frame of timelineData.info.frames) {
+          for (const event of frame.events) {
+            if (event.type === 'CHAMPION_KILL') {
+              killPositions.push(event.position);
+            }
+          }
+        }
       }
 
       const participant = gameData.info.participants.find((p: { puuid: any; }) => p.puuid === puuid);
@@ -395,6 +421,7 @@ async function fetchMatchData(matches: string[], apiKey: string, puuid: string, 
         summoner2Name,
         items: { item0, item1, item2, item3, item4, item5 },
         perks: perks,
+        killPositions,
         timeSinceMatch: timeSinceMatchText,
         gameDuration: formattedGameDuration,
         gameEndTimestamp,

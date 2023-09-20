@@ -17,9 +17,13 @@ const cache = new NodeCache({ stdTTL: 6000 }); // Cache with 10-minute expiratio
 
 // Existing rate-limited axios instance
 const axiosWithRateLimit = RateLimit(axios.create(), {
-  maxRequests: 500,
-  perMilliseconds: 10000, // 10 seconds in milliseconds
+  maxRequests: 500000,
+  perMilliseconds: 10, // 10 seconds in milliseconds
 });
+// const axiosWithRateLimit = RateLimit(axios.create(), {
+//   maxRequests: 500,
+//   perMilliseconds: 10000, // 10 seconds in milliseconds
+// });
 
 // Configure retries
 axiosRetry(axiosWithRateLimit, {
@@ -39,12 +43,12 @@ interface MatchResponseData {
   matchId: any;
   // Other properties...
 }
-// const regions = ['br1', 'eun1', 'euw1']; // Add more regions if needed
-// const tiers = ['DIAMOND']; // Add more tiers if needed
-// const divisions = ['I']; // Add more divisions if needed
-const regions = ['br1', 'eun1', 'euw1', 'jp1', 'kr', 'la1', 'la2', 'na1', 'oc1', 'tr1', 'ru', 'ph2', 'sg2', 'th2', 'tw2', 'vn2']; // Add more regions if needed
-const tiers = ['DIAMOND', 'EMERALD', 'PLATINUM', 'GOLD', 'SILVER', 'BRONZE', 'IRON']; // Add more tiers if needed
-const divisions = ['I', 'II', 'III', 'IV']; // Add more divisions if needed
+const regions = ['jp1']; // Add more regions if needed
+const tiers = ['DIAMOND']; // Add more tiers if needed
+const divisions = ['I']; // Add more divisions if needed
+// const regions = ['br1', 'eun1', 'euw1', 'jp1', 'kr', 'la1', 'la2', 'na1', 'oc1', 'tr1', 'ru', 'ph2', 'sg2', 'th2', 'tw2', 'vn2']; // Add more regions if needed
+// const tiers = ['DIAMOND', 'EMERALD', 'PLATINUM', 'GOLD', 'SILVER', 'BRONZE', 'IRON']; // Add more tiers if needed
+// const divisions = ['I', 'II', 'III', 'IV']; // Add more divisions if needed
 
 const platformToRegionMap = {
     BR1: 'americas',
@@ -65,90 +69,77 @@ const platformToRegionMap = {
     VN2: 'asia',
   };
 
+// Existing import statements and configurations remain the same
+
+// Helper Functions
+const fetchSummoner = async (regionBaseUrl: string, summonerId: string) => {
+  return axiosWithRateLimit.get(
+    `${regionBaseUrl}/lol/summoner/v4/summoners/${summonerId}`,
+    { headers: { 'X-Riot-Token': RIOT_API_KEY } }
+  );
+};
+
+const fetchLeagueEntries = async (regionBaseUrl: string, tier: string, division: string) => {
+  return axiosWithRateLimit.get(
+    `${regionBaseUrl}/lol/league/v4/entries/RANKED_SOLO_5x5/${tier}/${division}`,
+    { headers: { 'X-Riot-Token': RIOT_API_KEY } }
+  );
+};
+
+const fetchMatchList = async (regionPlatformId: string, accountId: string, count: number) => {
+  return axiosWithRateLimit.get(
+    `https://${regionPlatformId}.api.riotgames.com/lol/match/v5/matches/by-puuid/${accountId}/ids?queue=420&type=ranked&start=0&count=${count}`,
+    { headers: { 'X-Riot-Token': RIOT_API_KEY } }
+  );
+};
+
+const fetchMatchDetails = async (regionPlatformId: string, matchId: string) => {
+  return axiosWithRateLimit.get<MatchResponseData>(
+    `https://${regionPlatformId}.api.riotgames.com/lol/match/v5/matches/${matchId}`,
+    { headers: { 'X-Riot-Token': RIOT_API_KEY } }
+  );
+};
+
+// Main handler
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
+    console.log('Starting the function');
     await client.connect();
+    console.log('Connected to MongoDB');
     const db = client.db('riotGames');
     const collection = db.collection('matches');
-
-    const allMatches = {};
+    const allMatches: any = {}; // Initialize empty object
 
     for (const region of regions) {
-      const regionBaseUrl = BASE_URL.replace('{region}', region); // Replace placeholder with current region
-      if (!allMatches[region]) {
-        allMatches[region] = {};
-      }
-
-      const regionPlatformId = platformToRegionMap[region.toUpperCase()]; // Get the platform ID based on the region
-      console.log(`Region Platform ID for ${region}: ${regionPlatformId}`);
+      const regionBaseUrl = BASE_URL.replace('{region}', region);
+      allMatches[region] = {};
+      const regionPlatformId = platformToRegionMap[region.toUpperCase()];
 
       for (const tier of tiers) {
-        if (!allMatches[region][tier]) {
-          allMatches[region][tier] = {};
-        }
-
+        allMatches[region][tier] = {};
         for (const division of divisions) {
           const cacheKey = `${region}-${tier}-${division}`;
           const cachedData = cache.get(cacheKey);
+
           if (cachedData) {
             allMatches[region][tier][division] = cachedData;
             continue;
           }
 
-          const leagueEntriesResponse = await axiosWithRateLimit.get(
-            `${regionBaseUrl}/lol/league/v4/entries/RANKED_SOLO_5x5/${tier}/${division}`,
-            {
-              headers: {
-                'X-Riot-Token': RIOT_API_KEY,
-              },
-            }
-          );
-
-          const matchDetailsPromises: Promise<MatchResponseData>[] = []; // Declare matchDetailsPromises here
+          const leagueEntriesResponse = await fetchLeagueEntries(regionBaseUrl, tier, division);
+          const matchDetailsPromises: Promise<MatchResponseData>[] = [];
 
           for (const entry of leagueEntriesResponse.data) {
-            try {
-              const summonerResponse = await axiosWithRateLimit.get(
-                `${regionBaseUrl}/lol/summoner/v4/summoners/${entry.summonerId}`,
-                {
-                  headers: {
-                    'X-Riot-Token': RIOT_API_KEY,
-                  },
-                }
-              );
+            const summonerResponse = await fetchSummoner(regionBaseUrl, entry.summonerId);
+            const accountId = summonerResponse.data.puuid;
+       
+            const matchListResponse = await fetchMatchList(regionPlatformId, accountId, 1);
+            console.log("matchlist", "user " + summonerResponse.data.name, region,tier,division)
 
-              const accountId = summonerResponse.data.puuid;
 
-              const matchlistResponse = await axiosWithRateLimit.get(
-                `https://${regionPlatformId}.api.riotgames.com/lol/match/v5/matches/by-puuid/${accountId}/ids`,
-                {
-                  headers: {
-                    'X-Riot-Token': RIOT_API_KEY,
-                  },
-                }
-
-              );
-
-console.log("matchlist", region,tier,division)
-              for (const matchId of matchlistResponse.data) {
-                const matchResponse = await axiosWithRateLimit.get<MatchResponseData>(
-                  `https://${regionPlatformId}.api.riotgames.com/lol/match/v5/matches/${matchId}`,
-                  {
-                    headers: {
-                      'X-Riot-Token': RIOT_API_KEY,
-                    },
-                  }
-                );
-                matchDetailsPromises.push(Promise.resolve(matchResponse.data));
-              }
-            } catch (error) {
-              if (error.response && error.response.status === 429) {
-                // Rate limit exceeded, wait for the retry-after duration
-                const retryAfter = parseInt(error.response.headers['retry-after']) || 1;
-                await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
-              } else {
-                console.error('Error fetching match details:', error);
-              }
+            for (const matchId of matchListResponse.data) {
+              const matchResponse = await fetchMatchDetails(regionPlatformId, matchId);
+              matchDetailsPromises.push(Promise.resolve(matchResponse.data));
             }
           }
 
@@ -160,16 +151,12 @@ console.log("matchlist", region,tier,division)
     }
 
     await collection.insertOne(allMatches);
-
-    await client.close();
-
     res.json(allMatches);
   } catch (error) {
     console.error('Error:', error);
-
-    await client.close();
-    
     res.status(500).json({ error: 'An error occurred' });
+  } finally {
+    await client.close();
   }
 };
 
