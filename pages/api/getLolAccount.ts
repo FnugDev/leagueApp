@@ -13,16 +13,29 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
 
-    console.log(cpidResponse)
-  
+    // Log only the necessary data
+    console.log(cpidResponse.data);
+
+    // Validation
+    if (!cpidResponse.data || !cpidResponse.data.cpid) {
+      return res.status(500).json({ error: 'CPID not found' });
+    }
+
     const cpid = cpidResponse.data.cpid;
-  
+
     const accountResponse = await axios.get(`https://${cpid}.api.riotgames.com/lol/summoner/v4/summoners/me`, {
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
 
     return res.json({ cpid, account: accountResponse.data });
   } catch (error) {
+    // Enhanced error handling
+    if (error.response) {
+      console.log("Data:", error.response.data);
+      console.log("Status:", error.response.status);
+      console.log("Headers:", error.response.headers);
+    }
+
     return res.status(500).json({ error: 'Failed to fetch account info' });
   }
 };
