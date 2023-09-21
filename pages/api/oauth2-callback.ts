@@ -27,7 +27,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       },
     };
 
-    const data = `grant_type=authorization_code&code=${encodeURIComponent(accessCode)}&redirect_uri=${encodeURIComponent(appCallbackUrl)}`;
+    const data = `grant_type=authorization_code&code=${encodeURIComponent(accessCode)}&redirect_uri=${encodeURIComponent(redirectUri)}`;
 
     const response = await axios.post(tokenUrl, data, { ...auth, headers });
 
