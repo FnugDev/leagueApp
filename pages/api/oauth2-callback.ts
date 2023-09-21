@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 const clientId = process.env.RIOT_CLIENT_ID;
 const clientSecret = process.env.RIOT_CLIENT_SECRET;
 const redirectUri = process.env.RIOT_REDIRECT_URI;
+const tokenUrl = "https://auth.riotgames.com/token"; 
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -13,31 +14,24 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(500).send('Environment variables are not set.');
     }
 
-    const uniqueId = uuidv4();
-    const payload = {
-      iss: clientId,
-      sub: clientId,
-      aud: 'https://auth.riotgames.com/token',
-      jti: uniqueId,
-      exp: Math.floor(Date.now() / 1000) + 60000000,
+    const accessCode = req.query.code as string;
+
+    const auth = {
+      auth: {
+        username: clientId,
+        password: clientSecret,
+      },
     };
 
-    const signedJwt = jwt.sign(payload, clientSecret, { algorithm: 'HS384' });
-    
-    const code = req.query.code as string;
-    const tokenData = {
-      client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-      client_assertion: clientSecret,
+    const data = {
       grant_type: "authorization_code",
-      code,
+      code: accessCode,
       redirect_uri: redirectUri,
     };
+
     
-    const tokenResponse = await axios.post('https://auth.riotgames.com/token', tokenData, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    });
+    const response = await axios.post(tokenUrl, data, auth);
+    
   } catch (error) {
     console.error('Error: ', error.response?.data || error.message);
     res.status(500).json({ error: error.response?.data || error.message });
