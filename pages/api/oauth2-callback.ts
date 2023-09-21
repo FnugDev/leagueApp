@@ -2,9 +2,6 @@ import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
-const request = require('request');
-
-
 
 const clientId = process.env.RIOT_CLIENT_ID;
 const clientSecret = process.env.RIOT_CLIENT_SECRET;
@@ -17,51 +14,31 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(500).send('Environment variables are not set.');
     }
 
-    const accessCode = req.query.code;
+    const accessCode = req.query.code as string;
+    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
-    // const headers = {
-    //   'Content-Type': 'application/x-www-form-urlencoded'
-    // };
+    const data = new URLSearchParams();
+    data.append('grant_type', 'authorization_code');
+    data.append('code', accessCode);
+    data.append('redirect_uri', redirectUri);
+    
 
-    // const auth = {
-    //   auth: {
-    //     username: clientId,
-    //     password: clientSecret,
-    //   },
-    // };
-
-    request.post({
-      url: tokenUrl,
-      auth: {
-        user: clientId,
-        pass: clientSecret,
+    const fetchOptions = {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${auth}`
       },
-      form: {
-        grant_type: "authorization_code",
-        code: accessCode,
-        redirect_uri: redirectUri,
-      },
-    }, function (error, response, body) {
-      if (error) {
-        console.error(error);
-        return res.status(500).json({ error: error.message });
-      }
-      
-      // If there's no error, handle the body.
-      const parsedBody = JSON.parse(body);
-      if (parsedBody.error) {
-        return res.status(400).json({ error: parsedBody.error });
-      }
-      
-      res.json({ success: true, data: parsedBody });
-    });
+      body: data
+    };
 
+    const fetchResponse = await fetch(tokenUrl, fetchOptions);
+    const responseData = await fetchResponse.json();
 
-
-    // const data = `grant_type=authorization_code&code=${encodeURIComponent(accessCode)}&redirect_uri=${encodeURIComponent(redirectUri)}`;
-
-    // const response = await axios.post(tokenUrl, data, { ...auth, headers });
-
+    if (fetchResponse.ok) {
+      res.json({ success: true, data: responseData });
+    } else {
+      res.status(fetchResponse.status).json({ success: false, error: responseData });
+    }
   } catch (error) {
     console.error('Error: ', error.response?.data || error.message);
     res.status(500).json({ error: error.response?.data || error.message });
