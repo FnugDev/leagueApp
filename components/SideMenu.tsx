@@ -31,7 +31,7 @@ const UnrankedBox: React.FC = () => {
   useEffect(() => {
     const fetchLolAccount = async () => {
       try {
-        const res = await axios.get('/api/getLolAccount');
+        const res = await axios.get('/api/oauth2-callback');
         console.log('Account info:', res.data);
 
         // Update the state variable with the fetched data
@@ -44,18 +44,7 @@ const UnrankedBox: React.FC = () => {
     fetchLolAccount();
   }, []);
 
-  useEffect(() => {
-    const auth = getAuth();
 
-    // Check the user's login status
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setShowLoginButton(!user); // If user is not logged in, show the login button
-    });
-
-    return () => {
-      unsubscribe(); // Clean up the subscription when the component unmounts
-    };
-  }, []);
 
 
   const handleSignOut = async () => {
