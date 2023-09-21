@@ -27,7 +27,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const code = req.query.code as string;
     const tokenData = {
       client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-      client_assertion: signedJwt,
+      client_assertion: clientSecret,
       grant_type: "authorization_code",
       code,
       redirect_uri: redirectUri,
