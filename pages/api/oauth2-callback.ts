@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 
 const clientId = process.env.RIOT_CLIENT_ID;
 const clientSecret = process.env.RIOT_CLIENT_SECRET;
-const redirectUri = process.env.RIOT_REDIRECT_URI;
+const redirectUri = process.env.RIOT_REDIRECT_URI_CALLBACK;
 const tokenUrl = "https://auth.riotgames.com/token"; 
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
