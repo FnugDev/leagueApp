@@ -32,17 +32,28 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     request.post({
       url: tokenUrl,
-      auth: { // sets "Authorization: Basic ..." header
-          user: clientId,
-          pass: clientSecret
-       },
-       form: { // post information as x-www-form-urlencoded
-           grant_type: "authorization_code",
-           code: accessCode, // accessCode should be url decoded before being set here
-           redirect_uri: redirectUri
-       }
+      auth: {
+        user: clientId,
+        pass: clientSecret,
+      },
+      form: {
+        grant_type: "authorization_code",
+        code: accessCode,
+        redirect_uri: redirectUri,
+      },
     }, function (error, response, body) {
-       // do something with the response?
+      if (error) {
+        console.error(error);
+        return res.status(500).json({ error: error.message });
+      }
+      
+      // If there's no error, handle the body.
+      const parsedBody = JSON.parse(body);
+      if (parsedBody.error) {
+        return res.status(400).json({ error: parsedBody.error });
+      }
+      
+      res.json({ success: true, data: parsedBody });
     });
 
 
