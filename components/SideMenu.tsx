@@ -31,7 +31,7 @@ const UnrankedBox: React.FC = () => {
   useEffect(() => {
     const fetchLolAccount = async () => {
       try {
-        const res = await axios.get('/api/oauth2-callback');
+        const res = await axios.get('/api/getLolAccount');
         console.log('Account info:', res.data);
 
         // Update the state variable with the fetched data
