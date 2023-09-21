@@ -32,10 +32,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const fetchResponse = await fetch(tokenUrl, fetchOptions);
     const responseData = await fetchResponse.json();
 
-    res.setHeader('Set-Cookie', `accessToken=${responseData.access_token}; Path=/; HttpOnly`);
-
-
     if (fetchResponse.ok) {
+      const { access_token, refresh_token, id_token } = responseData;
+
+      console.log("setting cookie")
+      // Store tokens securely, for this example, setting them in cookies
+      res.setHeader('Set-Cookie', [
+        `accessToken=${access_token}; Path=/; HttpOnly`,
+        `refreshToken=${refresh_token}; Path=/; HttpOnly; Secure`,
+        `idToken=${id_token}; Path=/; HttpOnly; Secure`,
+      ]);
+
       res.json({ success: true, data: responseData });
     } else {
       res.status(fetchResponse.status).json({ success: false, error: responseData });
