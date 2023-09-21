@@ -16,6 +16,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const accessCode = req.query.code as string;
 
+    const headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    };
+
     const auth = {
       auth: {
         username: clientId,
@@ -23,15 +27,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       },
     };
 
-    const data = {
-      grant_type: "authorization_code",
-      code: accessCode,
-      redirect_uri: redirectUri,
-    };
+    const data = `grant_type=authorization_code&code=${encodeURIComponent(accessCode)}&redirect_uri=${encodeURIComponent(appCallbackUrl)}`;
 
-    
-    const response = await axios.post(tokenUrl, data, auth);
-    
+    const response = await axios.post(tokenUrl, data, { ...auth, headers });
+
   } catch (error) {
     console.error('Error: ', error.response?.data || error.message);
     res.status(500).json({ error: error.response?.data || error.message });
