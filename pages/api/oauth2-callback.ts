@@ -1,7 +1,5 @@
 import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
-import Cookies from 'js-cookie';
-
 
 const clientId = process.env.RIOT_CLIENT_ID;
 const clientSecret = process.env.RIOT_CLIENT_SECRET;
@@ -34,7 +32,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const fetchResponse = await fetch(tokenUrl, fetchOptions);
     const responseData = await fetchResponse.json();
 
-    Cookies.set('accessToken', responseData.access_token, { expires: 1 });
+    res.setHeader('Set-Cookie', `accessToken=${responseData.access_token}; Path=/; HttpOnly`);
+
 
     if (fetchResponse.ok) {
       res.json({ success: true, data: responseData });
