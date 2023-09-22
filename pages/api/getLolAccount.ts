@@ -17,15 +17,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const cpid = cpidResponse.data.cpid;
   
-    const summonerResponse = await axios.get(`https://${cpid}.api.riotgames.com/lol/summoner/v4/summoners/me`, {
-      headers: { 'Authorization': `Bearer ${accessToken}` }
-    });
-    
-    const accountResponse = await axios.get(`https://${cpid}.api.riotgames.com/lol/account/v1/accounts/me`, {
+    const accountResponse = await axios.get(`https://europe.api.riotgames.com/lol/summoner/v4/summoners/me`, {
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
 
-    return res.json({ cpid, summoner: summonerResponse, account: accountResponse.data });
+    return res.json({ cpid, account: accountResponse.data });
   } catch (error) {
     return res.status(500).json({ error: 'Failed to fetch account info' });
   }
