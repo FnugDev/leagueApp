@@ -7,8 +7,65 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import styles from '../styles/MatchHistory.module.css';
 import runesData from '../data/runes/13.13/en_GB/runes.json';
-import React from 'react';
 import { block, For } from 'million/react';
+import React, { useEffect, useMemo } from 'react';
+import * as d3 from 'd3';
+
+interface MapWithKillsProps {
+  killPositions: Array<{ x: number; y: number }>;
+}
+
+const MapWithKills: React.FC<MapWithKillsProps> = ({ killPositions }) => {
+  const width = 512;
+  const height = 512;
+  const bg = 'https://s3-us-west-1.amazonaws.com/riot-developer-portal/docs/map11.png';
+
+  const domain = {
+    min: { x: -120, y: -120 },
+    max: { x: 14870, y: 14980 },
+  };
+
+  const xScale = useMemo(
+    () =>
+      d3.scaleLinear()
+        .domain([domain.min.x, domain.max.x])
+        .range([0, width]),
+    []
+  );
+
+  const yScale = useMemo(
+    () =>
+      d3.scaleLinear()
+        .domain([domain.min.y, domain.max.y])
+        .range([height, 0]),
+    []
+  );
+//       {killPositions ? killPositions.map((pos, index) => {
+//         const scaledPos = scalePosition(pos, xScaleFactor, yScaleFactor);
+//         return <circle key={index} cx={scaledPos.x} cy={scaledPos.y} r="5" fill="red" />;
+//       }) : null}
+  return (
+    <svg width={width} height={height}>
+      <image href="/minimap3.png" height={width} width={height} />
+      {/* <image xlinkHref={bg} x="0" y="0" width={width} height={height} /> */}
+      <g>
+        {killPositions ? killPositions.map((pos, index) => (
+          <circle
+            key={index}
+            cx={xScale(pos.x)}
+            cy={yScale(pos.y)}
+            r={5}
+            fill="rgba(255, 0, 0, 0.5)"  // Semi-transparent red
+            className="data-point"
+          />
+        )) : null}
+      </g>
+    </svg>
+  );
+};
+
+
+
 
 
 const MatchItemsBlock = block(
@@ -96,6 +153,36 @@ const SummonersContentBlock = block(
   },
 );
 
+// const scalePosition = (pos: { x: number, y: number }, xScaleFactor: number, yScaleFactor: number) => {
+//   return {
+//     x: Math.min(pos.x * xScaleFactor, xScaleFactor * 14870), // bounding it within the minimap width
+//     y: Math.min(pos.y * yScaleFactor, yScaleFactor * 14980), // bounding it within the minimap height
+//   };
+// };
+
+// const MapWithKills: React.FC<{ killPositions: Array<{ x: number; y: number }> }> = ({ killPositions }) => {
+//   const svgWidth = 500;
+//   const svgHeight = Math.floor((svgWidth * 1152) / 1204);
+//   const originalMapWidth = 16000;
+//   const originalMapHeight = 16000;
+//   const xScaleFactor = svgWidth / originalMapWidth;
+//   const yScaleFactor = svgHeight / originalMapHeight;
+
+//   return (
+//     <svg width={svgWidth} height={svgHeight}>
+//       <image href="/minimap.png" height={svgHeight} width={svgWidth} />
+//       {killPositions ? killPositions.map((pos, index) => {
+//         const scaledPos = scalePosition(pos, xScaleFactor, yScaleFactor);
+//         return <circle key={index} cx={scaledPos.x} cy={scaledPos.y} r="5" fill="red" />;
+//       }) : null}
+//     </svg>
+//   );
+// };
+
+
+
+
+
 const MatchBox: React.FC<{ match: any; itemImageUrl: string; summonerImageUrl: string }> = ({
   match,
   itemImageUrl,
@@ -164,7 +251,8 @@ const MatchBox: React.FC<{ match: any; itemImageUrl: string; summonerImageUrl: s
   const matchOutcomeStyle = match.win ? styles.blueMatchBox : styles.redMatchBox;
 
   return (
-    <Box className={`${styles.matchBox} ${matchOutcomeStyle}`} key={match.matchId}>
+    <div>
+       <Box className={`${styles.matchBox} ${matchOutcomeStyle}`} key={match.matchId}>
       <div className={styles.matchBoxContent}>
         <Grid container className={styles.matchGridOne}>
           <h1 className={styles.matchQueue}>{match.queueName}</h1>
@@ -288,6 +376,9 @@ const MatchBox: React.FC<{ match: any; itemImageUrl: string; summonerImageUrl: s
 
       </div>
     </Box>
+      <MapWithKills killPositions={match.killPositions}></MapWithKills>
+    </div>
+   
   );
 };
 

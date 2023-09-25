@@ -7,6 +7,10 @@
     "11": "SummonerSmite",
     "12": "SummonerTeleport",
     "14": "SummonerDot",
-    "21": "SummonerBarrier"
+    "21": "SummonerBarrier",
+    "32": "SummonerSnowball",
+    "39": "SummonerSnowball",
+    "54": "Summoner_UltBookPlaceholder",
+    "55": "Summoner_UltBookSmitePlaceholder"
   }
   

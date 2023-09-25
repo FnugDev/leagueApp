@@ -15,7 +15,9 @@ const ProfileBadgeContent: React.FC<{
 }> = ({ isClaimed, claimAcc }) => (
   <Tooltip title={isClaimed ? 'Claimed account' : 'Unclaimed account press to claim'}>
     {isClaimed ? (
-      <VerifiedIcon className={styles.badgeIcon} color="info" />
+
+<Image alt="test"  className={styles.badgeIcon}width={25} 
+height={25} src="/icons8-riot-games-480.svg"></Image>
     ) : (
       <ErrorIcon className={styles.badgeIcon} onClick={claimAcc} />
     )}
@@ -28,7 +30,14 @@ const ProfilePicture: React.FC<{
   claimAcc: () => void;
 }> = ({ profileIcon, isClaimed, claimAcc }) => {
   return (
-    <div className={styles.profilePictureContainer}>
+    <div>
+
+              <div className={styles.profilePictureContainer}>
+              {/* <img 
+           className={styles.profilePictureWing}
+            src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-emblem/wings/wings_grandmaster.png"
+            alt="Emblem"
+          /> */}
       <div className={styles.profilePictureContainerSpin}>
         <img className={styles.profilePictureContainerLeague2} src="/league/spin1.webp" alt="Ring" />
         <img className={styles.profilePictureContainerLeague3} src="/league/spin1.webp" alt="Ring" />
@@ -46,6 +55,8 @@ const ProfilePicture: React.FC<{
         />
       </Badge>
     </div>
+    </div>
+
   );
 };
 

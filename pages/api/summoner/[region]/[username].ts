@@ -6,6 +6,11 @@ import queueData from './queues.json'; // Import the queues.json file
 import summonerSpellData from './summonerSpells.json'; // Import the queues.json file
 import cache from 'memory-cache';
 import { sql } from "@vercel/postgres";
+import puppeteer from 'puppeteer';
+
+
+
+
 
 export async function getSummonerData(cacheKey: string) {
   const { rows } = await sql`SELECT * FROM summoners WHERE cache_key=${cacheKey} LIMIT 1`;
@@ -125,16 +130,74 @@ type QueueInfo = {
 
 const playerChips: PlayerChip[] = [];
 
+interface HistoricRank {
+  season: number;
+  tier: string;
+  rank: string;
+  lp: number;
+  [key: string]: any;  // allows for other properties
+}
+
+let historicRanksObj: HistoricRank[] = [];
+
+const rankColors: { [key: string]: string } = {
+  "IRON": "#8d8d8d", // Gray
+  "BRONZE": "#cd7f32", // Bronze
+  "SILVER": "#C0C0C0", // Silver
+  "GOLD": "#FFD700", // Gold
+  "PLATINUM": "#76bc36", // Greenish
+  "EMERALD": "#50C878", // Emerald
+  "DIAMOND": "#3174fa", // Light Blue
+  "MASTER": "#ff4e50", // Light Red
+  "GRANDMASTER": "#D02090", // Orchid
+  "CHALLENGER": "#4B0082" // Indigo
+};
+
+
+
 const CACHE_DURATION = 1 * 60 * 1000;
 const MAX_MATCH_HISTORY_COUNT = 19; 
 const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
   const { region, username: summonerName } = _req.query as { region: RegionCode, username: string };
   const modifiedRegion = regionCodeMap[region] as PlatformCode;
+  const modifiedRegionnew = (regionCodeMap[region] as PlatformCode)?.toLowerCase();
   const platform = platformToRegionMap[modifiedRegion]?.toUpperCase();
 
   if (!modifiedRegion || !platform) {
     return res.status(400).json({ message: 'Invalid region code.' });
   }
+
+
+  const scrapeData = async () => {
+    // Launch a new browser instance
+    const browser = await puppeteer.launch({
+      headless: 'new'
+    });
+    const page = await browser.newPage();
+  
+    // Navigate to the page using string interpolation
+    await page.goto(`https://u.gg/lol/profile/${modifiedRegionnew}/${summonerName}/overview`); // replaced single quotes with backticks
+  
+    // Wait for the element with the selector '#page-content' to appear
+    await page.waitForSelector('#page-content', { timeout: 10000 });
+  
+    // Extract the specific data from the JavaScript variable
+    const historicRanks = await page.evaluate((modifiedRegionnew, summonerName) => {
+      const apolloState = (window as any).__APOLLO_STATE__;
+      return apolloState.ROOT_QUERY[`getHistoricRanks({"queueType":420,"regionId":"${modifiedRegionnew}","summonerName":"${summonerName}"})`];
+    }, modifiedRegionnew, summonerName);
+    
+    historicRanksObj = historicRanks
+  .filter(item => item.queueId === 420)
+  .map(({ __typename, regionId, ...rest }) => rest);
+  
+    console.log(historicRanksObj);
+
+    // Close the browser
+    await browser.close();
+  };
+  
+  scrapeData().catch(console.error);
 
   const cacheKey = `${modifiedRegion}-${summonerName}`;
   // const apiKey = 'RGAPI-0cadcd0b-3bd8-472f-8b2e-36b86fc2e973';
@@ -183,10 +246,13 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
     const soloQueueInfo = getQueueInfo('RANKED_SOLO_5x5', leagueV4);
     const flexQueueInfo = getQueueInfo('RANKED_FLEX_SR', leagueV4);
 
+
+
     // If cache is empty or doesn't have match history, populate it with fetched match data
     if (!storedData) {
       const newMatchData = await fetchMatchData(newMatches, apiKey, summonerData.puuid, platform);
       const championStats: ChampionStats = calculateChampionStats(newMatchData);
+      updatePlayerStreaksAndChips(newMatchData,playerChips)
 
       await updateSummonerData(cacheKey, {
         summonerData,
@@ -709,23 +775,35 @@ function updatePlayerStreaksAndChips(filteredMatchData: any[], playerChips: any[
     icon: 'WhatshotIcon',
     color: '#ff4e50'
   });
-  playerChips.push({
-    name: "S12 Diamond",
-    desc: `Cold Streak`,
-    icon: null,
-    color: '#3174fa',
-  });
-  playerChips.push({
-    name: "S11 Diamond",
-    desc: `Cold Streak`,
-    icon: null,
-    color: '#3174fa',
-  });
-  playerChips.push({
-    name: "S13-1 Master",
-    desc: `Viola creator`,
-    icon: null,
-    color: '#ff4e50'
+  // playerChips.push({
+  //   name: "S12 Diamond",
+  //   desc: `Cold Streak`,
+  //   icon: null,
+  //   color: '#3174fa',
+  // });
+  // playerChips.push({
+  //   name: "S11 Diamond",
+  //   desc: `Cold Streak`,
+  //   icon: null,
+  //   color: '#3174fa',
+  // });
+  // playerChips.push({
+  //   name: "S13-1 Master",
+  //   desc: `Viola creator`,
+  //   icon: null,
+  //   color: '#ff4e50'
+  // });
+  historicRanksObj.forEach((item) => {
+    const rankColor = rankColors[item.tier.toUpperCase()];
+
+    playerChips.push({
+      name: `S${item.season} ${item.tier}`,
+      desc: `Viola creator`,
+      icon: null,
+      color: rankColor,
+      season: item.season,
+      tier: item.tier,
+    });
   });
 
   // Add other player chips here...

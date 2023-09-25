@@ -366,6 +366,8 @@ interface PlayerChip {
   desc: string;
   icon: string | null;
   color: string;
+  season: number | null;
+  tier: string | null;
 }
 
 
@@ -380,7 +382,15 @@ const summonerChipsElement = useMemo(() => {
           return (
             <Tooltip key={index} title={chip.desc} arrow>
               <Chip
-                label={chip.name}
+  label={
+    chip.season ? (
+      <>
+        <span style={{ color: 'black' }}>S{chip.season}</span> {chip.tier}
+      </>
+    ) : (
+      chip.name
+    )
+  }
                 style={{ color: chip.color }}
                 className={styles.summonerChips}
                 icon={ChipIcon ? <ChipIcon className={styles.smallIcon} style={{ color: chip.color }} /> : <div />} // Use a default empty div as the icon
