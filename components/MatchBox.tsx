@@ -259,7 +259,8 @@ const MatchBox: React.FC<{ match: any; itemImageUrl: string; summonerImageUrl: s
           <h1 className={styles.matchTimeSince}>{match.timeSinceMatch}</h1>
           <div className={styles.textGridUno}>
           <h1 className={`${styles.matchWinLoss} ${match.win ? styles.win : styles.loss}`}>
-            {match.win ? 'WIN' : 'LOSS'} 
+          {match.win === "REMAKE" ? 'REMAKE' : (match.win ? 'WIN' : 'LOSS')}
+
           </h1>
           <h1 className={styles.matchDuration}>{match.gameDuration}</h1>
           </div>

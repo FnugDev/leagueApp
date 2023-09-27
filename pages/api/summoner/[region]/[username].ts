@@ -140,22 +140,35 @@ interface HistoricRank {
 
 let historicRanksObj: HistoricRank[] = [];
 
+// const rankColors: { [key: string]: string } = {
+//   "IRON": "#8d8d8d", // Gray
+//   "BRONZE": "#cd7f32", // Bronze
+//   "SILVER": "#C0C0C0", // Silver
+//   "GOLD": "#FFD700", // Gold
+//   "PLATINUM": "#76bc36", // Greenish
+//   "EMERALD": "#50C878", // Emerald
+//   "DIAMOND": "#3174fa", // Light Blue
+//   "MASTER": "rgb(164, 88, 78)", // Light Red
+//   "GRANDMASTER": "#D02090", // Orchid
+//   "CHALLENGER": "#4B0082" // Indigo
+// };
+
 const rankColors: { [key: string]: string } = {
-  "IRON": "#8d8d8d", // Gray
-  "BRONZE": "#cd7f32", // Bronze
-  "SILVER": "#C0C0C0", // Silver
-  "GOLD": "#FFD700", // Gold
-  "PLATINUM": "#76bc36", // Greenish
+  "IRON": "rgb(81, 72, 74)", // Gray
+  "BRONZE": "rgb(140, 82, 58)", // Bronze
+  "SILVER": "rgb(128, 152, 157);", // Silver
+  "GOLD": "rgb(205, 136, 55)", // Gold
+  "PLATINUM": "rgb(37, 172, 214)", // Greenish
   "EMERALD": "#50C878", // Emerald
-  "DIAMOND": "#3174fa", // Light Blue
-  "MASTER": "#ff4e50", // Light Red
-  "GRANDMASTER": "#D02090", // Orchid
-  "CHALLENGER": "#4B0082" // Indigo
+  "DIAMOND": "rgb(129, 65, 235)", // Light Blue
+  "MASTER": "rgb(164, 88, 78)", // Light Red
+  "GRANDMASTER": "rgb(205, 69, 69)", // Orchid
+  "CHALLENGER": "rgb(244, 200, 116)" // Indigo
 };
 
 
 
-const CACHE_DURATION = 1 * 60 * 1000;
+const CACHE_DURATION = 1 * 60 * 10;
 const MAX_MATCH_HISTORY_COUNT = 19; 
 const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
   const { region, username: summonerName } = _req.query as { region: RegionCode, username: string };
@@ -168,36 +181,7 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
   }
 
 
-  const scrapeData = async () => {
-    // Launch a new browser instance
-    const browser = await puppeteer.launch({
-      headless: 'new'
-    });
-    const page = await browser.newPage();
-  
-    // Navigate to the page using string interpolation
-    await page.goto(`https://u.gg/lol/profile/${modifiedRegionnew}/${summonerName}/overview`); // replaced single quotes with backticks
-  
-    // Wait for the element with the selector '#page-content' to appear
-    await page.waitForSelector('#page-content', { timeout: 10000 });
-  
-    // Extract the specific data from the JavaScript variable
-    const historicRanks = await page.evaluate((modifiedRegionnew, summonerName) => {
-      const apolloState = (window as any).__APOLLO_STATE__;
-      return apolloState.ROOT_QUERY[`getHistoricRanks({"queueType":420,"regionId":"${modifiedRegionnew}","summonerName":"${summonerName}"})`];
-    }, modifiedRegionnew, summonerName);
-    
-    historicRanksObj = historicRanks
-  .filter(item => item.queueId === 420)
-  .map(({ __typename, regionId, ...rest }) => rest);
-  
-    console.log(historicRanksObj);
 
-    // Close the browser
-    await browser.close();
-  };
-  
-  scrapeData().catch(console.error);
 
   const cacheKey = `${modifiedRegion}-${summonerName}`;
   // const apiKey = 'RGAPI-0cadcd0b-3bd8-472f-8b2e-36b86fc2e973';
@@ -218,9 +202,14 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
     }
 
     const summoner = await fetchData(`https://${modifiedRegion}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}?api_key=${apiKey}`);
-    const leagueV4 = await fetchData(`https://${modifiedRegion}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summoner.id}?api_key=${apiKey}`);
-    const newMatches: string[] = await fetchData(`https://${platform}.api.riotgames.com/lol/match/v5/matches/by-puuid/${summoner.puuid}/ids?start=0&count=${MAX_MATCH_HISTORY_COUNT}&api_key=${apiKey}`);
-
+  
+    // Now fetch the other data in parallel
+    const leaguePromise = fetchData(`https://${modifiedRegion}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summoner.id}?api_key=${apiKey}`);
+    const newMatchesPromise = fetchData(`https://${platform}.api.riotgames.com/lol/match/v5/matches/by-puuid/${summoner.puuid}/ids?start=0&count=${MAX_MATCH_HISTORY_COUNT}&api_key=${apiKey}`);
+    
+    // Wait for all promises to resolve
+    const [leagueV4, newMatches] = await Promise.all([leaguePromise, newMatchesPromise]);
+  
     const summonerData = {
       name: summoner.name,
       level: summoner.summonerLevel,
@@ -230,29 +219,15 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
       profileIcon: summoner.profileIconId,
     };
 
-    // const summonerLiveResponse = await fetch(`https://${modifiedRegion}.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${summonerData.summonerId}?api_key=${apiKey}`);
-
-    // let summonerLive = null;
-    // if (summonerLiveResponse.ok) {
-    //   summonerLive = await summonerLiveResponse.json();
-    // } else if (summonerLiveResponse.status === 404) {
-    //   // Summoner is not in a game
-    //   console.log('Summoner is not in a game');
-    // } else {
-    //   throw new Error('Failed to fetch summoner live data');
-    // }
-    // const cacheKey = `${modifiedRegion}-${summonerName}`;
-
     const soloQueueInfo = getQueueInfo('RANKED_SOLO_5x5', leagueV4);
     const flexQueueInfo = getQueueInfo('RANKED_FLEX_SR', leagueV4);
-
 
 
     // If cache is empty or doesn't have match history, populate it with fetched match data
     if (!storedData) {
       const newMatchData = await fetchMatchData(newMatches, apiKey, summonerData.puuid, platform);
       const championStats: ChampionStats = calculateChampionStats(newMatchData);
-      updatePlayerStreaksAndChips(newMatchData,playerChips)
+      updatePlayerStreaksAndChips(newMatchData,playerChips,modifiedRegionnew, summonerName)
 
       await updateSummonerData(cacheKey, {
         summonerData,
@@ -261,6 +236,7 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
         flexQueueInfo,
         championStats,
         matchHistory: newMatchData,
+        matchesTimeline: newMatches,
       });
       return res.status(200).json({
         summonerData,
@@ -274,15 +250,32 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
 
     // Fetch only new matches if we already have stored data
     const storedMatches = storedData.matchHistory || [];
-    const storedMatchIds = storedMatches.map(match => match.matchId);  // Extract just the match IDs
+    const storedMatchIds = storedData.matchesTimeline || [];
+    // const storedMatchIds = storedMatches.map(match => match.matchId);  // Extract just the match IDs
     const newMatchesToFetch = newMatches.filter(matchId => !storedMatchIds.includes(matchId));
+    console.log("stored", storedMatchIds);
+    console.log("new", newMatchesToFetch);
+    
     const storedMatchesWithTime = storedMatches.map(match => calculateTimeSinceMatch(match));
+
+    if (newMatchesToFetch.length === 0) {
+      updatePlayerStreaksAndChips(storedMatchesWithTime,playerChips,modifiedRegionnew, summonerName)
+      // No new matches to fetch, return the existing data from the database or cache
+      return res.status(200).json({ 
+        summonerData,
+        playerChips: storedData.playerChips,
+        soloQueueInfo: storedData.soloQueueInfo,
+        flexQueueInfo: storedData.flexQueueInfo,
+        championStats: storedData.championStats,
+        matchHistory: storedMatchesWithTime, // Use the existing data
+      });
+    }
 
       const newMatchData = await fetchMatchData(newMatchesToFetch, apiKey, summonerData.puuid, platform);
       const updatedMatchHistory = [...newMatchData, ...storedMatchesWithTime];
       console.log('New Matches to Fetch:', newMatchesToFetch);  // Add for debugging
       const championStats: ChampionStats = calculateChampionStats(updatedMatchHistory);
-      updatePlayerStreaksAndChips(updatedMatchHistory,playerChips)
+      updatePlayerStreaksAndChips(updatedMatchHistory,playerChips,modifiedRegionnew, summonerName)
     // Update database and cache
     await updateSummonerData(cacheKey, {
       summonerData,
@@ -291,6 +284,7 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
       flexQueueInfo,
       championStats,
       matchHistory: updatedMatchHistory,
+      matchesTimeline: [...storedMatchIds, ...newMatchesToFetch],
     });
     
     cache.put(cacheKey, {
@@ -300,6 +294,7 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
       flexQueueInfo,
       championStats,
       matchHistory: updatedMatchHistory,
+      matchesTimeline: [...storedMatchIds, ...newMatchesToFetch],
     }, CACHE_DURATION);
     
     res.status(200).json({ 
@@ -453,8 +448,19 @@ async function fetchMatchData(matches: string[], apiKey: string, puuid: string, 
 
       const formattedGameDuration = formatGameDuration(gameDuration);
 
+      let winStatus = win;
+      if (gameDuration < 240) {
+        winStatus = "REMAKE";
+      }
+
       const csPerMinute = (totalMinionsKilled / (gameDuration / 60)).toFixed(1);
-      const kda = ((kills + assists) / deaths).toFixed(2);
+      let kda;
+      if (winStatus !== "REMAKE") {
+        kda = ((kills + assists) / deaths).toFixed(2);
+      } else {
+        kda = "0.00";
+      }
+
 
       const participantSummonerNames = gameData.info.participants.map(
         (p: { summonerName: any }) => p.summonerName
@@ -470,7 +476,7 @@ async function fetchMatchData(matches: string[], apiKey: string, puuid: string, 
         queueName,
         summoners: participantSummonerNames,
         championIds: participantChampionIds,
-        win,
+        win: winStatus,
         kills,
         deaths,
         assists,
@@ -639,15 +645,24 @@ function calculateChampionStats(matchData: any[]): { [key: string]: ChampionStat
     }
 
     const stat = championStats[championId].statsPerQueue[queueName];
-    stat.gamesPlayed++;
-    stat.kills += kills;  // Aggregate kills
-    stat.deaths += deaths; // Aggregate deaths
-    stat.assists += assists; // Aggregate assists
-    const newKDA = parseFloat(kda);
-    stat.totalKDA += newKDA;
-
-    if (win) {
-      stat.wins++;
+    if (win !== "REMAKE") {
+      stat.gamesPlayed++;
+      stat.kills += kills || 0;  // Aggregate kills
+      stat.deaths += deaths || 0; // Aggregate deaths
+      stat.assists += assists || 0; // Aggregate assists
+      const kdaString = String(kda);
+      const newKDA = parseFloat(kdaString);
+      
+      // Check if newKDA is a valid numeric value or not NaN
+      if (!isNaN(newKDA) && typeof newKDA === 'number') {
+        stat.totalKDA += newKDA;
+      } else {
+        // Set KDA to 0 if it's null or NaN
+        stat.totalKDA += 0;
+      }
+      if (win) {
+        stat.wins++;
+      }
     }
   });
 
@@ -741,7 +756,7 @@ function getQueueInfo(queueType: QueueType, leagueData: any[]): QueueInfo | null
   };
 }
 
-function updatePlayerStreaksAndChips(filteredMatchData: any[], playerChips: any[]) {
+function updatePlayerStreaksAndChips(filteredMatchData: any[], playerChips: any[], modifiedRegionnew, summonerName) {
   const sortedMatchData2 = filteredMatchData.sort((a, b) => b?.gameEndTimestamp - a?.gameEndTimestamp);
   const matchOutcomes = sortedMatchData2.map(match => match?.win ? "Victory" : "Defeat");
   const reversedMatchOutcomes = matchOutcomes.slice().reverse();
@@ -750,6 +765,50 @@ function updatePlayerStreaksAndChips(filteredMatchData: any[], playerChips: any[
 
   const currentLossStreak = calculateStreak("Defeat");
   const currentWinStreak = calculateStreak("Victory");
+
+  const scrapeData = async () => {
+    // Launch a new browser instance
+    const browser = await puppeteer.launch({
+      headless: 'new'
+    });
+    const page = await browser.newPage();
+  
+    // Navigate to the page using string interpolation
+    await page.goto(`https://u.gg/lol/profile/${modifiedRegionnew}/${summonerName}/overview`); // replaced single quotes with backticks
+  
+    // Wait for the element with the selector '#page-content' to appear
+    await page.waitForSelector('#page-content', { timeout: 10000 });
+  
+    // Extract the specific data from the JavaScript variable
+    const historicRanks = await page.evaluate((modifiedRegionnew, summonerName) => {
+      const apolloState = (window as any).__APOLLO_STATE__;
+      return apolloState.ROOT_QUERY[`getHistoricRanks({"queueType":420,"regionId":"${modifiedRegionnew}","summonerName":"${summonerName}"})`];
+    }, modifiedRegionnew, summonerName);
+    
+    historicRanksObj = historicRanks
+  .filter(item => item.queueId === 420)
+  .map(({ __typename, regionId, ...rest }) => rest);
+  
+    console.log(historicRanksObj);
+
+    // Close the browser
+    await browser.close();
+  };
+  
+  scrapeData().catch(console.error);
+
+  historicRanksObj.forEach((item) => {
+    const rankColor = rankColors[item.tier.toUpperCase()];
+
+    playerChips.push({
+      name: `S${item.season} ${item.tier}`,
+      desc: `${item.tier} ${item.rank} ${item.lp}LP`,
+      icon: null,
+      color: rankColor,
+      season: item.season,
+      tier: capitalize(item.tier),
+    });
+  });
 
   if (currentLossStreak >= 3) {
     playerChips.push({
@@ -775,39 +834,12 @@ function updatePlayerStreaksAndChips(filteredMatchData: any[], playerChips: any[
     icon: 'WhatshotIcon',
     color: '#ff4e50'
   });
-  // playerChips.push({
-  //   name: "S12 Diamond",
-  //   desc: `Cold Streak`,
-  //   icon: null,
-  //   color: '#3174fa',
-  // });
-  // playerChips.push({
-  //   name: "S11 Diamond",
-  //   desc: `Cold Streak`,
-  //   icon: null,
-  //   color: '#3174fa',
-  // });
-  // playerChips.push({
-  //   name: "S13-1 Master",
-  //   desc: `Viola creator`,
-  //   icon: null,
-  //   color: '#ff4e50'
-  // });
-  historicRanksObj.forEach((item) => {
-    const rankColor = rankColors[item.tier.toUpperCase()];
 
-    playerChips.push({
-      name: `S${item.season} ${item.tier}`,
-      desc: `Viola creator`,
-      icon: null,
-      color: rankColor,
-      season: item.season,
-      tier: item.tier,
-    });
-  });
-
-  // Add other player chips here...
 }
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
 
 async function fetchData(url: string): Promise<any> {
   try {

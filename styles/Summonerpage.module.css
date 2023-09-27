@@ -205,10 +205,11 @@ margin-top: 35px;
 }
 .summonerChips {
   /* border:1px solid red; */
-  border-radius: 5px;
+  border-radius: 2px;
   font-size: 0.5em;
-  font-family: 'Space Grotesk' !important;
-  font-weight: 500;
+  font-family: Inter; 
+  font-weight: 600;
+
 margin-right:5px;
   height:20px;
 }

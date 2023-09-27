@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Grid, CircularProgress } from '@mui/material';
+import ChampionStyles from '../../styles/Champions.module.css';
 
 interface Champion {
   id: string;
   name: string;
+  image: any;
 }
 
 const App: React.FC = () => {
@@ -30,16 +32,22 @@ const App: React.FC = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <Grid container spacing={3}>
+      <Grid container>
         {champions.map((champion) => (
           <Grid item key={champion.id}>
+            <div className={ChampionStyles.championContainer}>
             <img
+            className={ChampionStyles.championImg}
             //   src={`http://ddragon.leagueoflegends.com/cdn/13.18.1/img/champion/${champion.id}.png`}
-            src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/characters/${champion.name.toLowerCase()}/skins/base/${champion.name.toLowerCase()}loadscreen.jpg`}
+            // src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/characters/${champion.name.toLowerCase()}/skins/base/${champion.name.toLowerCase()}loadscreen.jpg`}
+                src={`https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${champion.id}_0.jpg`}
               alt={champion.name}
               style={{ width: '50%', height: 'auto' }}
             />
-            <p>{champion.name}</p>
+</div>
+
+
+
           </Grid>
         ))}
       </Grid>

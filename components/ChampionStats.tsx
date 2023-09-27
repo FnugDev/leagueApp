@@ -116,6 +116,7 @@ const ChampionStats: React.FC<ChampionStatsProps> = ({ championStats }) => {
   const sortedStats = sortChampionStats(championStats);
 
   const displayedStats = showAllMatches ? sortedStats : sortedStats.slice(0, 6);
+  
 
   const handleShowAllMatchesClick = () => {
     setShowAllMatches(true);
@@ -193,9 +194,15 @@ const ChampionStats: React.FC<ChampionStatsProps> = ({ championStats }) => {
         <Typography className={styles.ChampionStatsSortingText}>
           Filter
         </Typography>
-        <Button className={styles.ChampionStatsSortingBtn} variant="outlined" disabled={sortKey === 'gamesPlayed'} color="info" onClick={() => setSortKey('gamesPlayed')}>Played</Button>
-        <Button className={styles.ChampionStatsSortingBtn} variant="outlined" disabled={sortKey === 'kda'} color="info" onClick={() => setSortKey('kda')}>KDA</Button>
-        <Button className={styles.ChampionStatsSortingBtn} variant="outlined" disabled={sortKey === 'winrate'} color="info" onClick={() => setSortKey('winrate')}>W/R</Button>
+        <Button className={styles.ChampionStatsSortingBtn} variant="outlined" disabled={sortKey === 'gamesPlayed'} color="info" onClick={() => {
+  setSortKey('gamesPlayed');
+}}>Played</Button>
+        <Button className={styles.ChampionStatsSortingBtn} variant="outlined" disabled={sortKey === 'kda'} color="info" onClick={() => {
+  setSortKey('kda');
+}}>KDA</Button>
+        <Button className={styles.ChampionStatsSortingBtn} variant="outlined" disabled={sortKey === 'winrate'} color="info" onClick={() => {
+  setSortKey('winrate');
+}}>W/R</Button>
       </div>
       
       <div className={styles.ChampionStatsContainer}>

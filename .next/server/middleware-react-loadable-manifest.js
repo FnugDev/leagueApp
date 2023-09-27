@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{\"../node_modules/million/dist/react-server.mjs -> ./react.mjs\":{\"id\":\"../node_modules/million/dist/react-server.mjs -> ./react.mjs\",\"files\":[\"static/chunks/node_modules_million_dist_react_mjs.js\"]}}"
+self.__REACT_LOADABLE_MANIFEST="{\"../node_modules/million/dist/packages/react-server.mjs -> ./react.mjs\":{\"id\":\"../node_modules/million/dist/packages/react-server.mjs -> ./react.mjs\",\"files\":[\"static/chunks/node_modules_million_dist_packages_react_mjs.js\"]}}"

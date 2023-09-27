@@ -1,0 +1,20 @@
+
+.championImg {
+    position: relative;
+    top: 0px;
+    left: 10px;
+
+    clip-path: polygon(
+      10px 10px, 
+      calc(100% - 30px) 10px, 
+      calc(100% - 10px) 30px, 
+      calc(100% - 10px) calc(100% - 80px), 
+      10px calc(100% - 80px),
+      10px 10px
+    );
+    border: 1px solid red;
+  }
+  
+  
+  
+  
